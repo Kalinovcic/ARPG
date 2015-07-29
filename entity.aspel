@@ -78,6 +78,52 @@ entityCollideWithTerrain :: func void(terrain: Terrain^, entity: Entity^,
     if !partialEntityCollideWithTerrain(terrain, entity, &fake, moveY) then ^moveY = 0;
 }
 
+// OPTIMIZE: Quad tree, maybe?
+projectileCollideWithEntities :: func int32(world: World^, projectile: Projectile^,
+                                            result: Entity^[])
+{
+    resultCount: int32 = 0;
+    if result.n <= resultCount then
+        return resultCount;
+
+    x := projectile.x;
+    y := projectile.y;
+    r := projectile.radius;
+
+    i := 0;
+    while i < world.entityList.n
+    {
+        i = i + 1;
+        if !world.entityOccupied[i - 1] then continue;
+        entity := &world.entityList[i - 1];
+
+        ew := entity.w;
+        eh := entity.h;
+        ehw := entity.w / 2.0;
+        ehh := entity.h / 2.0;
+        ex := entity.x + ehw;
+        ey := entity.y + ehh;
+
+        dx := cast(float32) asl.abs(x - ex);
+        dy := cast(float32) asl.abs(y - ey);
+
+        if dx > (ehw + r) then continue;
+        if dy > (ehh + r) then continue;
+
+        if dx <= ehw {}
+        else if dy >= ehh {}
+        else if ((dx - ehw) * (dx - ehw) + (dy - ehh) * (dy - ehh)) <= r * r {}
+        else continue;
+
+        result[resultCount] = entity;
+        resultCount = resultCount + 1;
+        if result.n <= resultCount then
+            return resultCount;
+    }
+
+    return resultCount;
+}
+
 renderEntity :: func void(e: Entity^)
 {
     frameIndex: int32 = e.animation.tick / e.animation.frameTime;
@@ -145,6 +191,11 @@ initEye :: func void(eye: Entity^, posX: float32, posY: float32)
                                                       eye.animation.slowFrameTime *
                                                       eye.animation.slowFrames.n));
 
+    eye.health = 100;
+    eye.maxHealth = 100;
+    eye.mana = 0;
+    eye.maxMana = 0;
+
     eye.userdata = (cast(int32)(seed) << 16) | (cast(int32) tick);
     eye.tick = tickEye;
     eye.render = renderEntity;
@@ -169,18 +220,24 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
 
     if playerGunCooldown == 0
     {
-        if input.key[INPUT_KEY_ATTACK] && !prevInput.key[INPUT_KEY_ATTACK]
+        if input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]
         {
             random: asl.Random;
             asl.seedRandomTime(&random);
 
+            mouseAngle := asl.atan2(-input.mouseX, -input.mouseY);
+
             projectile := addProjectileToWorld(world);
-            projectile.x = player.x;
-            projectile.y = player.y;
-            projectile.dx = 0.03;
-            projectile.dy = 0.03;
+            projectile.x = player.x + player.w / 2.0 - 0.15;
+            projectile.y = player.y + player.h / 2.0 - 0.15;
             projectile.z = 0;
-            projectile.size = 0.7;
+
+            projectile.a = asl.to_degrees(mouseAngle);
+            projectile.speed = 0.05;
+            projectile.owner = player;
+            projectile.damage = 8;
+
+            projectile.radius = 0.15;
             projectile.lifetime = 400;
             projectile.animation = art.projectileAnimation;
             projectile.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
@@ -194,7 +251,7 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
     moveX: float32 = mx * movementSpeed;
     moveY: float32 = my * movementSpeed;
 
-    if !input.key[INPUT_KEY_ATTACK] then
+    if !input.key[INPUT_KEY_MACRO4] then
         entityCollideWithTerrain(&world.terrain, player, &moveX, &moveY);
     // TODO: collide with other entitites
 
@@ -232,4 +289,7 @@ tickEye :: func void(worldV: void^, eye: Entity^)
 
     eye.x = eye.x + moveX;
     eye.y = eye.y + moveY;
+
+    if eye.health < 0.0 then
+        removeEntityFromWorld(world, eye);
 }

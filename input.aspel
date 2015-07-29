@@ -3,9 +3,13 @@ import "imports.aspel";
 InputState :: type struct
 {
     key: bool[]; // CLEANUP: [INPUT_KEY_TOTAL]
+    mouseX: float32; // CLEANUP: Union with array?
+    mouseY: float32;
     focus: bool;
 };
 
+rawMouseXPos: float32;
+rawMouseYPos: float32;
 input: InputState;
 prevInput: InputState;
 
@@ -14,7 +18,12 @@ INPUT_KEY_LEFT   :: 0;
 INPUT_KEY_RIGHT  :: 1;
 INPUT_KEY_UP     :: 2;
 INPUT_KEY_DOWN   :: 3;
-INPUT_KEY_ATTACK :: 4;
+INPUT_KEY_LMB    :: 4;
+INPUT_KEY_RMB    :: 5;
+INPUT_KEY_MACRO1 :: 6;
+INPUT_KEY_MACRO2 :: 7;
+INPUT_KEY_MACRO3 :: 8;
+INPUT_KEY_MACRO4 :: 9;
 
 INPUT_KEY_TOTAL  :: 16;
 
@@ -29,17 +38,47 @@ initInputState :: func void()
     asl.memset(input.key, 0, cast(uint64) INPUT_KEY_TOTAL * sizeof(bool));
 }
 
-handleInput :: func void(key: int32, state: bool)
+handleKeyInput :: func void(key: int32, state: bool)
 {
-    if (key == glfw3.GLFW_KEY_LEFT)  then input.key[INPUT_KEY_LEFT]   = state;
-    if (key == glfw3.GLFW_KEY_RIGHT) then input.key[INPUT_KEY_RIGHT]  = state;
-    if (key == glfw3.GLFW_KEY_UP)    then input.key[INPUT_KEY_UP]     = state;
-    if (key == glfw3.GLFW_KEY_DOWN)  then input.key[INPUT_KEY_DOWN]   = state;
-    if (key == glfw3.GLFW_KEY_SPACE) then input.key[INPUT_KEY_ATTACK] = state;
+    if (key == glfw3.GLFW_KEY_LEFT ||
+        key == glfw3.GLFW_KEY_A)     then input.key[INPUT_KEY_LEFT]   = state;
+    if (key == glfw3.GLFW_KEY_RIGHT ||
+        key == glfw3.GLFW_KEY_D)     then input.key[INPUT_KEY_RIGHT]  = state;
+    if (key == glfw3.GLFW_KEY_DOWN ||
+        key == glfw3.GLFW_KEY_S)     then input.key[INPUT_KEY_DOWN]   = state;
+    if (key == glfw3.GLFW_KEY_UP ||
+        key == glfw3.GLFW_KEY_W)     then input.key[INPUT_KEY_UP]     = state;
+    if (key == glfw3.GLFW_KEY_1)     then input.key[INPUT_KEY_MACRO1] = state;
+    if (key == glfw3.GLFW_KEY_2)     then input.key[INPUT_KEY_MACRO2] = state;
+    if (key == glfw3.GLFW_KEY_3)     then input.key[INPUT_KEY_MACRO3] = state;
+    if (key == glfw3.GLFW_KEY_4)     then input.key[INPUT_KEY_MACRO4] = state;
+}
+
+handleMouseInput :: func void(button: int32, state: bool)
+{
+    if (button == glfw3.GLFW_MOUSE_BUTTON_LEFT)  then input.key[INPUT_KEY_LMB] = state;
+    if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_RMB] = state;
+}
+
+handleMotionInput :: func void(xpos: float32, ypos: float32)
+{
+    rawMouseXPos = xpos;
+    rawMouseYPos = ypos;
+}
+
+processInput :: func void(windowW: int32, windowH: int32,
+                          orthoW: float32, orthoH: float32)
+{
+    mouseXP := rawMouseXPos / cast(float32) windowW;
+    mouseYP := rawMouseYPos / cast(float32) windowH;
+    input.mouseX = (mouseXP - 0.5) * orthoW;
+    input.mouseY = (mouseYP - 0.5) * orthoH;
 }
 
 updateInput :: func void()
 {
     asl.memcopy(prevInput.key, input.key, cast(uint64) INPUT_KEY_TOTAL * sizeof(bool));
+    prevInput.mouseX = input.mouseX;
+    prevInput.mouseY = input.mouseY;
     prevInput.focus = input.focus;
 }

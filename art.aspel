@@ -86,7 +86,7 @@ loadArt :: func void()
     art.projectileFrames[2] = getSprite(art.ss1, 27, 4, 2, 2, 8);
     art.projectileFrames[3] = getSprite(art.ss1, 27, 2, 2, 2, 8);
     art.projectileAnimation.frames = art.projectileFrames;
-    art.projectileAnimation.frameTime = 15;
+    art.projectileAnimation.frameTime = 2;
     art.projectileAnimation.tick = 0;
     art.projectileAnimation.hasSlowFrames = false;
 

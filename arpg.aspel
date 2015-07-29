@@ -14,8 +14,22 @@ keyCallback :: func void(window: glfw3.GLFWwindow^, key: int32, scancode: int32,
     if action != glfw3.GLFW_REPEAT
     {
         press := action == glfw3.GLFW_PRESS;
-        handleInput(key, press);
+        handleKeyInput(key, press);
     }
+}
+
+// TODO: Focus listener. Require mouse click to get back in focus.
+// TODO: Mouse button listener.
+
+mouseButtonCallback :: func void(window: glfw3.GLFWwindow^, button: int32,
+                                 action: int32, mods: int32)
+{
+    handleMouseInput(button, action == glfw3.GLFW_PRESS);
+}
+
+mouseMotionCallback :: func void(window: glfw3.GLFWwindow^, xpos: float64, ypos: float64)
+{
+    handleMotionInput(cast(float32) xpos, cast(float32) ypos);
 }
 
 openWindow :: func void()
@@ -39,6 +53,8 @@ openWindow :: func void()
     glfw3.glfwMakeContextCurrent(window);
     glfw3.glfwSwapInterval(1);
     glfw3.glfwSetKeyCallback(window, keyCallback);
+    glfw3.glfwSetCursorPosCallback(window, mouseMotionCallback);
+    glfw3.glfwSetMouseButtonCallback(window, mouseButtonCallback);
 }
 
 closeWindow :: func void()
@@ -72,9 +88,20 @@ renderLoop :: func void()
         currentTime := asl.timenanos();
         deltaTime := currentTime - lastTime;
 
+        width: int32;
+        height: int32;
+        glfw3.glfwGetFramebufferSize(window, &width, &height);
+
+        ratio: float64 = width / cast(float64) height;
+        orthoW := ratio * 7.0;
+        orthoH := 7.0;
+        halfOW := orthoW / 2.0;
+        halfOH := orthoH / 2.0;
+
         ticked: bool = false;
         while deltaTime >= frameTime
         {
+            processInput(width, height, orthoW, orthoH);
             gameTick();
             updateInput();
 
@@ -86,16 +113,6 @@ renderLoop :: func void()
 
         if ticked
         {
-            width: int32;
-            height: int32;
-            glfw3.glfwGetFramebufferSize(window, &width, &height);
-
-            ratio: float64 = width / cast(float64) height;
-            orthoW := ratio * 7.0;
-            orthoH := 7.0;
-            halfOW := orthoW / 2.0;
-            halfOH := orthoH / 2.0;
-
             gl.glMatrixMode(gl.GL_PROJECTION);
             gl.glLoadIdentity();
             gl.glOrtho(-halfOW, halfOW, -halfOH, halfOH, 1.0, -1.0);

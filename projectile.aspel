@@ -4,18 +4,44 @@ Projectile :: type struct
 {
     x: float32;
     y: float32;
-    dx: float32;
-    dy: float32;
     z: float32;
-    size: float32;
+
+    a: float32;
+    speed: float32;
+    owner: Entity^;
+    damage: float32;
+
+    radius: float32;
     lifetime: int32;
     animation: Animation;
 };
 
 tickProjectile :: func void(world: World^, p: Projectile^)
 {
-    p.x = p.x + p.dx;
-    p.y = p.y + p.dy;
+    s: float32 = cast(float32) asl.sin(asl.to_radians(p.a));
+    c: float32 = cast(float32) asl.cos(asl.to_radians(p.a));
+
+    dx := -s * p.speed;
+    dy := c * p.speed;
+
+    p.x = p.x + dx;
+    p.y = p.y + dy;
+
+    collisions: Entity^[] : [2];
+    collisionC := projectileCollideWithEntities(world, p, collisions);
+    if collisionC >= 1
+    {
+        index := 0;
+        if collisions[index] == p.owner then
+            index = index + 1;
+
+        if collisionC > index
+        {
+            // TODO: Some unified "taking damage" system.
+            collisions[index].health = collisions[index].health - p.damage;
+            removeProjectileFromWorld(world, p);
+        }
+    }
 
     p.lifetime = p.lifetime - 1;
     if p.lifetime < 0
@@ -28,8 +54,9 @@ renderProjectile :: func void(p: Projectile^)
 {
     frameIndex: int32 = p.animation.tick / p.animation.frameTime;
 
-    angle := asl.to_degrees(asl.atan2(-p.dy, p.dx));
-    renderRotatedSprite(p.x, p.y, p.size, p.size, angle, p.animation.frames[frameIndex]);
+    renderRotatedSprite(p.x - p.radius, p.y - p.radius,
+                        p.radius * 2.0, p.radius * 2.0, p.a,
+                        p.animation.frames[frameIndex]);
 
     p.animation.tick = p.animation.tick + 1;
     if p.animation.tick >= (p.animation.frameTime * p.animation.frames.n) then
@@ -44,7 +71,9 @@ renderProjectile :: func void(p: Projectile^)
                                p.animation.slowFrameFreq) / p.animation.slowFrameTime);
         }
 
-        renderSprite(p.x, p.y, p.size, p.size, p.animation.slowFrames[slowFrameIndex]);
+        renderSprite(p.x - p.radius, p.y - p.radius,
+                     p.radius * 2.0, p.radius * 2.0,
+                     p.animation.slowFrames[slowFrameIndex]);
 
         p.animation.slowTick = p.animation.slowTick + 1;
         if p.animation.slowTick >= p.animation.slowFrameFreq +
