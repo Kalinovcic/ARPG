@@ -14,22 +14,20 @@ input: InputState;
 prevInput: InputState;
 
 // CLEANUP: enum
-INPUT_KEY_LEFT   :: 0;
-INPUT_KEY_RIGHT  :: 1;
-INPUT_KEY_UP     :: 2;
-INPUT_KEY_DOWN   :: 3;
-INPUT_KEY_LMB    :: 4;
-INPUT_KEY_RMB    :: 5;
-INPUT_KEY_MACRO1 :: 6;
-INPUT_KEY_MACRO2 :: 7;
-INPUT_KEY_MACRO3 :: 8;
-INPUT_KEY_MACRO4 :: 9;
-INPUT_KEY_ITEMS  :: 10;
-INPUT_KEY_STATS  :: 11;
-INPUT_KEY_F1     :: 12;
-INPUT_KEY_F2     :: 13;
-INPUT_KEY_F3     :: 14;
-INPUT_KEY_F4     :: 15;
+INPUT_KEY_LMB       :: 1;
+INPUT_KEY_RMB       :: 2;
+INPUT_KEY_SHIFT_LMB :: 3;
+INPUT_KEY_SHIFT_RMB :: 4;
+INPUT_KEY_MACRO1    :: 5;
+INPUT_KEY_MACRO2    :: 6;
+INPUT_KEY_MACRO3    :: 7;
+INPUT_KEY_MACRO4    :: 8;
+INPUT_KEY_ITEMS     :: 9;
+INPUT_KEY_STATS     :: 10;
+INPUT_KEY_F1        :: 11;
+INPUT_KEY_F2        :: 12;
+INPUT_KEY_F3        :: 13;
+INPUT_KEY_F4        :: 14;
 
 INPUT_KEY_TOTAL  :: 16;
 
@@ -53,32 +51,38 @@ clearInputState :: func void()
     asl.memset(input.key, 0, cast(uint64) INPUT_KEY_TOTAL * sizeof(bool));
 }
 
-handleKeyInput :: func void(key: int32, state: bool)
+handleKeyInput :: func void(key: int32, state: bool, shift: bool)
 {
-    if key == glfw3.GLFW_KEY_LEFT ||
-       key == glfw3.GLFW_KEY_A     then input.key[INPUT_KEY_LEFT]   = state;
-    if key == glfw3.GLFW_KEY_RIGHT ||
-       key == glfw3.GLFW_KEY_D     then input.key[INPUT_KEY_RIGHT]  = state;
-    if key == glfw3.GLFW_KEY_DOWN ||
-       key == glfw3.GLFW_KEY_S     then input.key[INPUT_KEY_DOWN]   = state;
-    if key == glfw3.GLFW_KEY_UP ||
-       key == glfw3.GLFW_KEY_W     then input.key[INPUT_KEY_UP]     = state;
-    if key == glfw3.GLFW_KEY_1     then input.key[INPUT_KEY_MACRO1] = state;
-    if key == glfw3.GLFW_KEY_2     then input.key[INPUT_KEY_MACRO2] = state;
-    if key == glfw3.GLFW_KEY_3     then input.key[INPUT_KEY_MACRO3] = state;
-    if key == glfw3.GLFW_KEY_4     then input.key[INPUT_KEY_MACRO4] = state;
-    if key == glfw3.GLFW_KEY_I     then input.key[INPUT_KEY_ITEMS]  = state;
-    if key == glfw3.GLFW_KEY_C     then input.key[INPUT_KEY_STATS]  = state;
-    if key == glfw3.GLFW_KEY_F1    then input.key[INPUT_KEY_F1]     = state;
-    if key == glfw3.GLFW_KEY_F2    then input.key[INPUT_KEY_F2]     = state;
-    if key == glfw3.GLFW_KEY_F3    then input.key[INPUT_KEY_F3]     = state;
-    if key == glfw3.GLFW_KEY_F4    then input.key[INPUT_KEY_F4]     = state;
+    if shift
+    {
+    }
+    else
+    {
+        if key == glfw3.GLFW_KEY_1     then input.key[INPUT_KEY_MACRO1] = state;
+        if key == glfw3.GLFW_KEY_2     then input.key[INPUT_KEY_MACRO2] = state;
+        if key == glfw3.GLFW_KEY_3     then input.key[INPUT_KEY_MACRO3] = state;
+        if key == glfw3.GLFW_KEY_4     then input.key[INPUT_KEY_MACRO4] = state;
+        if key == glfw3.GLFW_KEY_I     then input.key[INPUT_KEY_ITEMS]  = state;
+        if key == glfw3.GLFW_KEY_C     then input.key[INPUT_KEY_STATS]  = state;
+        if key == glfw3.GLFW_KEY_F1    then input.key[INPUT_KEY_F1]     = state;
+        if key == glfw3.GLFW_KEY_F2    then input.key[INPUT_KEY_F2]     = state;
+        if key == glfw3.GLFW_KEY_F3    then input.key[INPUT_KEY_F3]     = state;
+        if key == glfw3.GLFW_KEY_F4    then input.key[INPUT_KEY_F4]     = state;
+    }
 }
 
-handleMouseInput :: func void(button: int32, state: bool)
+handleMouseInput :: func void(button: int32, state: bool, shift: bool)
 {
-    if (button == glfw3.GLFW_MOUSE_BUTTON_LEFT)  then input.key[INPUT_KEY_LMB] = state;
-    if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_RMB] = state;
+    if shift
+    {
+        if (button == glfw3.GLFW_MOUSE_BUTTON_LEFT)  then input.key[INPUT_KEY_SHIFT_LMB] = state;
+        if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_SHIFT_RMB] = state;
+    }
+    else
+    {
+        if (button == glfw3.GLFW_MOUSE_BUTTON_LEFT)  then input.key[INPUT_KEY_LMB] = state;
+        if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_RMB] = state;
+    }
 }
 
 handleMotionInput :: func void(xpos: float32, ypos: float32)
@@ -92,8 +96,8 @@ processInput :: func void(windowW: int32, windowH: int32,
 {
     mouseXP := rawMouseXPos / cast(float32) windowW;
     mouseYP := rawMouseYPos / cast(float32) windowH;
-    input.mouseX = (mouseXP - 0.5) * orthoW;
-    input.mouseY = (mouseYP - 0.5) * orthoH;
+    input.mouseX =  (mouseXP - 0.5) * orthoW;
+    input.mouseY = -(mouseYP - 0.5) * orthoH;
 }
 
 updateInput :: func void()

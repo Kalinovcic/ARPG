@@ -88,7 +88,6 @@ initWorld :: func void(world: World^)
 
     world.playerAbilities = STATIC_WORLD_PLAYER_ABILITIES;
     asl.memset(world.playerAbilities, 0, sizeof(Ability^) * world.playerAbilities.n);
-    world.playerAbilities[0] = &ability.fireball;
 
     initTerrain(&world.terrain, 128, 128);
 }

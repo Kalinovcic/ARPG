@@ -15,7 +15,8 @@ keyCallback :: func void(window: glfw3.GLFWwindow^, key: int32, scancode: int32,
     if action != glfw3.GLFW_REPEAT
     {
         press := action == glfw3.GLFW_PRESS;
-        handleKeyInput(key, press);
+        shift := (mods & glfw3.GLFW_MOD_SHIFT) != 0;
+        handleKeyInput(key, press, shift);
     }
 }
 
@@ -25,7 +26,9 @@ keyCallback :: func void(window: glfw3.GLFWwindow^, key: int32, scancode: int32,
 mouseButtonCallback :: func void(window: glfw3.GLFWwindow^, button: int32,
                                  action: int32, mods: int32)
 {
-    handleMouseInput(button, action == glfw3.GLFW_PRESS);
+    press := action == glfw3.GLFW_PRESS;
+    shift := (mods & glfw3.GLFW_MOD_SHIFT) != 0;
+    handleMouseInput(button, press, shift);
 }
 
 mouseMotionCallback :: func void(window: glfw3.GLFWwindow^, xpos: float64, ypos: float64)

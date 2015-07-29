@@ -46,7 +46,7 @@ fireballActivate :: func void(worldV: void^, eV: void^)
     spendMana(e, FIREBALL_MANA);
 
     // TODO: make this work for enemies, they need to specify what they're targeting.
-    mouseAngle := asl.atan2(-input.mouseX, -input.mouseY);
+    mouseAngle := asl.atan2(-input.mouseX, input.mouseY);
 
     fireball := addProjectileToWorld(world);
     fireball.x = e.x + e.w / 2.0 - FIREBALL_RADIUS;
@@ -63,9 +63,57 @@ fireballActivate :: func void(worldV: void^, eV: void^)
     fireball.animation = art.fireballAnimation;
 }
 
+/* EYEBALL */
+
+EYEBALL_MANA: float32 : 30.0;
+EYEBALL_DAMAGE: float32 : 50.0;
+EYEBALL_SPEED: float32 : 0.05;
+EYEBALL_RADIUS: float32 : 0.3;
+EYEBALL_LIFETIME: int32 : 400;
+
+namespace ability
+{
+    eyeball: Ability;
+}
+
+eyeballRequirements :: func bool(eV: void^)
+{
+    e := cast(Entity^) eV;
+    return manaRequirement(e, EYEBALL_MANA);
+}
+
+eyeballActivate :: func void(worldV: void^, eV: void^)
+{
+    world := cast(World^) worldV;
+    e := cast(Entity^) eV;
+
+    spendMana(e, EYEBALL_MANA);
+
+    // TODO: make this work for enemies, they need to specify what they're targeting.
+    mouseAngle := asl.atan2(-input.mouseX, input.mouseY);
+
+    eyeball := addProjectileToWorld(world);
+    eyeball.x = e.x + e.w / 2.0 - EYEBALL_RADIUS;
+    eyeball.y = e.y + e.h / 2.0 - EYEBALL_RADIUS;
+    eyeball.z = 0;
+
+    eyeball.a = asl.to_degrees(mouseAngle);
+    eyeball.speed = EYEBALL_SPEED;
+    eyeball.damage = EYEBALL_DAMAGE;
+    eyeball.owner = e;
+
+    eyeball.radius = EYEBALL_RADIUS;
+    eyeball.lifetime = EYEBALL_LIFETIME;
+    eyeball.animation = art.eyeballAnimation;
+}
+
 initAbilities :: func void()
 {
     ability.fireball.checkRequirements = fireballRequirements;
     ability.fireball.activate = fireballActivate;
     ability.fireball.icon = art.fireballAnimation;
+
+    ability.eyeball.checkRequirements = eyeballRequirements;
+    ability.eyeball.activate = eyeballActivate;
+    ability.eyeball.icon = art.eyeballAnimation;
 }

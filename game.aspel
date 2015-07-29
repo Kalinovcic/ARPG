@@ -11,6 +11,9 @@ gameInit :: func void()
 
     initWorld(&world);
     populateWorld(&world);
+
+    world.playerAbilities[0] = &ability.fireball;
+    world.playerAbilities[1] = &ability.eyeball;
 }
 
 gameTick :: func void()
