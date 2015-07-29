@@ -14,6 +14,17 @@ gameInit :: func void()
 
 gameTick :: func void()
 {
+    // Inventory toggle
+    if input.key[INPUT_KEY_ITEMS] && !prevInput.key[INPUT_KEY_ITEMS] then
+        world.inventoryUp = !world.inventoryUp;
+
+    // Statistics toggle
+    if input.key[INPUT_KEY_STATS] && !prevInput.key[INPUT_KEY_STATS] then
+        world.statisticsUp = !world.statisticsUp;
+
+    if input.key[INPUT_KEY_F4] && !prevInput.key[INPUT_KEY_F4] then
+        toggleFullscreen();
+
     tickWorld(&world);
 }
 
@@ -71,7 +82,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
 
     healthTextOff: float32 = asl.min(HEARTS_PER_ROW, player.maxHealth / HEALTH_PER_HEART);
     renderText("Life: TODO/TODO", halfOW - 0.7 - healthTextOff / 2.0 * 0.3,
-                                  halfOH - 0.2, 0.15, TEXT_ALIGN_CENTER);
+                                  halfOH - 0.2, 0.18, TEXT_ALIGN_CENTER);
 
     // CLEANUP: I need a better name for this.
     MANA_PER_MANAICON: float32 : 20.0;
@@ -106,7 +117,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
         manaI = manaIconI * MANA_PER_MANAICON;
     }
 
-    renderText("Mana", halfOW - 0.37, halfOH - 0.2, 0.15, TEXT_ALIGN_CENTER);
+    renderText("Mana", halfOW - 0.37, halfOH - 0.2, 0.18, TEXT_ALIGN_CENTER);
 
     actionBarI: int32 = 0;
     while actionBarI < 6
@@ -128,8 +139,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
         actionBarI = actionBarI + 1;
     }
 
-    // TODO: if inventory
-    if true
+    if world.inventoryUp
     {
         INVENTORY_WIDTH: int32 = 12;
         INVENTORY_HEIGHT: int32 = 4;
@@ -140,9 +150,9 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
             inventoryXI: int32 = 0;
             while inventoryXI < INVENTORY_WIDTH
             {
-                renderSpriteAdv(-halfOW + 0.4 + inventoryXI * 0.4,
-                                halfOH - 1.35 - inventoryYI * 0.4,
-                                0.39, 0.39, 0.0,
+                renderSpriteAdv(-halfOW + 0.4 + inventoryXI * 0.5,
+                                halfOH - 1.7 - inventoryYI * 0.5,
+                                0.49, 0.49, 0.0,
                                 0.0, 1.0, 0.0, 1.0,
                                 0.09, 0.66, 0.97, 0.9,
                                 art.inventorySprite);
@@ -153,6 +163,39 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
             }
 
             inventoryYI = inventoryYI + 1;
+        }
+
+        renderText("Inventory",
+                   -halfOW + 0.5,
+                   halfOH - 1.15,
+                   0.2, TEXT_ALIGN_LEFT);
+
+        EQUIPMENT_COUNT: int32 = 7;
+        EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_COUNT];
+        EQUIPMENT_TITLES[0] = "Helmet";
+        EQUIPMENT_TITLES[1] = "Shirt";
+        EQUIPMENT_TITLES[2] = "Pants";
+        EQUIPMENT_TITLES[3] = "Accessories";
+        EQUIPMENT_TITLES[4] = "";
+        EQUIPMENT_TITLES[5] = "";
+        EQUIPMENT_TITLES[6] = "Mount";
+
+        equipmentI: int32 = 0;
+        while equipmentI < EQUIPMENT_COUNT
+        {
+            renderSpriteAdv(halfOW - 0.8,
+                            -halfOH + 0.2 + (EQUIPMENT_COUNT - equipmentI - 1) * 0.5,
+                            0.49, 0.49, 0.0,
+                            0.0, 1.0, 0.0, 1.0,
+                            0.09, 0.66, 0.97, 0.9,
+                            art.inventorySprite);
+
+            renderText(EQUIPMENT_TITLES[equipmentI],
+                       halfOW - 0.9,
+                       -halfOH + 0.2 + (EQUIPMENT_COUNT - equipmentI - 0.65) * 0.5,
+                       0.2, TEXT_ALIGN_RIGHT);
+
+            equipmentI = equipmentI + 1;
         }
     }
 }

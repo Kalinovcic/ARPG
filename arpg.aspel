@@ -1,6 +1,7 @@
 import "imports.aspel";
 
 window: glfw3.GLFWwindow^;
+windowFullscreen: bool;
 
 errorCallback :: func void(error: int32, desc: int8^)
 {
@@ -42,7 +43,8 @@ openWindow :: func void()
         asl.exit(1);
     }
 
-    window = glfw3.glfwCreateWindow(640, 440, "ARPG\0", null, null);
+    windowFullscreen = false;
+    window = glfw3.glfwCreateWindow(960, 540, "ARPG\0", null, null);
     if window == 0
     {
         reportString("Failed to open GLFW window.\n");
@@ -50,11 +52,47 @@ openWindow :: func void()
         asl.exit(1);
     }
 
+    setupWindow();
+}
+
+toggleFullscreen :: func void()
+{
+    windowFullscreen = !windowFullscreen;
+
+    newWindow: glfw3.GLFWwindow^;
+    if windowFullscreen
+    {
+        primaryMonitor := glfw3.glfwGetPrimaryMonitor();
+        newWindow = glfw3.glfwCreateWindow(1920, 1080, "ARPG\0", primaryMonitor, window);
+    }
+    else
+    {
+        newWindow = glfw3.glfwCreateWindow(960, 540, "ARPG\0", null, window);
+    }
+
+    if newWindow == 0
+    {
+        reportString("Failed to open GLFW window.\n");
+        glfw3.glfwTerminate();
+        asl.exit(1);
+    }
+
+    glfw3.glfwDestroyWindow(window);
+    window = newWindow;
+
+    setupWindow();
+    clearInputState();
+}
+
+setupWindow :: func void()
+{
     glfw3.glfwMakeContextCurrent(window);
     glfw3.glfwSwapInterval(1);
     glfw3.glfwSetKeyCallback(window, keyCallback);
     glfw3.glfwSetCursorPosCallback(window, mouseMotionCallback);
     glfw3.glfwSetMouseButtonCallback(window, mouseButtonCallback);
+
+    initGL();
 }
 
 closeWindow :: func void()
@@ -74,8 +112,6 @@ initGL :: func void()
 
 renderLoop :: func void()
 {
-    initGL();
-
     gameInit();
 
     targetFPS :: 60;
@@ -93,8 +129,8 @@ renderLoop :: func void()
         glfw3.glfwGetFramebufferSize(window, &width, &height);
 
         ratio: float64 = width / cast(float64) height;
-        orthoW := ratio * 7.0;
-        orthoH := 7.0;
+        orthoW := ratio * 9.0;
+        orthoH := 9.0;
         halfOW := orthoW / 2.0;
         halfOH := orthoH / 2.0;
 
