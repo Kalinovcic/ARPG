@@ -1,0 +1,71 @@
+
+Ability :: type struct
+{
+    checkRequirements: delegate bool(eV: void^);
+    activate: delegate void(worldV: void^, eV: void^);
+
+    icon: Animation;
+};
+
+spendMana :: func void(e: Entity^, mana: float32)
+{
+    e.mana = e.mana - mana;
+    if e.mana < 0.0 then
+        e.mana = 0.0;
+}
+
+manaRequirement :: func bool(e: Entity^, mana: float32)
+{
+    return e.mana >= mana;
+}
+
+/* FIREBALL */
+
+FIREBALL_MANA: float32 : 2.0;
+FIREBALL_DAMAGE: float32 : 8.0;
+FIREBALL_SPEED: float32 : 0.05;
+FIREBALL_RADIUS: float32 : 0.15;
+FIREBALL_LIFETIME: int32 : 400;
+
+namespace ability
+{
+    fireball: Ability;
+}
+
+fireballRequirements :: func bool(eV: void^)
+{
+    e := cast(Entity^) eV;
+    return manaRequirement(e, FIREBALL_MANA);
+}
+
+fireballActivate :: func void(worldV: void^, eV: void^)
+{
+    world := cast(World^) worldV;
+    e := cast(Entity^) eV;
+
+    spendMana(e, FIREBALL_MANA);
+
+    // TODO: make this work for enemies, they need to specify what they're targeting.
+    mouseAngle := asl.atan2(-input.mouseX, -input.mouseY);
+
+    fireball := addProjectileToWorld(world);
+    fireball.x = e.x + e.w / 2.0 - FIREBALL_RADIUS;
+    fireball.y = e.y + e.h / 2.0 - FIREBALL_RADIUS;
+    fireball.z = 0;
+
+    fireball.a = asl.to_degrees(mouseAngle);
+    fireball.speed = FIREBALL_SPEED;
+    fireball.damage = FIREBALL_DAMAGE;
+    fireball.owner = e;
+
+    fireball.radius = FIREBALL_RADIUS;
+    fireball.lifetime = FIREBALL_LIFETIME;
+    fireball.animation = art.fireballAnimation;
+}
+
+initAbilities :: func void()
+{
+    ability.fireball.checkRequirements = fireballRequirements;
+    ability.fireball.activate = fireballActivate;
+    ability.fireball.icon = art.fireballAnimation;
+}

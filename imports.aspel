@@ -31,3 +31,4 @@ import "terraingen.aspel";
 import "font.aspel";
 import "world.aspel";
 import "projectile.aspel";
+import "ability.aspel";

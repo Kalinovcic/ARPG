@@ -67,16 +67,23 @@ getEdgeSpriteYOffset :: func int32(tileType: TileType)
     return 5;
 }
 
-renderTerrain :: func void(terrain: Terrain^)
+renderTerrain :: func void(terrain: Terrain^,
+                           camLeft: float32, camRight: float32,
+                           camBottom: float32, camTop: float32)
 {
     w := terrain.w;
     h := terrain.h;
 
-    y := 0;
-    while y < h
+    ux := cast(int64) asl.max(0.0, asl.floor(camLeft));
+    uy := cast(int64) asl.max(0.0, asl.floor(camBottom));
+    uw := cast(int64) asl.min(w, asl.ceil(camRight + 1.0));
+    uh := cast(int64) asl.min(h, asl.ceil(camTop + 1.0));
+
+    y := uy;
+    while y < uh
     {
-        x := 0;
-        while x < w
+        x := ux;
+        while x < uw
         {
             t := terrain.tiles[x+y*w];
 

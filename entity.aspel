@@ -126,6 +126,7 @@ projectileCollideWithEntities :: func int32(world: World^, projectile: Projectil
 
 entityTakeDamage :: func void(world: World^, e: Entity^, dmg: float32)
 {
+    // TODO: Check resistance, effects...
     e.health = e.health - dmg;
     if e.health < 0.0
     {
@@ -209,31 +210,25 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
     if player.mana > player.maxMana then
         player.mana = player.maxMana;
 
-    if (input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]) && player.mana >= 2.5
+    abilityKeys: int64[] : [PLAYER_ABILITY_COUNT];
+    abilityKeys[0] = INPUT_KEY_LMB;
+    abilityKeys[1] = INPUT_KEY_RMB;
+    abilityKeys[2] = INPUT_KEY_MACRO1;
+    abilityKeys[3] = INPUT_KEY_MACRO2;
+    abilityKeys[4] = INPUT_KEY_MACRO3;
+    abilityKeys[5] = INPUT_KEY_MACRO4;
+    abilityI := 0;
+    while abilityI < PLAYER_ABILITY_COUNT
     {
-        player.mana = player.mana - 2.5;
-
-        random: asl.Random;
-        asl.seedRandomTime(&random);
-
-        mouseAngle := asl.atan2(-input.mouseX, -input.mouseY);
-
-        projectile := addProjectileToWorld(world);
-        projectile.x = player.x + player.w / 2.0 - 0.15;
-        projectile.y = player.y + player.h / 2.0 - 0.15;
-        projectile.z = 0;
-
-        projectile.a = asl.to_degrees(mouseAngle);
-        projectile.speed = 0.05;
-        projectile.owner = player;
-        projectile.damage = 8;
-
-        projectile.radius = 0.15;
-        projectile.lifetime = 400;
-        projectile.animation = art.projectileAnimation;
-        projectile.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
-                                         cast(uint32)(projectile.animation.frameTime *
-                                                      projectile.animation.frames.n));
+        key := abilityKeys[abilityI];
+        if input.key[key] && !prevInput.key[key]
+        {
+            ability := world.playerAbilities[abilityI];
+            if ability != null then
+                if ability.checkRequirements(player) then
+                    ability.activate(world, player);
+        }
+        abilityI = abilityI + 1;
     }
 
     moveX: float32 = cast(float32) mx * movementSpeed;

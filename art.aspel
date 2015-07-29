@@ -92,13 +92,13 @@ namespace art
     eyeSlowFrames: Sprite[] : [6];
     eyeAnimation: Animation;
 
-    projectileFrames: Sprite[] : [4];
-    projectileAnimation: Animation;
+    fireballFrames: Sprite[] : [4];
+    fireballAnimation: Animation;
 
     heartSprite: Sprite;
     manaSprite: Sprite;
     inventorySprite: Sprite;
-    actionBarSprites: Sprite[] : [6];
+    actionBarSprites: Sprite[] : [PLAYER_ABILITY_COUNT];
 }
 
 setAnimationFrames :: func void(a: Animation^, frames: Sprite[], frameTime: int32, tick: int32)
@@ -200,15 +200,16 @@ loadArt :: func void()
     setAnimationFrames(&art.eyeAnimation, art.eyeFrames, 10, 0);
     setAnimationSlowFrames(&art.eyeAnimation, art.eyeSlowFrames, 5, 250, 0);
 
-    art.projectileFrames[0] = getSprite(art.ss1, 27, 0, 2, 2, 8);
-    art.projectileFrames[1] = getSprite(art.ss1, 27, 2, 2, 2, 8);
-    art.projectileFrames[2] = getSprite(art.ss1, 27, 4, 2, 2, 8);
-    art.projectileFrames[3] = getSprite(art.ss1, 27, 2, 2, 2, 8);
-    setAnimationFrames(&art.projectileAnimation, art.projectileFrames, 2, 0);
+    art.fireballFrames[0] = getSprite(art.ss1, 27, 0, 2, 2, 8);
+    art.fireballFrames[1] = getSprite(art.ss1, 27, 2, 2, 2, 8);
+    art.fireballFrames[2] = getSprite(art.ss1, 27, 4, 2, 2, 8);
+    art.fireballFrames[3] = getSprite(art.ss1, 27, 2, 2, 2, 8);
+    setAnimationFrames(&art.fireballAnimation, art.fireballFrames, 2, 0);
 
     art.heartSprite = getSprite(art.ss1, 22, 4, 1, 1, 8);
     art.manaSprite = getSprite(art.ss1, 21, 4, 1, 1, 8);
     art.inventorySprite = getSprite(art.ss1, 24, 6, 2, 2, 8);
+    
     art.actionBarSprites[0] = getSprite(art.ss1, 20, 6, 2, 2, 8);
     art.actionBarSprites[1] = getSprite(art.ss1, 22, 6, 2, 2, 8);
     art.actionBarSprites[2] = getSprite(art.ss1, 1, 31, 1, 1, 8);

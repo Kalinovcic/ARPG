@@ -9,6 +9,9 @@ MAX_PROJECTILE_COUNT :: 2048;
 STATIC_WORLD_PROJECTILE_LIST: Projectile[] : [MAX_PROJECTILE_COUNT];
 STATIC_WORLD_PROJECTILE_OCCUPIED: bool[] : [MAX_PROJECTILE_COUNT];
 
+PLAYER_ABILITY_COUNT :: 6;
+STATIC_WORLD_PLAYER_ABILITIES: Ability^[] : [PLAYER_ABILITY_COUNT];
+
 
 World :: type struct
 {
@@ -21,6 +24,7 @@ World :: type struct
     player: Entity^;
     inventoryUp: bool;
     statisticsUp: bool;
+    playerAbilities: Ability^[];
 };
 
 addEntityToWorld :: func Entity^(world: World^)
@@ -82,6 +86,10 @@ initWorld :: func void(world: World^)
     world.inventoryUp = false;
     world.statisticsUp = false;
 
+    world.playerAbilities = STATIC_WORLD_PLAYER_ABILITIES;
+    asl.memset(world.playerAbilities, 0, sizeof(Ability^) * world.playerAbilities.n);
+    world.playerAbilities[0] = &ability.fireball;
+
     initTerrain(&world.terrain, 128, 128);
 }
 
@@ -130,9 +138,11 @@ tickWorld :: func void(world: World^)
     }
 }
 
-renderWorld :: func void(world: World^)
+renderWorld :: func void(world: World^,
+                         camLeft: float32, camRight: float32,
+                         camBottom: float32, camTop: float32)
 {
-    renderTerrain(&world.terrain);
+    renderTerrain(&world.terrain, camLeft, camRight, camBottom, camTop);
 
     i := 0;
     while i < world.entityList.n
