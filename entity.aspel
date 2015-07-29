@@ -4,8 +4,14 @@ Entity :: type struct
 {
     x: float32;
     y: float32;
-    w: float32;
-    h: float32;
+
+    vw: float32;
+    vh: float32;
+    pw: float32;
+    ph: float32;
+    pox: float32;
+    poy: float32;
+
     animation: Animation;
 
     health: float32;
@@ -26,8 +32,8 @@ partialEntityCollideWithTerrain :: func bool(terrain: Terrain^, entity: Entity^,
     tw := terrain.w;
     th := terrain.h;
 
-    x := entity.x;
-    y := entity.y;
+    x := entity.x + entity.pox;
+    y := entity.y + entity.poy;
     mx := ^moveX;
     my := ^moveY;
     tx := cast(int32) x;
@@ -37,8 +43,8 @@ partialEntityCollideWithTerrain :: func bool(terrain: Terrain^, entity: Entity^,
     nx := x + mx;
     ny := y + my;
 
-    nxo := nx + entity.w;
-    nyo := ny + entity.h;
+    nxo := nx + entity.pw;
+    nyo := ny + entity.ph;
 
     ntx := cast(int32) nx;
     nty := cast(int32) ny;
@@ -91,12 +97,12 @@ pointCollideWithEntity :: func int32(world: World^, x: float32, y: float32, resu
         if !world.entityOccupied[i - 1] then continue;
         entity := &world.entityList[i - 1];
 
-        ew := entity.w;
-        eh := entity.h;
-        ehw := entity.w / 2.0;
-        ehh := entity.h / 2.0;
-        ex := entity.x + ehw;
-        ey := entity.y + ehh;
+        ew := entity.pw;
+        eh := entity.ph;
+        ehw := ew / 2.0;
+        ehh := eh / 2.0;
+        ex := entity.x + entity.pox + ehw;
+        ey := entity.y + entity.poy + ehh;
 
         dx := cast(float32) asl.abs(x - ex);
         dy := cast(float32) asl.abs(y - ey);
@@ -131,10 +137,11 @@ projectileCollideWithEntities :: func int32(world: World^, projectile: Projectil
         if !world.entityOccupied[i - 1] then continue;
         entity := &world.entityList[i - 1];
 
-        ew := entity.w;
-        eh := entity.h;
-        ehw := entity.w / 2.0;
-        ehh := entity.h / 2.0;
+        // RECONSIDER: Should we use the visual or physical box?
+        ew := entity.vw;
+        eh := entity.vh;
+        ehw := ew / 2.0;
+        ehh := eh / 2.0;
         ex := entity.x + ehw;
         ey := entity.y + ehh;
 
@@ -170,15 +177,19 @@ entityTakeDamage :: func void(world: World^, e: Entity^, dmg: float32)
 
 renderEntity :: func void(e: Entity^)
 {
-    renderAnimation(&e.animation, e.x, e.y, e.w, e.h, 0.0);
+    renderAnimation(&e.animation, e.x, e.y, e.vw, e.vh, 0.0);
 }
 
 initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
 {
     player.x = posX;
     player.y = posY;
-    player.w = 0.8;
-    player.h = 0.8;
+    player.vw = 0.8;
+    player.vh = 0.8;
+    player.pw = 0.6;
+    player.ph = 0.3;
+    player.pox = 0.1;
+    player.poy = 0.0;
     player.animation = art.invalidAnimation;
 
     player.health = 322;
@@ -200,8 +211,12 @@ initEye :: func void(eye: Entity^, posX: float32, posY: float32)
 
     eye.x = posX;
     eye.y = posY;
-    eye.w = 2.0;
-    eye.h = 2.0;
+    eye.vw = 2.0;
+    eye.vh = 2.0;
+    eye.pw = 1.8;
+    eye.ph = 1.8;
+    eye.pox = 0.1;
+    eye.poy = 0.1;
     eye.animation = art.eyeAnimation;
     eye.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
                                      cast(uint32)(eye.animation.frameTime *
@@ -223,8 +238,8 @@ initEye :: func void(eye: Entity^, posX: float32, posY: float32)
 
 // CLEANUP: Move these somewhere!
 playerHasMoveTarget: bool = false;
-playerMoveAngle: float32;
-playerMoveDistance: float32;
+playerTargetX: float32;
+playerTargetY: float32;
 
 tickPlayer :: func void(worldV: void^, player: Entity^)
 {
@@ -233,8 +248,8 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
     moved: bool = false;
     if input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]
     {
-        playerCX := player.x + player.w / 2.0;
-        playerCY := player.y + player.h / 2.0;
+        playerCX := player.x + player.vw / 2.0;
+        playerCY := player.y + player.vh / 2.0;
         movePointX := input.mouseX + playerCX;
         movePointY := input.mouseY + playerCY;
 
@@ -256,27 +271,29 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
         {
             moved = true;
 
-            deltaX := movePointX - playerCX;
-            deltaY := movePointY - playerCY;
-            deltaXsq := deltaX * deltaX;
-            deltaYsq := deltaY * deltaY;
-
             playerHasMoveTarget = true;
-            playerMoveAngle = asl.atan2(deltaY, deltaX) + asl.to_radians(-90);
-            playerMoveDistance = asl.sqrt(deltaXsq + deltaYsq);
+            playerTargetX = movePointX;
+            playerTargetY = movePointY;
         }
     }
 
     if playerHasMoveTarget
     {
+        deltaX := playerTargetX - (player.x + player.pox + player.pw / 2.0);
+        deltaY := playerTargetY - (player.y + player.poy + player.ph / 2.0);
+        distance := asl.sqrt(deltaX * deltaX + deltaY * deltaY);
+
         movementSpeed :: 0.05;
-
         moveStep := movementSpeed;
-        if moveStep > playerMoveDistance then
-            moveStep = playerMoveDistance;
+        if moveStep > distance
+        {
+            moveStep = distance;
+            playerHasMoveTarget = false;
+        }
 
-        s: float32 = cast(float32) asl.sin(playerMoveAngle);
-        c: float32 = cast(float32) asl.cos(playerMoveAngle);
+        angle := asl.atan2(deltaY, deltaX) + asl.to_radians(-90);
+        s: float32 = cast(float32) asl.sin(angle);
+        c: float32 = cast(float32) asl.cos(angle);
         moveX: float32 = -s * moveStep;
         moveY: float32 =  c * moveStep;
 
@@ -284,31 +301,26 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
             entityCollideWithTerrain(&world.terrain, player, &moveX, &moveY);
         // TODO: collide with other entitites
 
-        if asl.abs(moveX) < 1e-3 && asl.abs(moveY) < 1e-3 then
+        movedDistance := asl.sqrt(moveX * moveX + moveY * moveY);
+        if movedDistance < (movementSpeed * 0.3) then
             playerHasMoveTarget = false;
-        else
-        {
-            step := asl.sqrt(moveX * moveX + moveY * moveY);
-            playerMoveDistance = playerMoveDistance - step;
-            if playerMoveDistance <= 0.0 then
-                playerHasMoveTarget = false;
-        }
 
         player.x = player.x + moveX;
         player.y = player.y + moveY;
 
-
         visualDX: int32 = 0;
         visualDY: int32 = 0;
-        if asl.abs(moveY) > asl.abs(moveX)
-        {
-            if moveY < 0.0 then visualDY = -1;
-            if moveY > 0.0 then visualDY =  1;
-        }
-        else
+        moveA := asl.to_degrees(asl.atan2(moveY, moveX));
+
+        if moveA < -160.0 || moveA > 160.0 || (moveA > -20.0 && moveA < 20.0)
         {
             if moveX < 0.0 then visualDX = -1;
             if moveX > 0.0 then visualDX =  1;
+        }
+        else
+        {
+            if moveY < 0.0 then visualDY = -1;
+            if moveY > 0.0 then visualDY =  1;
         }
 
         if !playerHasMoveTarget
@@ -329,7 +341,7 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
     if player.health > player.maxHealth then
         player.health = player.maxHealth;
 
-    player.mana = player.mana + 0.02;
+    player.mana = player.mana + 0.2;
     if player.mana > player.maxMana then
         player.mana = player.maxMana;
 
@@ -365,8 +377,11 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
                 ability := world.playerAbilities[index];
                 if ability != null
                 {
-                    if (key == INPUT_KEY_LMB) || (key == INPUT_KEY_SHIFT_LMB) then
+                    if (key == INPUT_KEY_LMB) || (key == INPUT_KEY_SHIFT_LMB)
+                    {
                         playerHasMoveTarget = false;
+                        player.userdata = player.userdata & ~0x1;
+                    }
 
                     if ability.checkRequirements(player) then
                         ability.activate(world, player);
@@ -524,12 +539,12 @@ renderPlayer :: func void(player: Entity^)
     bodyColorG := 0.61;
     bodyColorB := 0.00;
 
-    renderAnimationAdv(&eyesAnim, player.x, player.y, player.w, player.h, 0.0,
+    renderAnimationAdv(&eyesAnim, player.x, player.y, player.vw, player.vh, 0.0,
                        tl, tr, 0.0, 1.0, eyesColorR, eyesColorG, eyesColorB, 1.0);
-    renderAnimationAdv(&hairAnim, player.x, player.y, player.w, player.h, 0.0,
+    renderAnimationAdv(&hairAnim, player.x, player.y, player.vw, player.vh, 0.0,
                        tl, tr, 0.0, 1.0, hairColorR, hairColorG, hairColorB, 1.0);
-    renderAnimationAdv(&skinAnim, player.x, player.y, player.w, player.h, 0.0,
+    renderAnimationAdv(&skinAnim, player.x, player.y, player.vw, player.vh, 0.0,
                        tl, tr, 0.0, 1.0, skinColorR, skinColorG, skinColorB, 1.0);
-    renderAnimationAdv(&bodyAnim, player.x, player.y, player.w, player.h, 0.0,
+    renderAnimationAdv(&bodyAnim, player.x, player.y, player.vw, player.vh, 0.0,
                        tl, tr, 0.0, 1.0, bodyColorR, bodyColorG, bodyColorB, 1.0);
 }

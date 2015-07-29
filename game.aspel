@@ -38,8 +38,8 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
     halfOH := orthoH / 2.0;
 
     player := world.player;
-    camTransX := -player.x - player.w / 2.0;
-    camTransY := -player.y - player.h / 2.0;
+    camTransX := -player.x - player.vw / 2.0;
+    camTransY := -player.y - player.vh / 2.0;
 
     // Game world
     gl.glTranslatef(camTransX, camTransY, 0.0);
