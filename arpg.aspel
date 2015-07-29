@@ -2,15 +2,10 @@ import "imports.aspel";
 
 window: glfw3.GLFWwindow^;
 
-abortKemijam :: func void()
-{
-    asl.abort();
-}
-
 errorCallback :: func void(error: int32, desc: int8^)
 {
     reportString(nullstrToString(desc));
-    abortKemijam();
+    asl.exit(1);
 }
 
 keyCallback :: func void(window: glfw3.GLFWwindow^, key: int32, scancode: int32,
@@ -27,14 +22,18 @@ openWindow :: func void()
 {
     glfw3.glfwSetErrorCallback(errorCallback);
 
-    if glfw3.glfwInit() != gl.GL_TRUE then
-        abortKemijam();
+    if glfw3.glfwInit() != gl.GL_TRUE
+    {
+        reportString("Failed to init GLFW.\n");
+        asl.exit(1);
+    }
 
     window = glfw3.glfwCreateWindow(640, 440, "ARPG\0", null, null);
     if window == 0
     {
+        reportString("Failed to open GLFW window.\n");
         glfw3.glfwTerminate();
-        abortKemijam();
+        asl.exit(1);
     }
 
     glfw3.glfwMakeContextCurrent(window);
