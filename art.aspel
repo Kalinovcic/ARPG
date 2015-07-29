@@ -1,0 +1,256 @@
+import "imports.aspel";
+
+Texture :: type uint32;
+
+SpriteSheet :: type struct
+{
+    tex: Texture;
+    w: int32;
+    h: int32;
+};
+
+Sprite :: type struct
+{
+    tex: Texture;
+    l: float32;
+    r: float32;
+    t: float32;
+    b: float32;
+};
+
+Animation :: type struct
+{
+    frames: Sprite[];
+    frameTime: int32;
+    tick: int32;
+
+    hasSlowFrames: bool;
+    slowFrames: Sprite[];
+    slowFrameTime: int32;
+    slowFrameFreq: int32;
+    slowTick: int32;
+};
+
+namespace art
+{
+    ss1: SpriteSheet;
+
+    playerFrames: Sprite[] : [2];
+    playerAnimation: Animation;
+
+    eyeFrames: Sprite[] : [4];
+    eyeSlowFrames: Sprite[] : [6];
+    eyeAnimation: Animation;
+
+    projectileFrames: Sprite[] : [4];
+    projectileAnimation: Animation;
+
+    heartSprite: Sprite;
+    manaSprite: Sprite;
+    inventorySprite: Sprite;
+    actionBarSprites: Sprite[] : [6];
+}
+
+loadArt :: func void()
+{
+    art.ss1 = loadSpriteSheet("spritesheet1.bmp");
+
+    art.playerFrames[0] = getSprite(art.ss1, 25, 0, 2, 2, 8);
+    art.playerFrames[1] = getSprite(art.ss1, 25, 2, 2, 2, 8);
+    art.playerAnimation.frames = art.playerFrames;
+    art.playerAnimation.frameTime = 10;
+    art.playerAnimation.tick = 0;
+    art.playerAnimation.hasSlowFrames = false;
+
+    art.eyeFrames[0] = getSprite(art.ss1, 29, 0, 3, 3, 8);
+    art.eyeFrames[1] = getSprite(art.ss1, 29, 3, 3, 3, 8);
+    art.eyeFrames[2] = getSprite(art.ss1, 29, 6, 3, 3, 8);
+    art.eyeFrames[3] = getSprite(art.ss1, 29, 3, 3, 3, 8);
+    art.eyeSlowFrames[0] = getSprite(art.ss1, 29,  9, 3, 3, 8);
+    art.eyeSlowFrames[1] = getSprite(art.ss1, 29, 12, 3, 3, 8);
+    art.eyeSlowFrames[2] = getSprite(art.ss1, 29, 15, 3, 3, 8);
+    art.eyeSlowFrames[3] = getSprite(art.ss1, 29, 18, 3, 3, 8);
+    art.eyeSlowFrames[4] = getSprite(art.ss1, 29, 15, 3, 3, 8);
+    art.eyeSlowFrames[5] = getSprite(art.ss1, 29, 12, 3, 3, 8);
+    art.eyeAnimation.frames = art.eyeFrames;
+    art.eyeAnimation.frameTime = 10;
+    art.eyeAnimation.tick = 0;
+    art.eyeAnimation.hasSlowFrames = true;
+    art.eyeAnimation.slowFrames = art.eyeSlowFrames;
+    art.eyeAnimation.slowFrameTime = 5;
+    art.eyeAnimation.slowFrameFreq = 250;
+    art.eyeAnimation.slowTick = 0;
+
+    art.projectileFrames[0] = getSprite(art.ss1, 27, 0, 2, 2, 8);
+    art.projectileFrames[1] = getSprite(art.ss1, 27, 2, 2, 2, 8);
+    art.projectileFrames[2] = getSprite(art.ss1, 27, 4, 2, 2, 8);
+    art.projectileFrames[3] = getSprite(art.ss1, 27, 2, 2, 2, 8);
+    art.projectileAnimation.frames = art.projectileFrames;
+    art.projectileAnimation.frameTime = 15;
+    art.projectileAnimation.tick = 0;
+    art.projectileAnimation.hasSlowFrames = false;
+
+    art.heartSprite = getSprite(art.ss1, 22, 4, 1, 1, 8);
+    art.manaSprite = getSprite(art.ss1, 21, 4, 1, 1, 8);
+    art.inventorySprite = getSprite(art.ss1, 24, 6, 2, 2, 8);
+    art.actionBarSprites[0] = getSprite(art.ss1, 20, 6, 2, 2, 8);
+    art.actionBarSprites[1] = getSprite(art.ss1, 22, 6, 2, 2, 8);
+    art.actionBarSprites[2] = getSprite(art.ss1, 1, 31, 1, 1, 8);
+    art.actionBarSprites[3] = getSprite(art.ss1, 2, 31, 1, 1, 8);
+    art.actionBarSprites[4] = getSprite(art.ss1, 3, 31, 1, 1, 8);
+    art.actionBarSprites[5] = getSprite(art.ss1, 4, 31, 1, 1, 8);
+}
+
+getSprite :: func Sprite(ss: SpriteSheet, lpx: int32, tpx: int32,
+                          w: int32, h: int32, cellSize: int32)
+{
+    lpx = lpx * cellSize;
+    tpx = tpx * cellSize;
+    w = w * cellSize;
+    h = h * cellSize;
+
+    s: Sprite;
+    s.tex = ss.tex;
+    s.l = lpx / cast(float32) ss.w;
+    s.r = (lpx + w) / cast(float32) ss.w;
+    s.t = 1.0 - tpx / cast(float32) ss.h;
+    s.b = 1.0 - (tpx + h) / cast(float32) ss.h;
+    return s;
+}
+
+loadSpriteSheet :: func SpriteSheet(filepath: asl.string)
+{
+    width: uint32;
+    height: uint32;
+    texture := loadBitmap(filepath, &width, &height);
+
+    ss: SpriteSheet;
+    ss.tex = texture;
+    ss.w = cast(int32) width;
+    ss.h = cast(int32) height;
+    return ss;
+}
+
+bitmapPixelMemory: uint8[] : [1024 * 1024 * 16]; // 16 MB of texture memory
+bitmapPixelMemoryOffset: uint64 = 0;
+
+loadBitmap :: func Texture(filepath: asl.string, out_width: uint32^, out_height: uint32^)
+{
+    bmpFile := asl.file(filepath);
+
+    width: uint32;
+    height: uint32;
+
+    pixels: uint8[];
+    pixels.a = bitmapPixelMemory.a + bitmapPixelMemoryOffset;
+    pixels.n = bitmapPixelMemory.n - bitmapPixelMemoryOffset;
+
+    stream := asl.openFileInputStream(bmpFile);
+    if stream == 0
+    {
+        reportString("Failed to open bitmap file!\n");
+        asl.exit(1);
+    }
+
+    if !asl.readBitmap(stream, &width, &height, pixels)
+    {
+        reportString("Failed to load bitmap!\n");
+        asl.exit(1);
+    }
+    stream.close(stream);
+
+    asl.releaseFile(bmpFile);
+
+    texture: Texture;
+    gl.glGenTextures(1, &texture);
+    gl.glBindTexture(gl.GL_TEXTURE_2D, texture);
+
+    mode: uint32 = gl.GL_RGBA;
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT);
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT);
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST);
+    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST);
+
+    gl.gluBuild2DMipmaps(gl.GL_TEXTURE_2D, 4, cast(gl.GLsizei) width, cast(gl.GLsizei) height,
+                         mode, gl.GL_UNSIGNED_BYTE, pixels);
+
+    ^out_width = width;
+    ^out_height = height;
+    return texture;
+}
+
+renderSprite :: func void(x: float32, y: float32,
+                          w: float32, h: float32,
+                          s: Sprite)
+{
+    gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
+
+    gl.glColor3f(1, 1, 1);
+
+    gl.glBegin(gl.GL_QUADS);
+    gl.glTexCoord2f(s.l + 1e-7, s.b + 1e-7); gl.glVertex2f(x     + 1e-7, y     + 1e-7);
+    gl.glTexCoord2f(s.r - 1e-7, s.b + 1e-7); gl.glVertex2f(x + w - 1e-7, y     + 1e-7);
+    gl.glTexCoord2f(s.r - 1e-7, s.t - 1e-7); gl.glVertex2f(x + w - 1e-7, y + h - 1e-7);
+    gl.glTexCoord2f(s.l + 1e-7, s.t - 1e-7); gl.glVertex2f(x     + 1e-7, y + h - 1e-7);
+    gl.glEnd();
+}
+
+renderSpriteAdv :: func void(x: float32, y: float32,
+                             w: float32, h: float32,
+                             a: float32,
+                             tl: float32, tr: float32,
+                             tb: float32, tt: float32,
+                             cr: float32, cg: float32, cb: float32, ca: float32,
+                             s: Sprite)
+{
+    hw := w / 2.0;
+    hh := h / 2.0;
+    tw := s.r - s.l;
+    th := s.t - s.b;
+    utl := s.l + tw * tl + 1e-7;
+    utr := s.l + tw * tr - 1e-7;
+    utb := s.b + th * tb + 1e-7;
+    utt := s.b + th * tt - 1e-7;
+
+    gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
+
+    gl.glPushMatrix();
+    gl.glTranslatef(x + hw, y + hh, 0.0);
+    gl.glRotatef(a, 0.0, 0.0, 1.0);
+
+    gl.glColor4f(cr, cg, cb, ca);
+
+    gl.glBegin(gl.GL_QUADS);
+    gl.glTexCoord2f(utl, utb); gl.glVertex2f(-hw - 1e-7, -hh - 1e-7);
+    gl.glTexCoord2f(utr, utb); gl.glVertex2f( hw + 1e-7, -hh - 1e-7);
+    gl.glTexCoord2f(utr, utt); gl.glVertex2f( hw + 1e-7,  hh + 1e-7);
+    gl.glTexCoord2f(utl, utt); gl.glVertex2f(-hw - 1e-7,  hh + 1e-7);
+    gl.glEnd();
+
+    gl.glPopMatrix();
+}
+
+renderRotatedSprite :: func void(x: float32, y: float32,
+                                 w: float32, h: float32,
+                                 a: float32, s: Sprite)
+{
+    hw := w / 2.0;
+    hh := h / 2.0;
+
+    gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
+
+    gl.glPushMatrix();
+    gl.glTranslatef(x + hw, y + hh, 0.0);
+    gl.glRotatef(a, 0.0, 0.0, 1.0);
+
+    gl.glColor3f(1, 1, 1);
+
+    gl.glBegin(gl.GL_QUADS);
+    gl.glTexCoord2f(s.l + 1e-7, s.b + 1e-7); gl.glVertex2f(-hw - 1e-7, -hh - 1e-7);
+    gl.glTexCoord2f(s.r - 1e-7, s.b + 1e-7); gl.glVertex2f( hw + 1e-7, -hh - 1e-7);
+    gl.glTexCoord2f(s.r - 1e-7, s.t - 1e-7); gl.glVertex2f( hw + 1e-7,  hh + 1e-7);
+    gl.glTexCoord2f(s.l + 1e-7, s.t - 1e-7); gl.glVertex2f(-hw - 1e-7,  hh + 1e-7);
+    gl.glEnd();
+
+    gl.glPopMatrix();
+}

@@ -1,0 +1,122 @@
+import "imports.aspel";
+
+window: glfw3.GLFWwindow^;
+
+abortKemijam :: func void()
+{
+    asl.abort();
+}
+
+errorCallback :: func void(error: int32, desc: int8^)
+{
+    reportString(nullstrToString(desc));
+    abortKemijam();
+}
+
+keyCallback :: func void(window: glfw3.GLFWwindow^, key: int32, scancode: int32,
+                         action: int32, mods: int32)
+{
+    if action != glfw3.GLFW_REPEAT
+    {
+        press := action == glfw3.GLFW_PRESS;
+        handleInput(key, press);
+    }
+}
+
+openWindow :: func void()
+{
+    glfw3.glfwSetErrorCallback(errorCallback);
+
+    if glfw3.glfwInit() != gl.GL_TRUE then
+        abortKemijam();
+
+    window = glfw3.glfwCreateWindow(640, 440, "ARPG\0", null, null);
+    if window == 0
+    {
+        glfw3.glfwTerminate();
+        abortKemijam();
+    }
+
+    glfw3.glfwMakeContextCurrent(window);
+    glfw3.glfwSwapInterval(1);
+    glfw3.glfwSetKeyCallback(window, keyCallback);
+}
+
+closeWindow :: func void()
+{
+    glfw3.glfwDestroyWindow(window);
+    glfw3.glfwTerminate();
+}
+
+initGL :: func void()
+{
+    gl.glClearColor(1.0, 0.0, 1.0, 1.0);
+
+    gl.glEnable(gl.GL_TEXTURE_2D);
+    gl.glEnable(gl.GL_BLEND);
+    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+}
+
+renderLoop :: func void()
+{
+    initGL();
+
+    gameInit();
+
+    targetFPS :: 60;
+    frameTime: uint64 : cast(uint64)(1000000000.0 / targetFPS);
+
+    lastTime := asl.timenanos();
+
+    while glfw3.glfwWindowShouldClose(window) != gl.GL_TRUE
+    {
+        currentTime := asl.timenanos();
+        deltaTime := currentTime - lastTime;
+
+        ticked: bool = false;
+        while deltaTime >= frameTime
+        {
+            gameTick();
+            updateInput();
+
+            ticked = true;
+
+            lastTime = lastTime + frameTime;
+            deltaTime = deltaTime - frameTime;
+        }
+
+        if ticked
+        {
+            width: int32;
+            height: int32;
+            glfw3.glfwGetFramebufferSize(window, &width, &height);
+
+            ratio: float64 = width / cast(float64) height;
+            orthoW := ratio * 7.0;
+            orthoH := 7.0;
+            halfOW := orthoW / 2.0;
+            halfOH := orthoH / 2.0;
+
+            gl.glMatrixMode(gl.GL_PROJECTION);
+            gl.glLoadIdentity();
+            gl.glOrtho(-halfOW, halfOW, -halfOH, halfOH, 1.0, -1.0);
+            gl.glViewport(0, 0, width, height);
+
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+            gl.glMatrixMode(gl.GL_MODELVIEW);
+            gl.glLoadIdentity();
+
+            gameRender(orthoW, orthoH);
+
+            glfw3.glfwSwapBuffers(window);
+            glfw3.glfwPollEvents();
+        }
+    }
+}
+
+main :: func void(args: asl.string[])
+{
+    openWindow();
+    renderLoop();
+    closeWindow();
+}

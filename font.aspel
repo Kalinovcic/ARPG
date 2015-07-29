@@ -1,0 +1,42 @@
+import "imports.aspel";
+
+fontLayout :: "ABCDEFGHIJKLMNOPQRSTUVWXYZ_^`~  abcdefghijklmnopqrstuvwxyz.,\\{}|0123456789:;<>=?@!\"#$%&'<>[]*+-/";
+
+// CLEANUP: enum
+TEXT_ALIGN_LEFT:   int32 : 0;
+TEXT_ALIGN_RIGHT:  int32 : 1;
+TEXT_ALIGN_CENTER: int32 : 2;
+
+renderText :: func void(text: asl.string, x: float32, y: float32, s: float32,
+                        alignment: int32)
+{
+    ox: float32 = 0;
+    oy: float32 = 0;
+    if alignment == TEXT_ALIGN_RIGHT then
+        ox = -cast(float32) text.n * s;
+    else if alignment == TEXT_ALIGN_CENTER then
+        ox = (-cast(float32) text.n * s) / 2.0;
+
+    i := 0;
+    while i < text.n
+    {
+        charstr: asl.string;
+        charstr.a = &text[i];
+        charstr.n = 1;
+
+        index := asl.indexof(fontLayout, charstr, 0);
+        if index == -1
+        {
+            reportString("Invalid input to \"renderText\".");
+            asl.exit(1);
+        }
+
+        row := index / 32;
+        col := index % 32;
+
+        glyph := getSprite(art.ss1, col, 29 + row, 1, 1, 8);
+        renderSprite(ox + x + cast(float32) i * s, oy + y, s, s, glyph);
+
+        i = i + 1;
+    }
+}

@@ -1,0 +1,154 @@
+import "imports.aspel";
+
+// CLEANUP: put this in the declaration of World.
+MAX_ENTITY_COUNT :: 512;
+STATIC_WORLD_ENTITY_LIST: Entity[] : [MAX_ENTITY_COUNT];
+STATIC_WORLD_ENTITY_OCCUPIED: bool[] : [MAX_ENTITY_COUNT];
+
+MAX_PROJECTILE_COUNT :: 2048;
+STATIC_WORLD_PROJECTILE_LIST: Projectile[] : [MAX_PROJECTILE_COUNT];
+STATIC_WORLD_PROJECTILE_OCCUPIED: bool[] : [MAX_PROJECTILE_COUNT];
+
+World :: type struct
+{
+    terrain: Terrain;
+    entityList: Entity[];
+    entityOccupied: bool[];
+    projectileList: Projectile[];
+    projectileOccupied: bool[];
+
+    player: Entity^;
+};
+
+addEntityToWorld :: func Entity^(world: World^)
+{
+    i := 0;
+    while i < MAX_ENTITY_COUNT
+    {
+        if !world.entityOccupied[i]
+        {
+            world.entityOccupied[i] = true;
+            return &world.entityList[i];
+        }
+        i = i + 1;
+    }
+
+    return null;
+}
+
+removeEntityFromWorld :: func void(world: World^, entity: Entity^)
+{
+    index := cast(int32) (cast(uint64) entity - cast(uint64) world.entityList) /
+             sizeof(Entity);
+    world.entityOccupied[index] = false;
+}
+
+addProjectileToWorld :: func Projectile^(world: World^)
+{
+    i := 0;
+    while i < MAX_PROJECTILE_COUNT
+    {
+        if !world.projectileOccupied[i]
+        {
+            world.projectileOccupied[i] = true;
+            return &world.projectileList[i];
+        }
+        i = i + 1;
+    }
+
+    return null;
+}
+
+removeProjectileFromWorld :: func void(world: World^, projectile: Projectile^)
+{
+    index := cast(int32) (cast(uint64) projectile - cast(uint64) world.projectileList) /
+             sizeof(Projectile);
+    world.projectileOccupied[index] = false;
+}
+
+initWorld :: func void(world: World^)
+{
+    world.entityList = STATIC_WORLD_ENTITY_LIST;
+    world.entityOccupied = STATIC_WORLD_ENTITY_OCCUPIED;
+    asl.memset(world.entityOccupied, 0, sizeof(bool) * world.entityOccupied.n);
+
+    world.projectileList = STATIC_WORLD_PROJECTILE_LIST;
+    world.projectileOccupied = STATIC_WORLD_PROJECTILE_OCCUPIED;
+    asl.memset(world.projectileOccupied, 0, sizeof(bool) * world.projectileOccupied.n);
+
+    initTerrain(&world.terrain, 128, 128);
+}
+
+populateWorld :: func void(world: World^)
+{
+    random: asl.Random;
+    asl.seedRandomTime(&random);
+
+    world.player = addEntityToWorld(world);
+    initPlayer(world.player, world.terrain.w / 2.0, world.terrain.h / 2.0);
+
+    i := 0;
+    while i < 511
+    {
+        eye := addEntityToWorld(world);
+        initEye(eye, cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.w),
+                     cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.h));
+        i = i + 1;
+    }
+}
+
+tickWorld :: func void(world: World^)
+{
+    i := 0;
+    while i < world.entityList.n
+    {
+        if world.entityOccupied[i]
+        {
+            entity := &world.entityList[i];
+            entity.tick(world, entity);
+        }
+
+        i = i + 1;
+    }
+
+    i = 0;
+    while i < world.projectileList.n
+    {
+        if world.projectileOccupied[i]
+        {
+            projectile := &world.projectileList[i];
+            tickProjectile(world, projectile);
+        }
+
+        i = i + 1;
+    }
+}
+
+renderWorld :: func void(world: World^)
+{
+    renderTerrain(&world.terrain);
+
+    i := 0;
+    while i < world.entityList.n
+    {
+        if world.entityOccupied[i]
+        {
+            entity := &world.entityList[i];
+            entity.render(entity);
+        }
+
+        i = i + 1;
+    }
+
+    i = 0;
+    while i < world.projectileList.n
+    {
+        if world.projectileOccupied[i]
+        {
+            projectile := &world.projectileList[i];
+            renderProjectile(projectile);
+        }
+
+        i = i + 1;
+    }
+}

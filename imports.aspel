@@ -1,0 +1,33 @@
+import "../Aspel3/asl/__bits/LANG.aspel";
+import "../Aspel3/asl/__bits/ASL_NATIVE.aspel";
+
+import "../Aspel3/asl/system.aspel";
+import "../Aspel3/asl/thread.aspel";
+
+import "../Aspel3/asl/file.aspel";
+import "../Aspel3/asl/istream.aspel";
+import "../Aspel3/asl/ostream.aspel";
+
+import "../Aspel3/asl/glew.aspel";
+import "../Aspel3/asl/glfw3.aspel";
+
+import "../Aspel3/asl/memory.aspel";
+import "../Aspel3/asl/string.aspel";
+
+import "../Aspel3/asl/math.aspel";
+import "../Aspel3/asl/random.aspel";
+import "../Aspel3/asl/time.aspel";
+
+import "../Aspel3/asl/__bits/image/bmp.aspel";
+import "../Aspel3/tests/astd.aspel";
+
+import "game.aspel";
+import "util.aspel";
+import "art.aspel";
+import "entity.aspel";
+import "input.aspel";
+import "terrain.aspel";
+import "terraingen.aspel";
+import "font.aspel";
+import "world.aspel";
+import "projectile.aspel";

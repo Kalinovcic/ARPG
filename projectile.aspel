@@ -1,0 +1,55 @@
+import "imports.aspel";
+
+Projectile :: type struct
+{
+    x: float32;
+    y: float32;
+    dx: float32;
+    dy: float32;
+    z: float32;
+    size: float32;
+    lifetime: int32;
+    animation: Animation;
+};
+
+tickProjectile :: func void(world: World^, p: Projectile^)
+{
+    p.x = p.x + p.dx;
+    p.y = p.y + p.dy;
+
+    p.lifetime = p.lifetime - 1;
+    if p.lifetime < 0
+    {
+        removeProjectileFromWorld(world, p);
+    }
+}
+
+renderProjectile :: func void(p: Projectile^)
+{
+    frameIndex: int32 = p.animation.tick / p.animation.frameTime;
+
+    angle := asl.to_degrees(asl.atan2(-p.dy, p.dx));
+    renderRotatedSprite(p.x, p.y, p.size, p.size, angle, p.animation.frames[frameIndex]);
+
+    p.animation.tick = p.animation.tick + 1;
+    if p.animation.tick >= (p.animation.frameTime * p.animation.frames.n) then
+        p.animation.tick = 0;
+
+    if p.animation.hasSlowFrames
+    {
+        slowFrameIndex: int32 = 0;
+        if p.animation.slowTick >= p.animation.slowFrameFreq
+        {
+            slowFrameIndex = ((p.animation.slowTick -
+                               p.animation.slowFrameFreq) / p.animation.slowFrameTime);
+        }
+
+        renderSprite(p.x, p.y, p.size, p.size, p.animation.slowFrames[slowFrameIndex]);
+
+        p.animation.slowTick = p.animation.slowTick + 1;
+        if p.animation.slowTick >= p.animation.slowFrameFreq +
+                                   (p.animation.slowFrameTime *
+                                    p.animation.slowFrames.n) then
+            p.animation.slowTick = 0;
+    }
+}

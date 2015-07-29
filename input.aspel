@@ -1,0 +1,45 @@
+import "imports.aspel";
+
+InputState :: type struct
+{
+    key: bool[]; // CLEANUP: [INPUT_KEY_TOTAL]
+    focus: bool;
+};
+
+input: InputState;
+prevInput: InputState;
+
+// CLEANUP: enum
+INPUT_KEY_LEFT   :: 0;
+INPUT_KEY_RIGHT  :: 1;
+INPUT_KEY_UP     :: 2;
+INPUT_KEY_DOWN   :: 3;
+INPUT_KEY_ATTACK :: 4;
+
+INPUT_KEY_TOTAL  :: 16;
+
+initInputState :: func void()
+{
+    input.key = new bool[INPUT_KEY_TOTAL]; // CLEANUP: Should do this, look at typedef
+    input.focus = true;
+
+    prevInput.key = new bool[INPUT_KEY_TOTAL]; // CLEANUP: Should do this, look at typedef
+    prevInput.focus = true;
+
+    asl.memset(input.key, 0, cast(uint64) INPUT_KEY_TOTAL * sizeof(bool));
+}
+
+handleInput :: func void(key: int32, state: bool)
+{
+    if (key == glfw3.GLFW_KEY_LEFT)  then input.key[INPUT_KEY_LEFT]   = state;
+    if (key == glfw3.GLFW_KEY_RIGHT) then input.key[INPUT_KEY_RIGHT]  = state;
+    if (key == glfw3.GLFW_KEY_UP)    then input.key[INPUT_KEY_UP]     = state;
+    if (key == glfw3.GLFW_KEY_DOWN)  then input.key[INPUT_KEY_DOWN]   = state;
+    if (key == glfw3.GLFW_KEY_SPACE) then input.key[INPUT_KEY_ATTACK] = state;
+}
+
+updateInput :: func void()
+{
+    asl.memcopy(prevInput.key, input.key, cast(uint64) INPUT_KEY_TOTAL * sizeof(bool));
+    prevInput.focus = input.focus;
+}

@@ -1,0 +1,135 @@
+import "imports.aspel";
+
+TileType :: type int8;
+
+TILE_TYPE_WATER: TileType : 0;
+TILE_TYPE_GRASS: TileType : 1;
+TILE_TYPE_ROCK:  TileType : 2;
+TILE_TYPE_TOTAL: TileType : 16;
+
+Tile :: type struct
+{
+    tileType: TileType;
+};
+
+Terrain :: type struct
+{
+    tiles: Tile[];
+    w: int32;
+    h: int32;
+};
+
+initTerrain :: func void(terrain: Terrain^, w: int32, h: int32)
+{
+    terrain.w = w;
+    terrain.h = h;
+    terrain.tiles = new Tile[w * h];
+    asl.memset(terrain.tiles, 0, cast(uint64)(w * h * sizeof(Tile)));
+
+    rand: asl.Random;
+    asl.seedRandomTime(&rand);
+
+    generateIslands(terrain, &rand);
+    generateGroundIslands(terrain, &rand, TILE_TYPE_ROCK, TILE_TYPE_GRASS);
+}
+
+getTile :: func TileType(terrain: Terrain^, x: int32, y: int32)
+{
+    if x < 0 || y < 0 || x >= terrain.w || y >= terrain.h then
+        return TILE_TYPE_TOTAL;
+    return terrain.tiles[x + y * terrain.w].tileType;
+}
+
+getBaseSpriteForTile :: func Sprite(tileType: TileType)
+{
+    if (tileType == TILE_TYPE_WATER) then
+        return getSprite(art.ss1, 5, 0, 1, 1, 8);
+    if (tileType == TILE_TYPE_GRASS) then
+        return getSprite(art.ss1, 1, 1, 1, 1, 8);
+    if (tileType == TILE_TYPE_ROCK) then
+        return getSprite(art.ss1, 1, 4, 1, 1, 8);
+    return getSprite(art.ss1, 6, 0, 1, 1, 8);
+}
+
+getUnderEdgeTile :: func TileType(tileType: TileType)
+{
+    if (tileType == TILE_TYPE_GRASS) then
+        return TILE_TYPE_WATER;
+    if (tileType == TILE_TYPE_ROCK) then
+        return TILE_TYPE_GRASS;
+    return TILE_TYPE_WATER;
+}
+
+getEdgeSpriteYOffset :: func int32(tileType: TileType)
+{
+    if tileType == TILE_TYPE_GRASS then return 0;
+    if tileType == TILE_TYPE_ROCK then return 3;
+    return 5;
+}
+
+renderTerrain :: func void(terrain: Terrain^)
+{
+    w := terrain.w;
+    h := terrain.h;
+
+    y := 0;
+    while y < h
+    {
+        x := 0;
+        while x < w
+        {
+            t := terrain.tiles[x+y*w];
+
+            if (t.tileType == TILE_TYPE_WATER)
+            {
+                renderSprite(x, y, 1, 1, getBaseSpriteForTile(t.tileType));
+            }
+            else
+            {
+                i := 0;
+                while i < 4
+                {
+                    dx: int32 = i % 2;
+                    dy: int32 = (3 - i) / 2;
+                    dxx: int32 = dx * 2 - 1;
+                    dyy: int32 = dy * 2 - 1;
+
+                    tL := getTile(terrain, x + dxx, y);
+                    tU := getTile(terrain, x, y + dyy);
+                    tLU := getTile(terrain, x + dxx, y + dyy);
+
+                    bL := tL < t.tileType;
+                    bU := tU < t.tileType;
+                    bLU := tLU < t.tileType;
+
+                    yo := getEdgeSpriteYOffset(t.tileType);
+
+                    edgeX := 1;
+                    edgeY := 1;
+                    if bL then edgeX = edgeX + dxx;
+                    if bU then edgeY = edgeY - dyy;
+                    if !bL && !bU && bLU
+                    {
+                        edgeX = 3 + dx;
+                        edgeY = 0 + (1 - dy);
+                    }
+
+                    if edgeX != 1 || edgeY != 1
+                    {
+                        renderSprite(x + dx * 0.5, y + dy * 0.5, 0.5, 0.5,
+                            getBaseSpriteForTile(getUnderEdgeTile(t.tileType)));
+                    }
+
+                    renderSprite(x + dx * 0.5, y + dy * 0.5, 0.5, 0.5,
+                        getSprite(art.ss1, edgeX, edgeY + yo, 1, 1, 8));
+
+                    i = i + 1;
+                }
+            }
+
+            x = x + 1;
+        }
+
+        y = y + 1;
+    }
+}

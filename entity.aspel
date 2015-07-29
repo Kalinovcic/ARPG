@@ -1,0 +1,235 @@
+import "imports.aspel";
+
+Entity :: type struct
+{
+    x: float32;
+    y: float32;
+    w: float32;
+    h: float32;
+    animation: Animation;
+
+    health: float32;
+    maxHealth: float32;
+    mana: float32;
+    maxMana: float32;
+
+    userdata: int32;
+    tick: delegate void(world: void^, entity: Entity^);
+    render: delegate void(entity: Entity^);
+};
+
+partialEntityCollideWithTerrain :: func bool(terrain: Terrain^, entity: Entity^,
+                                             moveX: float32^, moveY: float32^)
+{
+    // TODO: improve
+
+    tw := terrain.w;
+    th := terrain.h;
+
+    x := entity.x;
+    y := entity.y;
+    mx := ^moveX;
+    my := ^moveY;
+    tx := cast(int32) x;
+    ty := cast(int32) y;
+    t := getTile(terrain, tx, ty);
+
+    nx := x + mx;
+    ny := y + my;
+
+    nxo := nx + entity.w;
+    nyo := ny + entity.h;
+
+    ntx := cast(int32) nx;
+    nty := cast(int32) ny;
+    ntxo := cast(int32) nxo;
+    ntyo := cast(int32) nyo;
+
+    tiy := nty;
+    while tiy <= ntyo
+    {
+        if tiy < 0 || tiy >= th then
+            return false;
+
+        tix := ntx;
+        while tix <= ntxo
+        {
+            if tix < 0 || tix >= tw then
+                return false;
+
+            nt := getTile(terrain, tix, tiy);
+            if t != nt then
+                return false;
+
+            tix = tix + 1;
+        }
+
+        tiy = tiy + 1;
+    }
+
+    return true;
+}
+
+entityCollideWithTerrain :: func void(terrain: Terrain^, entity: Entity^,
+                                      moveX: float32^, moveY: float32^)
+{
+    fake: float32 = 0;
+    if !partialEntityCollideWithTerrain(terrain, entity, moveX, &fake) then ^moveX = 0;
+    if !partialEntityCollideWithTerrain(terrain, entity, &fake, moveY) then ^moveY = 0;
+}
+
+renderEntity :: func void(e: Entity^)
+{
+    frameIndex: int32 = e.animation.tick / e.animation.frameTime;
+
+    renderSprite(e.x, e.y, e.w, e.h, e.animation.frames[frameIndex]);
+
+    e.animation.tick = e.animation.tick + 1;
+    if e.animation.tick >= (e.animation.frameTime * e.animation.frames.n) then
+        e.animation.tick = 0;
+
+    if e.animation.hasSlowFrames
+    {
+        slowFrameIndex: int32 = 0;
+        if e.animation.slowTick >= e.animation.slowFrameFreq
+        {
+            slowFrameIndex = ((e.animation.slowTick -
+                               e.animation.slowFrameFreq) / e.animation.slowFrameTime);
+        }
+
+        renderSprite(e.x, e.y, e.w, e.h, e.animation.slowFrames[slowFrameIndex]);
+
+        e.animation.slowTick = e.animation.slowTick + 1;
+        if e.animation.slowTick >= e.animation.slowFrameFreq +
+                                   (e.animation.slowFrameTime *
+                                    e.animation.slowFrames.n) then
+            e.animation.slowTick = 0;
+    }
+}
+
+initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
+{
+    player.x = posX;
+    player.y = posY;
+    player.w = 0.8;
+    player.h = 0.8;
+    player.animation = art.playerAnimation;
+
+    player.health = 582;
+    player.maxHealth = 800;
+    player.mana = 124;
+    player.maxMana = 150;
+
+    player.tick = tickPlayer;
+    player.render = renderEntity;
+}
+
+initEye :: func void(eye: Entity^, posX: float32, posY: float32)
+{
+    random: asl.Random;
+    asl.seedRandomTime(&random);
+    
+    seed: int16 = cast(int16) (asl.randomInt32(&random) & 0xFFFF);
+    tick: int16 = 0;
+
+    eye.x = posX;
+    eye.y = posY;
+    eye.w = 2.0;
+    eye.h = 2.0;
+    eye.animation = art.eyeAnimation;
+    eye.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
+                                     cast(uint32)(eye.animation.frameTime *
+                                                  eye.animation.frames.n));
+    eye.animation.slowTick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
+                                         cast(uint32)(eye.animation.slowFrameFreq +
+                                                      eye.animation.slowFrameTime *
+                                                      eye.animation.slowFrames.n));
+
+    eye.userdata = (cast(int32)(seed) << 16) | (cast(int32) tick);
+    eye.tick = tickEye;
+    eye.render = renderEntity;
+}
+
+playerGunCooldown: int32 = 0;
+
+tickPlayer :: func void(worldV: void^, player: Entity^)
+{
+    world: World^ = cast(World^) worldV;
+
+    // TODO: Diagonal is faster.
+
+    movementSpeed :: 0.05;
+
+    mx := 0.0;
+    my := 0.0;
+    if input.key[INPUT_KEY_LEFT]  then mx = mx - 1;
+    if input.key[INPUT_KEY_RIGHT] then mx = mx + 1;
+    if input.key[INPUT_KEY_DOWN]  then my = my - 1;
+    if input.key[INPUT_KEY_UP]    then my = my + 1;
+
+    if playerGunCooldown == 0
+    {
+        if input.key[INPUT_KEY_ATTACK] && !prevInput.key[INPUT_KEY_ATTACK]
+        {
+            random: asl.Random;
+            asl.seedRandomTime(&random);
+
+            projectile := addProjectileToWorld(world);
+            projectile.x = player.x;
+            projectile.y = player.y;
+            projectile.dx = 0.03;
+            projectile.dy = 0.03;
+            projectile.z = 0;
+            projectile.size = 0.7;
+            projectile.lifetime = 400;
+            projectile.animation = art.projectileAnimation;
+            projectile.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
+                                             cast(uint32)(projectile.animation.frameTime *
+                                                          projectile.animation.frames.n));
+        }
+    }
+    else
+        playerGunCooldown = playerGunCooldown - 1;
+
+    moveX: float32 = mx * movementSpeed;
+    moveY: float32 = my * movementSpeed;
+
+    if !input.key[INPUT_KEY_ATTACK] then
+        entityCollideWithTerrain(&world.terrain, player, &moveX, &moveY);
+    // TODO: collide with other entitites
+
+    player.x = player.x + moveX;
+    player.y = player.y + moveY;
+}
+
+tickEye :: func void(worldV: void^, eye: Entity^)
+{
+    world: World^ = cast(World^) worldV;
+
+    // TODO: Diagonal is faster.
+
+    seed: int16 = cast(int16)(eye.userdata >> 16);
+    tick: int16 = cast(int16)(eye.userdata & 0xFFFF);
+    if tick >= 80
+    {
+        tick = 0;
+        seed = seed + 1;
+    }
+    tick = tick + 1;
+    eye.userdata = (cast(int32)(seed) << 16) | (cast(int32) tick);
+    
+    random: asl.Random;
+    asl.seedRandom(&random, seed);
+
+    movementSpeed :: 0.01;
+    mx: float32 = cast(float32) (cast(uint32) asl.randomInt32(&random) % cast(uint32) 3) - 1.0;
+    my: float32 = cast(float32) (cast(uint32) asl.randomInt32(&random) % cast(uint32) 3) - 1.0;
+    moveX: float32 = mx * movementSpeed;
+    moveY: float32 = my * movementSpeed;
+
+    entityCollideWithTerrain(&world.terrain, eye, &moveX, &moveY);
+    // TODO: collide with other entitites
+
+    eye.x = eye.x + moveX;
+    eye.y = eye.y + moveY;
+}

@@ -1,0 +1,149 @@
+import "imports.aspel";
+
+generateIslands :: func void(terrain: Terrain^, rand: asl.Random^)
+{
+    w := terrain.w;
+    h := terrain.h;
+
+    islandCount := cast(int32)(32 + cast(uint32) asl.randomInt32(rand) % 32);
+    islandI := 0;
+    while islandI < islandCount
+    {
+        islandI = islandI + 1;
+
+        x := cast(int32) cast(uint32) asl.randomInt32(rand) % w;
+        y := cast(int32) cast(uint32) asl.randomInt32(rand) % h;
+
+        MAX_ISLAND_SIZE :: 128;
+        islandSize := cast(int32)(cast(uint32) asl.randomInt32(rand) %
+                                  cast(uint32) MAX_ISLAND_SIZE);
+
+        islandQueueX: int32[] : [MAX_ISLAND_SIZE];
+        islandQueueY: int32[] : [MAX_ISLAND_SIZE];
+        islandQueueX[0] = cast(int32)(cast(uint32) asl.randomInt32(rand) % cast(uint32) w);
+        islandQueueY[0] = cast(int32)(cast(uint32) asl.randomInt32(rand) % cast(uint32) h);
+        islandQueueC: int32 = 0;
+        islandQueueF: int32 = 1;
+
+        while (islandQueueC <= islandQueueF) && (islandQueueF < MAX_ISLAND_SIZE)
+        {
+            cx := islandQueueX[islandQueueC];
+            cy := islandQueueY[islandQueueC];
+            islandQueueC = islandQueueC + 1;
+
+            t := &terrain.tiles[cx+cy*w];
+
+            DX: int32[] : [4];
+            DY: int32[] : [4];
+            DX[0] = 1; DX[1] = -1; DX[2] = 0; DX[3] =  0;
+            DY[0] = 0; DY[1] =  0; DY[2] = 1; DY[3] = -1;
+
+            side := 0;
+            while side < 4
+            {
+                dx := cx + DX[side];
+                dy := cy + DY[side];
+                side = side + 1;
+
+                if (dx < 0 || dy < 0 || dx >= w || dy >= h) then
+                    continue;
+
+                t2 := &terrain.tiles[dx+dy*w];
+                if t2.tileType != TILE_TYPE_GRASS
+                {
+                    if cast(uint32) asl.randomInt32(rand) % cast(uint32) 4 == 0 then
+                        continue;
+
+                    islandQueueX[islandQueueF] = dx;
+                    islandQueueY[islandQueueF] = dy;
+                    islandQueueF = islandQueueF + 1;
+
+                    t2.tileType = TILE_TYPE_GRASS;
+                }
+            }
+        }
+    }
+}
+
+generateGroundIslands :: func void(terrain: Terrain^, rand: asl.Random^,
+                                   create: TileType, surround: TileType)
+{
+    w := terrain.w;
+    h := terrain.h;
+
+    islandCount := cast(int32)(32 + cast(uint32) asl.randomInt32(rand) % 32);
+    islandI := 0;
+    while islandI < islandCount
+    {
+        islandI = islandI + 1;
+
+        x := cast(int32) cast(uint32) asl.randomInt32(rand) % w;
+        y := cast(int32) cast(uint32) asl.randomInt32(rand) % h;
+
+        MAX_ISLAND_SIZE :: 48;
+        islandSize := cast(int32)(cast(uint32) asl.randomInt32(rand) %
+                                  cast(uint32) MAX_ISLAND_SIZE);
+
+        islandQueueX: int32[] : [MAX_ISLAND_SIZE];
+        islandQueueY: int32[] : [MAX_ISLAND_SIZE];
+        islandQueueX[0] = cast(int32)(cast(uint32) asl.randomInt32(rand) % cast(uint32) w);
+        islandQueueY[0] = cast(int32)(cast(uint32) asl.randomInt32(rand) % cast(uint32) h);
+        islandQueueC: int32 = 0;
+        islandQueueF: int32 = 1;
+
+        while (islandQueueC <= islandQueueF) && (islandQueueF < MAX_ISLAND_SIZE)
+        {
+            cx := islandQueueX[islandQueueC];
+            cy := islandQueueY[islandQueueC];
+            islandQueueC = islandQueueC + 1;
+
+            t := &terrain.tiles[cx+cy*w];
+
+            DX: int32[] : [4];
+            DY: int32[] : [4];
+            DX[0] = 1; DX[1] = -1; DX[2] = 0; DX[3] =  0;
+            DY[0] = 0; DY[1] =  0; DY[2] = 1; DY[3] = -1;
+
+            side := 0;
+            while side < 4
+            {
+                dx := cx + DX[side];
+                dy := cy + DY[side];
+                side = side + 1;
+
+                if (dx < 0 || dy < 0 || dx >= w || dy >= h) then
+                    continue;
+
+                t2 := &terrain.tiles[dx+dy*w];
+                t2l := getTile(terrain, dx - 1, dy + 0);
+                t2r := getTile(terrain, dx + 1, dy + 0);
+                t2t := getTile(terrain, dx + 0, dy + 1);
+                t2b := getTile(terrain, dx + 0, dy - 1);
+                t2tl := getTile(terrain, dx - 1, dy + 1);
+                t2tr := getTile(terrain, dx + 1, dy + 1);
+                t2bl := getTile(terrain, dx - 1, dy - 1);
+                t2br := getTile(terrain, dx + 1, dy - 1);
+                b2l := t2l == surround || t2l == create || t2l == TILE_TYPE_TOTAL;
+                b2r := t2r == surround || t2r == create || t2r == TILE_TYPE_TOTAL;
+                b2t := t2t == surround || t2t == create || t2t == TILE_TYPE_TOTAL;
+                b2b := t2b == surround || t2b == create || t2b == TILE_TYPE_TOTAL;
+                b2tl := t2tl == surround || t2tl == create || t2tl == TILE_TYPE_TOTAL;
+                b2tr := t2tr == surround || t2tr == create || t2tr == TILE_TYPE_TOTAL;
+                b2bl := t2bl == surround || t2bl == create || t2bl == TILE_TYPE_TOTAL;
+                b2br := t2br == surround || t2br == create || t2br == TILE_TYPE_TOTAL;
+                if t2.tileType != create &&
+                   b2l && b2r && b2t && b2b && b2tl && b2tr && b2bl && b2br
+                {
+                    if cast(uint32) asl.randomInt32(rand) % cast(uint32) 4 == 0 then
+                        continue;
+
+                    islandQueueX[islandQueueF] = dx;
+                    islandQueueY[islandQueueF] = dy;
+                    islandQueueF = islandQueueF + 1;
+
+                    t2.tileType = create;
+                }
+            }
+        }
+    }
+}
