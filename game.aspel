@@ -97,11 +97,13 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
         if percYellow < 0.0 then percYellow = 0.0;
         if percYellow > 1.0 then percYellow = 1.0;
 
+        totalGray: float32 = percGray - percYellow;
+
         renderSpriteAdv(halfOW - 0.51,
-                        halfOH - 0.55 - manaIconI * 0.3 + (1.0 - (percGray - percYellow)) * 0.28,
-                        0.28, 0.28 * (percGray - percYellow), 0.0,
+                        halfOH - 0.55 - manaIconI * 0.3 + (1.0 - percGray) * 0.28,
+                        0.28, 0.28 * totalGray, 0.0,
                         0.0, 1.0,
-                        1.0 - (percGray - percYellow), 1.0,
+                        1.0 - percGray, 1.0 - percYellow,
                         0.8, 0.8, 0.8, 1.0,
                         art.manaSprite);
 
@@ -130,6 +132,14 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                      art.inventorySprite);
 
         // TODO: Place icons in these...
+
+        if actionBarI == 0
+        {
+            renderAnimation(&art.projectileAnimation,
+                            -halfOW + 0.4 + actionBarI * 0.60,
+                            halfOH - 0.75,
+                            0.38, 0.38, -45.0);
+        }
 
         renderSprite(-halfOW + 0.25 + actionBarI * 0.60,
                      halfOH - 0.9,

@@ -124,33 +124,18 @@ projectileCollideWithEntities :: func int32(world: World^, projectile: Projectil
     return resultCount;
 }
 
+entityTakeDamage :: func void(world: World^, e: Entity^, dmg: float32)
+{
+    e.health = e.health - dmg;
+    if e.health < 0.0
+    {
+        removeEntityFromWorld(world, e);
+    }
+}
+
 renderEntity :: func void(e: Entity^)
 {
-    frameIndex: int32 = e.animation.tick / e.animation.frameTime;
-
-    renderSprite(e.x, e.y, e.w, e.h, e.animation.frames[frameIndex]);
-
-    e.animation.tick = e.animation.tick + 1;
-    if e.animation.tick >= (e.animation.frameTime * e.animation.frames.n) then
-        e.animation.tick = 0;
-
-    if e.animation.hasSlowFrames
-    {
-        slowFrameIndex: int32 = 0;
-        if e.animation.slowTick >= e.animation.slowFrameFreq
-        {
-            slowFrameIndex = ((e.animation.slowTick -
-                               e.animation.slowFrameFreq) / e.animation.slowFrameTime);
-        }
-
-        renderSprite(e.x, e.y, e.w, e.h, e.animation.slowFrames[slowFrameIndex]);
-
-        e.animation.slowTick = e.animation.slowTick + 1;
-        if e.animation.slowTick >= e.animation.slowFrameFreq +
-                                   (e.animation.slowFrameTime *
-                                    e.animation.slowFrames.n) then
-            e.animation.slowTick = 0;
-    }
+    renderAnimation(&e.animation, e.x, e.y, e.w, e.h, 0.0);
 }
 
 initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
@@ -159,15 +144,15 @@ initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
     player.y = posY;
     player.w = 0.8;
     player.h = 0.8;
-    player.animation = art.playerAnimation;
+    player.animation = art.invalidAnimation;
 
-    player.health = 582;
-    player.maxHealth = 800;
+    player.health = 322;
+    player.maxHealth = 400;
     player.mana = 124;
     player.maxMana = 150;
 
     player.tick = tickPlayer;
-    player.render = renderEntity;
+    player.render = renderPlayer;
 }
 
 initEye :: func void(eye: Entity^, posX: float32, posY: float32)
@@ -201,8 +186,6 @@ initEye :: func void(eye: Entity^, posX: float32, posY: float32)
     eye.render = renderEntity;
 }
 
-playerGunCooldown: int32 = 0;
-
 tickPlayer :: func void(worldV: void^, player: Entity^)
 {
     world: World^ = cast(World^) worldV;
@@ -211,45 +194,50 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
 
     movementSpeed :: 0.05;
 
-    mx := 0.0;
-    my := 0.0;
+    mx := 0;
+    my := 0;
     if input.key[INPUT_KEY_LEFT]  then mx = mx - 1;
     if input.key[INPUT_KEY_RIGHT] then mx = mx + 1;
     if input.key[INPUT_KEY_DOWN]  then my = my - 1;
     if input.key[INPUT_KEY_UP]    then my = my + 1;
 
-    if playerGunCooldown == 0
+    player.health = player.health + 0.02;
+    if player.health > player.maxHealth then
+        player.health = player.maxHealth;
+
+    player.mana = player.mana + 0.02;
+    if player.mana > player.maxMana then
+        player.mana = player.maxMana;
+
+    if (input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]) && player.mana >= 2.5
     {
-        if input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]
-        {
-            random: asl.Random;
-            asl.seedRandomTime(&random);
+        player.mana = player.mana - 2.5;
 
-            mouseAngle := asl.atan2(-input.mouseX, -input.mouseY);
+        random: asl.Random;
+        asl.seedRandomTime(&random);
 
-            projectile := addProjectileToWorld(world);
-            projectile.x = player.x + player.w / 2.0 - 0.15;
-            projectile.y = player.y + player.h / 2.0 - 0.15;
-            projectile.z = 0;
+        mouseAngle := asl.atan2(-input.mouseX, -input.mouseY);
 
-            projectile.a = asl.to_degrees(mouseAngle);
-            projectile.speed = 0.05;
-            projectile.owner = player;
-            projectile.damage = 8;
+        projectile := addProjectileToWorld(world);
+        projectile.x = player.x + player.w / 2.0 - 0.15;
+        projectile.y = player.y + player.h / 2.0 - 0.15;
+        projectile.z = 0;
 
-            projectile.radius = 0.15;
-            projectile.lifetime = 400;
-            projectile.animation = art.projectileAnimation;
-            projectile.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
-                                             cast(uint32)(projectile.animation.frameTime *
-                                                          projectile.animation.frames.n));
-        }
+        projectile.a = asl.to_degrees(mouseAngle);
+        projectile.speed = 0.05;
+        projectile.owner = player;
+        projectile.damage = 8;
+
+        projectile.radius = 0.15;
+        projectile.lifetime = 400;
+        projectile.animation = art.projectileAnimation;
+        projectile.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
+                                         cast(uint32)(projectile.animation.frameTime *
+                                                      projectile.animation.frames.n));
     }
-    else
-        playerGunCooldown = playerGunCooldown - 1;
 
-    moveX: float32 = mx * movementSpeed;
-    moveY: float32 = my * movementSpeed;
+    moveX: float32 = cast(float32) mx * movementSpeed;
+    moveY: float32 = cast(float32) my * movementSpeed;
 
     if !input.key[INPUT_KEY_MACRO4] then
         entityCollideWithTerrain(&world.terrain, player, &moveX, &moveY);
@@ -257,6 +245,22 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
 
     player.x = player.x + moveX;
     player.y = player.y + moveY;
+
+    walk: int32 = 0;
+    if mx != 0 || my != 0 then walk = 1;
+
+    prevWalk: int32 = player.userdata & 0x1;
+    if walk == 0
+    {
+        if walk != prevWalk
+        {
+            player.userdata = player.userdata & ~0x1;
+        }
+    }
+    else
+    {
+        player.userdata = (player.userdata & 0xFF00) | ((mx + 1) << 4) | ((my + 1) << 1) | 0x1;
+    }
 }
 
 tickEye :: func void(worldV: void^, eye: Entity^)
@@ -289,7 +293,130 @@ tickEye :: func void(worldV: void^, eye: Entity^)
 
     eye.x = eye.x + moveX;
     eye.y = eye.y + moveY;
+}
 
-    if eye.health < 0.0 then
-        removeEntityFromWorld(world, eye);
+renderPlayer :: func void(player: Entity^)
+{
+    userdata := player.userdata;
+    mx := ((userdata >> 4) & 0x3) - 1;
+    my := ((userdata >> 1) & 0x3) - 1;
+    walk := userdata & 0x1;
+    tick := (userdata & 0xFF00) >> 8;
+
+    player.userdata = (userdata & ~0xFF00) | ((tick + 1) << 8);
+
+    eyesAnimP: Animation^ = &art.invalidAnimation;
+    hairAnimP: Animation^ = &art.invalidAnimation;
+    skinAnimP: Animation^ = &art.invalidAnimation;
+    bodyAnimP: Animation^ = &art.invalidAnimation;
+    flipX: bool = false;
+
+    if my < 0
+    {
+        if walk == 0
+        {
+            eyesAnimP = &art.playerEyesRestDownAnimation;
+            hairAnimP = &art.playerHairRestDownAnimation;
+            skinAnimP = &art.playerSkinRestDownAnimation;
+            bodyAnimP = &art.playerBodyRestDownAnimation;
+        }
+        else
+        {
+            eyesAnimP = &art.playerEyesWalkDownAnimation;
+            hairAnimP = &art.playerHairWalkDownAnimation;
+            skinAnimP = &art.playerSkinWalkDownAnimation;
+            bodyAnimP = &art.playerBodyWalkDownAnimation;
+        }
+    }
+    else if my > 0
+    {
+        if walk == 0
+        {
+            eyesAnimP = &art.playerEyesRestUpAnimation;
+            hairAnimP = &art.playerHairRestUpAnimation;
+            skinAnimP = &art.playerSkinRestUpAnimation;
+            bodyAnimP = &art.playerBodyRestUpAnimation;
+        }
+        else
+        {
+            eyesAnimP = &art.playerEyesWalkUpAnimation;
+            hairAnimP = &art.playerHairWalkUpAnimation;
+            skinAnimP = &art.playerSkinWalkUpAnimation;
+            bodyAnimP = &art.playerBodyWalkUpAnimation;
+        }
+    }
+    else if mx > 0
+    {
+        if walk == 0
+        {
+            eyesAnimP = &art.playerEyesRestRightAnimation;
+            hairAnimP = &art.playerHairRestRightAnimation;
+            skinAnimP = &art.playerSkinRestRightAnimation;
+            bodyAnimP = &art.playerBodyRestRightAnimation;
+        }
+        else
+        {
+            eyesAnimP = &art.playerEyesWalkRightAnimation;
+            hairAnimP = &art.playerHairWalkRightAnimation;
+            skinAnimP = &art.playerSkinWalkRightAnimation;
+            bodyAnimP = &art.playerBodyWalkRightAnimation;
+        }
+    }
+    else if mx < 0
+    {
+        if walk == 0
+        {
+            eyesAnimP = &art.playerEyesRestRightAnimation;
+            hairAnimP = &art.playerHairRestRightAnimation;
+            skinAnimP = &art.playerSkinRestRightAnimation;
+            bodyAnimP = &art.playerBodyRestRightAnimation;
+        }
+        else
+        {
+            eyesAnimP = &art.playerEyesWalkRightAnimation;
+            hairAnimP = &art.playerHairWalkRightAnimation;
+            skinAnimP = &art.playerSkinWalkRightAnimation;
+            bodyAnimP = &art.playerBodyWalkRightAnimation;
+        }
+        flipX = true;
+    }
+
+    eyesAnim := ^eyesAnimP;
+    hairAnim := ^hairAnimP;
+    skinAnim := ^skinAnimP;
+    bodyAnim := ^bodyAnimP;
+    eyesAnim.tick = tick % (eyesAnim.frameTime * eyesAnim.frames.n);
+    hairAnim.tick = tick % (hairAnim.frameTime * hairAnim.frames.n);
+    skinAnim.tick = tick % (skinAnim.frameTime * skinAnim.frames.n);
+    bodyAnim.tick = tick % (bodyAnim.frameTime * bodyAnim.frames.n);
+
+    tl := 0.0;
+    tr := 1.0;
+    if flipX
+    {
+        tl = 1.0;
+        tr = 0.0;
+    }
+
+    eyesColorR := 0.10;
+    eyesColorG := 0.34;
+    eyesColorB := 0.00;
+    hairColorR := 0.62;
+    hairColorG := 0.31;
+    hairColorB := 0.92;
+    skinColorR := 0.98;
+    skinColorG := 0.82;
+    skinColorB := 0.18;
+    bodyColorR := 0.02;
+    bodyColorG := 0.61;
+    bodyColorB := 0.00;
+
+    renderAnimationAdv(&eyesAnim, player.x, player.y, player.w, player.h, 0.0,
+                       tl, tr, 0.0, 1.0, eyesColorR, eyesColorG, eyesColorB, 1.0);
+    renderAnimationAdv(&hairAnim, player.x, player.y, player.w, player.h, 0.0,
+                       tl, tr, 0.0, 1.0, hairColorR, hairColorG, hairColorB, 1.0);
+    renderAnimationAdv(&skinAnim, player.x, player.y, player.w, player.h, 0.0,
+                       tl, tr, 0.0, 1.0, skinColorR, skinColorG, skinColorB, 1.0);
+    renderAnimationAdv(&bodyAnim, player.x, player.y, player.w, player.h, 0.0,
+                       tl, tr, 0.0, 1.0, bodyColorR, bodyColorG, bodyColorB, 1.0);
 }

@@ -37,8 +37,7 @@ tickProjectile :: func void(world: World^, p: Projectile^)
 
         if collisionC > index
         {
-            // TODO: Some unified "taking damage" system.
-            collisions[index].health = collisions[index].health - p.damage;
+            entityTakeDamage(world, collisions[index], p.damage);
             removeProjectileFromWorld(world, p);
         }
     }
@@ -52,33 +51,5 @@ tickProjectile :: func void(world: World^, p: Projectile^)
 
 renderProjectile :: func void(p: Projectile^)
 {
-    frameIndex: int32 = p.animation.tick / p.animation.frameTime;
-
-    renderRotatedSprite(p.x - p.radius, p.y - p.radius,
-                        p.radius * 2.0, p.radius * 2.0, p.a,
-                        p.animation.frames[frameIndex]);
-
-    p.animation.tick = p.animation.tick + 1;
-    if p.animation.tick >= (p.animation.frameTime * p.animation.frames.n) then
-        p.animation.tick = 0;
-
-    if p.animation.hasSlowFrames
-    {
-        slowFrameIndex: int32 = 0;
-        if p.animation.slowTick >= p.animation.slowFrameFreq
-        {
-            slowFrameIndex = ((p.animation.slowTick -
-                               p.animation.slowFrameFreq) / p.animation.slowFrameTime);
-        }
-
-        renderSprite(p.x - p.radius, p.y - p.radius,
-                     p.radius * 2.0, p.radius * 2.0,
-                     p.animation.slowFrames[slowFrameIndex]);
-
-        p.animation.slowTick = p.animation.slowTick + 1;
-        if p.animation.slowTick >= p.animation.slowFrameFreq +
-                                   (p.animation.slowFrameTime *
-                                    p.animation.slowFrames.n) then
-            p.animation.slowTick = 0;
-    }
+    renderAnimation(&p.animation, p.x, p.y, p.radius * 2.0, p.radius * 2.0, p.a);
 }

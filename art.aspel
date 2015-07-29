@@ -35,8 +35,58 @@ namespace art
 {
     ss1: SpriteSheet;
 
-    playerFrames: Sprite[] : [2];
-    playerAnimation: Animation;
+    invalidFrames: Sprite[] : [1];
+    invalidAnimation: Animation;
+
+    playerEyesRestDownFrames:  Sprite[] : [1];
+    playerEyesRestUpFrames:    Sprite[] : [1];
+    playerEyesRestRightFrames: Sprite[] : [1];
+    playerEyesWalkDownFrames:  Sprite[] : [2];
+    playerEyesWalkUpFrames:    Sprite[] : [2];
+    playerEyesWalkRightFrames: Sprite[] : [2];
+    playerHairRestDownFrames:  Sprite[] : [1];
+    playerHairRestUpFrames:    Sprite[] : [1];
+    playerHairRestRightFrames: Sprite[] : [1];
+    playerHairWalkDownFrames:  Sprite[] : [2];
+    playerHairWalkUpFrames:    Sprite[] : [2];
+    playerHairWalkRightFrames: Sprite[] : [2];
+    playerSkinRestDownFrames:  Sprite[] : [1];
+    playerSkinRestUpFrames:    Sprite[] : [1];
+    playerSkinRestRightFrames: Sprite[] : [1];
+    playerSkinWalkDownFrames:  Sprite[] : [2];
+    playerSkinWalkUpFrames:    Sprite[] : [2];
+    playerSkinWalkRightFrames: Sprite[] : [2];
+    playerBodyRestDownFrames:  Sprite[] : [1];
+    playerBodyRestUpFrames:    Sprite[] : [1];
+    playerBodyRestRightFrames: Sprite[] : [1];
+    playerBodyWalkDownFrames:  Sprite[] : [2];
+    playerBodyWalkUpFrames:    Sprite[] : [2];
+    playerBodyWalkRightFrames: Sprite[] : [2];
+
+    playerEyesRestDownAnimation:  Animation;
+    playerEyesRestUpAnimation:    Animation;
+    playerEyesRestRightAnimation: Animation;
+    playerEyesWalkDownAnimation:  Animation;
+    playerEyesWalkUpAnimation:    Animation;
+    playerEyesWalkRightAnimation: Animation;
+    playerHairRestDownAnimation:  Animation;
+    playerHairRestUpAnimation:    Animation;
+    playerHairRestRightAnimation: Animation;
+    playerHairWalkDownAnimation:  Animation;
+    playerHairWalkUpAnimation:    Animation;
+    playerHairWalkRightAnimation: Animation;
+    playerSkinRestDownAnimation:  Animation;
+    playerSkinRestUpAnimation:    Animation;
+    playerSkinRestRightAnimation: Animation;
+    playerSkinWalkDownAnimation:  Animation;
+    playerSkinWalkUpAnimation:    Animation;
+    playerSkinWalkRightAnimation: Animation;
+    playerBodyRestDownAnimation:  Animation;
+    playerBodyRestUpAnimation:    Animation;
+    playerBodyRestRightAnimation: Animation;
+    playerBodyWalkDownAnimation:  Animation;
+    playerBodyWalkUpAnimation:    Animation;
+    playerBodyWalkRightAnimation: Animation;
 
     eyeFrames: Sprite[] : [4];
     eyeSlowFrames: Sprite[] : [6];
@@ -51,16 +101,91 @@ namespace art
     actionBarSprites: Sprite[] : [6];
 }
 
+setAnimationFrames :: func void(a: Animation^, frames: Sprite[], frameTime: int32, tick: int32)
+{
+    a.frames = frames;
+    a.frameTime = frameTime;
+    a.tick = tick;
+}
+
+setAnimationSlowFrames :: func void(a: Animation^, slowFrames: Sprite[], slowFrameTime: int32,
+                                    slowFrameFreq: int32, slowTick: int32)
+{
+    a.hasSlowFrames = true;
+    a.slowFrames = slowFrames;
+    a.slowFrameTime = slowFrameTime;
+    a.slowFrameFreq = slowFrameFreq;
+    a.slowTick = slowTick;
+}
+
 loadArt :: func void()
 {
     art.ss1 = loadSpriteSheet("spritesheet1.bmp");
 
-    art.playerFrames[0] = getSprite(art.ss1, 25, 0, 2, 2, 8);
-    art.playerFrames[1] = getSprite(art.ss1, 25, 2, 2, 2, 8);
-    art.playerAnimation.frames = art.playerFrames;
-    art.playerAnimation.frameTime = 10;
-    art.playerAnimation.tick = 0;
-    art.playerAnimation.hasSlowFrames = false;
+    art.invalidFrames[0] = getSprite(art.ss1, 30, 27, 2, 2, 8);
+    setAnimationFrames(&art.invalidAnimation, art.invalidFrames, 1, 0);
+
+    art.playerEyesRestDownFrames[0]  = getSprite(art.ss1,  0,  7, 2, 2, 8);
+    art.playerEyesRestUpFrames[0]    = getSprite(art.ss1,  2,  7, 2, 2, 8);
+    art.playerEyesRestRightFrames[0] = getSprite(art.ss1,  4,  7, 2, 2, 8);
+    art.playerEyesWalkDownFrames[0]  = getSprite(art.ss1,  0,  9, 2, 2, 8);
+    art.playerEyesWalkDownFrames[1]  = getSprite(art.ss1,  0, 11, 2, 2, 8);
+    art.playerEyesWalkUpFrames[0]    = getSprite(art.ss1,  2,  9, 2, 2, 8);
+    art.playerEyesWalkUpFrames[1]    = getSprite(art.ss1,  2, 11, 2, 2, 8);
+    art.playerEyesWalkRightFrames[0] = getSprite(art.ss1,  4,  9, 2, 2, 8);
+    art.playerEyesWalkRightFrames[1] = getSprite(art.ss1,  4, 11, 2, 2, 8);
+    art.playerSkinRestDownFrames[0]  = getSprite(art.ss1,  0, 13, 2, 2, 8);
+    art.playerSkinRestUpFrames[0]    = getSprite(art.ss1,  2, 13, 2, 2, 8);
+    art.playerSkinRestRightFrames[0] = getSprite(art.ss1,  4, 13, 2, 2, 8);
+    art.playerSkinWalkDownFrames[0]  = getSprite(art.ss1,  0, 15, 2, 2, 8);
+    art.playerSkinWalkDownFrames[1]  = getSprite(art.ss1,  0, 17, 2, 2, 8);
+    art.playerSkinWalkUpFrames[0]    = getSprite(art.ss1,  2, 15, 2, 2, 8);
+    art.playerSkinWalkUpFrames[1]    = getSprite(art.ss1,  2, 17, 2, 2, 8);
+    art.playerSkinWalkRightFrames[0] = getSprite(art.ss1,  4, 15, 2, 2, 8);
+    art.playerSkinWalkRightFrames[1] = getSprite(art.ss1,  4, 17, 2, 2, 8);
+    art.playerHairRestDownFrames[0]  = getSprite(art.ss1,  0, 19, 2, 2, 8);
+    art.playerHairRestUpFrames[0]    = getSprite(art.ss1,  2, 19, 2, 2, 8);
+    art.playerHairRestRightFrames[0] = getSprite(art.ss1,  4, 19, 2, 2, 8);
+    art.playerHairWalkDownFrames[0]  = getSprite(art.ss1,  0, 21, 2, 2, 8);
+    art.playerHairWalkDownFrames[1]  = getSprite(art.ss1,  0, 23, 2, 2, 8);
+    art.playerHairWalkUpFrames[0]    = getSprite(art.ss1,  2, 21, 2, 2, 8);
+    art.playerHairWalkUpFrames[1]    = getSprite(art.ss1,  2, 23, 2, 2, 8);
+    art.playerHairWalkRightFrames[0] = getSprite(art.ss1,  4, 21, 2, 2, 8);
+    art.playerHairWalkRightFrames[1] = getSprite(art.ss1,  4, 23, 2, 2, 8);
+    art.playerBodyRestDownFrames[0]  = getSprite(art.ss1,  6,  7, 2, 2, 8);
+    art.playerBodyRestUpFrames[0]    = getSprite(art.ss1,  8,  7, 2, 2, 8);
+    art.playerBodyRestRightFrames[0] = getSprite(art.ss1, 10,  7, 2, 2, 8);
+    art.playerBodyWalkDownFrames[0]  = getSprite(art.ss1,  6,  9, 2, 2, 8);
+    art.playerBodyWalkDownFrames[1]  = getSprite(art.ss1,  6, 11, 2, 2, 8);
+    art.playerBodyWalkUpFrames[0]    = getSprite(art.ss1,  8,  9, 2, 2, 8);
+    art.playerBodyWalkUpFrames[1]    = getSprite(art.ss1,  8, 11, 2, 2, 8);
+    art.playerBodyWalkRightFrames[0] = getSprite(art.ss1, 10,  9, 2, 2, 8);
+    art.playerBodyWalkRightFrames[1] = getSprite(art.ss1, 10, 11, 2, 2, 8);
+
+    setAnimationFrames(&art.playerEyesRestDownAnimation,  art.playerEyesRestDownFrames,  1,  0);
+    setAnimationFrames(&art.playerEyesRestUpAnimation,    art.playerEyesRestUpFrames,    1,  0);
+    setAnimationFrames(&art.playerEyesRestRightAnimation, art.playerEyesRestRightFrames, 1,  0);
+    setAnimationFrames(&art.playerEyesWalkDownAnimation,  art.playerEyesWalkDownFrames,  10, 0);
+    setAnimationFrames(&art.playerEyesWalkUpAnimation,    art.playerEyesWalkUpFrames,    10, 0);
+    setAnimationFrames(&art.playerEyesWalkRightAnimation, art.playerEyesWalkRightFrames, 10, 0);
+    setAnimationFrames(&art.playerHairRestDownAnimation,  art.playerHairRestDownFrames,  1,  0);
+    setAnimationFrames(&art.playerHairRestUpAnimation,    art.playerHairRestUpFrames,    1,  0);
+    setAnimationFrames(&art.playerHairRestRightAnimation, art.playerHairRestRightFrames, 1,  0);
+    setAnimationFrames(&art.playerHairWalkDownAnimation,  art.playerHairWalkDownFrames,  10, 0);
+    setAnimationFrames(&art.playerHairWalkUpAnimation,    art.playerHairWalkUpFrames,    10, 0);
+    setAnimationFrames(&art.playerHairWalkRightAnimation, art.playerHairWalkRightFrames, 10, 0);
+    setAnimationFrames(&art.playerSkinRestDownAnimation,  art.playerSkinRestDownFrames,  1,  0);
+    setAnimationFrames(&art.playerSkinRestUpAnimation,    art.playerSkinRestUpFrames,    1,  0);
+    setAnimationFrames(&art.playerSkinRestRightAnimation, art.playerSkinRestRightFrames, 1,  0);
+    setAnimationFrames(&art.playerSkinWalkDownAnimation,  art.playerSkinWalkDownFrames,  10, 0);
+    setAnimationFrames(&art.playerSkinWalkUpAnimation,    art.playerSkinWalkUpFrames,    10, 0);
+    setAnimationFrames(&art.playerSkinWalkRightAnimation, art.playerSkinWalkRightFrames, 10, 0);
+    setAnimationFrames(&art.playerBodyRestDownAnimation,  art.playerBodyRestDownFrames,  1,  0);
+    setAnimationFrames(&art.playerBodyRestUpAnimation,    art.playerBodyRestUpFrames,    1,  0);
+    setAnimationFrames(&art.playerBodyRestRightAnimation, art.playerBodyRestRightFrames, 1,  0);
+    setAnimationFrames(&art.playerBodyWalkDownAnimation,  art.playerBodyWalkDownFrames,  10, 0);
+    setAnimationFrames(&art.playerBodyWalkUpAnimation,    art.playerBodyWalkUpFrames,    10, 0);
+    setAnimationFrames(&art.playerBodyWalkRightAnimation, art.playerBodyWalkRightFrames, 10, 0);
 
     art.eyeFrames[0] = getSprite(art.ss1, 29, 0, 3, 3, 8);
     art.eyeFrames[1] = getSprite(art.ss1, 29, 3, 3, 3, 8);
@@ -72,23 +197,14 @@ loadArt :: func void()
     art.eyeSlowFrames[3] = getSprite(art.ss1, 29, 18, 3, 3, 8);
     art.eyeSlowFrames[4] = getSprite(art.ss1, 29, 15, 3, 3, 8);
     art.eyeSlowFrames[5] = getSprite(art.ss1, 29, 12, 3, 3, 8);
-    art.eyeAnimation.frames = art.eyeFrames;
-    art.eyeAnimation.frameTime = 10;
-    art.eyeAnimation.tick = 0;
-    art.eyeAnimation.hasSlowFrames = true;
-    art.eyeAnimation.slowFrames = art.eyeSlowFrames;
-    art.eyeAnimation.slowFrameTime = 5;
-    art.eyeAnimation.slowFrameFreq = 250;
-    art.eyeAnimation.slowTick = 0;
+    setAnimationFrames(&art.eyeAnimation, art.eyeFrames, 10, 0);
+    setAnimationSlowFrames(&art.eyeAnimation, art.eyeSlowFrames, 5, 250, 0);
 
     art.projectileFrames[0] = getSprite(art.ss1, 27, 0, 2, 2, 8);
     art.projectileFrames[1] = getSprite(art.ss1, 27, 2, 2, 2, 8);
     art.projectileFrames[2] = getSprite(art.ss1, 27, 4, 2, 2, 8);
     art.projectileFrames[3] = getSprite(art.ss1, 27, 2, 2, 2, 8);
-    art.projectileAnimation.frames = art.projectileFrames;
-    art.projectileAnimation.frameTime = 2;
-    art.projectileAnimation.tick = 0;
-    art.projectileAnimation.hasSlowFrames = false;
+    setAnimationFrames(&art.projectileAnimation, art.projectileFrames, 2, 0);
 
     art.heartSprite = getSprite(art.ss1, 22, 4, 1, 1, 8);
     art.manaSprite = getSprite(art.ss1, 21, 4, 1, 1, 8);
@@ -179,22 +295,6 @@ loadBitmap :: func Texture(filepath: asl.string, out_width: uint32^, out_height:
     return texture;
 }
 
-renderSprite :: func void(x: float32, y: float32,
-                          w: float32, h: float32,
-                          s: Sprite)
-{
-    gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
-
-    gl.glColor3f(1, 1, 1);
-
-    gl.glBegin(gl.GL_QUADS);
-    gl.glTexCoord2f(s.l + 1e-7, s.b + 1e-7); gl.glVertex2f(x     + 1e-7, y     + 1e-7);
-    gl.glTexCoord2f(s.r - 1e-7, s.b + 1e-7); gl.glVertex2f(x + w - 1e-7, y     + 1e-7);
-    gl.glTexCoord2f(s.r - 1e-7, s.t - 1e-7); gl.glVertex2f(x + w - 1e-7, y + h - 1e-7);
-    gl.glTexCoord2f(s.l + 1e-7, s.t - 1e-7); gl.glVertex2f(x     + 1e-7, y + h - 1e-7);
-    gl.glEnd();
-}
-
 renderSpriteAdv :: func void(x: float32, y: float32,
                              w: float32, h: float32,
                              a: float32,
@@ -230,27 +330,66 @@ renderSpriteAdv :: func void(x: float32, y: float32,
     gl.glPopMatrix();
 }
 
+renderSprite :: func void(x: float32, y: float32,
+                          w: float32, h: float32,
+                          s: Sprite)
+{
+    renderSpriteAdv(x, y, w, h, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, s);
+}
+
 renderRotatedSprite :: func void(x: float32, y: float32,
                                  w: float32, h: float32,
                                  a: float32, s: Sprite)
 {
-    hw := w / 2.0;
-    hh := h / 2.0;
+    renderSpriteAdv(x, y, w, h, a, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, s);
+}
 
-    gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
+renderAnimationAdv :: func void(a: Animation^,
+                                x: float32, y: float32,
+                                w: float32, h: float32,
+                                r: float32,
+                                tl: float32, tr: float32,
+                                tb: float32, tt: float32,
+                                cr: float32, cg: float32, cb: float32, ca: float32)
+{
+    frameIndex: int32 = a.tick / a.frameTime;
 
-    gl.glPushMatrix();
-    gl.glTranslatef(x + hw, y + hh, 0.0);
-    gl.glRotatef(a, 0.0, 0.0, 1.0);
+    renderSpriteAdv(x, y,
+                    w, h, r,
+                    tl, tr,
+                    tb, tt,
+                    cr, cg, cb, ca,
+                    a.frames[frameIndex]);
 
-    gl.glColor3f(1, 1, 1);
+    a.tick = a.tick + 1;
+    if a.tick >= (a.frameTime * a.frames.n) then
+        a.tick = 0;
 
-    gl.glBegin(gl.GL_QUADS);
-    gl.glTexCoord2f(s.l + 1e-7, s.b + 1e-7); gl.glVertex2f(-hw - 1e-7, -hh - 1e-7);
-    gl.glTexCoord2f(s.r - 1e-7, s.b + 1e-7); gl.glVertex2f( hw + 1e-7, -hh - 1e-7);
-    gl.glTexCoord2f(s.r - 1e-7, s.t - 1e-7); gl.glVertex2f( hw + 1e-7,  hh + 1e-7);
-    gl.glTexCoord2f(s.l + 1e-7, s.t - 1e-7); gl.glVertex2f(-hw - 1e-7,  hh + 1e-7);
-    gl.glEnd();
+    if a.hasSlowFrames
+    {
+        slowFrameIndex: int32 = 0;
+        if a.slowTick >= a.slowFrameFreq then
+            slowFrameIndex = ((a.slowTick - a.slowFrameFreq) / a.slowFrameTime);
 
-    gl.glPopMatrix();
+        renderSpriteAdv(x, y,
+                        w, h, r,
+                        tl, tr,
+                        tb, tt,
+                        cr, cg, cb, ca,
+                        a.slowFrames[slowFrameIndex]);
+
+        a.slowTick = a.slowTick + 1;
+        if a.slowTick >= a.slowFrameFreq + (a.slowFrameTime * a.slowFrames.n) then
+            a.slowTick = 0;
+    }
+}
+
+renderAnimation :: func void(a: Animation^,
+                             x: float32, y: float32,
+                             w: float32, h: float32,
+                             r: float32)
+{
+    renderAnimationAdv(a, x, y, w, h, r,
+                       0.0, 1.0, 0.0, 1.0,
+                       1.0, 1.0, 1.0, 1.0);
 }
