@@ -43,12 +43,12 @@ getTile :: func TileType(terrain: Terrain^, x: int32, y: int32)
 getBaseSpriteForTile :: func Sprite(tileType: TileType)
 {
     if (tileType == TILE_TYPE_WATER) then
-        return getSprite(art.ss1, 5, 0, 1, 1, 8);
+        return getSprite(art.ssTerrain, 5, 0, 1, 1, 8);
     if (tileType == TILE_TYPE_GRASS) then
-        return getSprite(art.ss1, 1, 1, 1, 1, 8);
+        return getSprite(art.ssTerrain, 1, 1, 1, 1, 8);
     if (tileType == TILE_TYPE_ROCK) then
-        return getSprite(art.ss1, 1, 4, 1, 1, 8);
-    return getSprite(art.ss1, 6, 0, 1, 1, 8);
+        return getSprite(art.ssTerrain, 1, 4, 1, 1, 8);
+    return getSprite(art.ssTerrain, 6, 0, 1, 1, 8);
 }
 
 getUnderEdgeTile :: func TileType(tileType: TileType)
@@ -128,7 +128,7 @@ renderTerrain :: func void(terrain: Terrain^,
                     }
 
                     renderSprite(x + dx * 0.5, y + dy * 0.5, 0.5, 0.5,
-                        getSprite(art.ss1, edgeX, edgeY + yo, 1, 1, 8));
+                        getSprite(art.ssTerrain, edgeX, edgeY + yo, 1, 1, 8));
 
                     i = i + 1;
                 }

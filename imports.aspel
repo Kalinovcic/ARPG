@@ -34,3 +34,6 @@ import "projectile.aspel";
 import "ability.aspel";
 import "effect.aspel";
 import "particle.aspel";
+
+import "entity/player.aspel";
+import "entity/overlord.aspel";

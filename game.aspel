@@ -74,7 +74,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                         percRed, percGray,
                         0.0, 1.0,
                         0.8, 0.8, 0.8, 1.0,
-                        art.heartSprite);
+                        art.ui.heart);
 
         renderSpriteAdv(halfOW - 0.7 - HEARTS_PER_ROW * 0.3 + col * 0.3,
                         halfOH - 0.55 - row * 0.3,
@@ -82,7 +82,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                         0.0, percRed,
                         0.0, 1.0,
                         1.0, 0.1, 0.1, 1.0,
-                        art.heartSprite);
+                        art.ui.heart);
 
         heartI = heartI + 1;
         healthI = heartI * HEALTH_PER_HEART;
@@ -125,7 +125,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                         0.0, 1.0,
                         1.0 - percGray, 1.0 - percYellow,
                         0.8, 0.8, 0.8, 1.0,
-                        art.manaSprite);
+                        art.ui.mana);
 
         renderSpriteAdv(halfOW - 0.51,
                         halfOH - 0.55 - manaIconI * 0.3 + (1.0 - percYellow) * 0.28,
@@ -133,7 +133,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                         0.0, 1.0,
                         1.0 - percYellow, 1.0,
                         1.0, 1.0, 0.0, 1.0,
-                        art.manaSprite);
+                        art.ui.mana);
 
         manaIconI = manaIconI + 1;
         manaI = manaIconI * MANA_PER_MANAICON;
@@ -149,7 +149,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                      0.58, 0.58, 0.0,
                      0.0, 1.0, 0.0, 1.0,
                      0.09, 0.66, 0.97, 0.7,
-                     art.inventorySprite);
+                     art.ui.TEMP_inventoryBox);
 
         ability := world.playerAbilities[actionBarI];
         if ability != null
@@ -163,7 +163,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
         renderSprite(-halfOW + 0.25 + actionBarI * 0.60,
                      halfOH - 0.9,
                      0.2, 0.2,
-                     art.actionBarSprites[actionBarI]);
+                     art.ui.actionBarSprites[actionBarI]);
 
         actionBarI = actionBarI + 1;
     }
@@ -193,7 +193,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                         0.38, 0.38, 0.0,
                         0.0, 1.0, 0.0, 1.0,
                         bgColorR, bgColorG, bgColorB, 0.8,
-                        art.effectBoxSprite);
+                        art.ui.TEMP_inventoryBox);
 
         renderSpriteAdv(-halfOW + 0.45 + activeEffectCount * 0.4 + 0.01,
                         halfOH - 1.3 + 0.01,
@@ -232,7 +232,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                                 0.49, 0.49, 0.0,
                                 0.0, 1.0, 0.0, 1.0,
                                 0.09, 0.66, 0.97, 0.9,
-                                art.inventorySprite);
+                                art.ui.TEMP_inventoryBox);
 
                 // TODO: Place icons in these...
 
@@ -265,7 +265,7 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                             0.49, 0.49, 0.0,
                             0.0, 1.0, 0.0, 1.0,
                             0.09, 0.66, 0.97, 0.9,
-                            art.inventorySprite);
+                            art.ui.TEMP_inventoryBox);
 
             renderText(EQUIPMENT_TITLES[equipmentI],
                        halfOW - 0.9,

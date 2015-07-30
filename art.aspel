@@ -33,82 +33,149 @@ Animation :: type struct
 
 namespace art
 {
-    ss1: SpriteSheet;
+    ssTerrain: SpriteSheet;
+    ssEntities: SpriteSheet;
+    ssProjectiles: SpriteSheet;
+    ssParticles: SpriteSheet;
+    ssUI: SpriteSheet;
 
-    invalidFrames: Sprite[] : [1];
-    invalidAnimation: Animation;
+    namespace entity
+    {
+        playerEyesRestDownFrames: Sprite[] : [1];
+        playerEyesWalkDownFrames: Sprite[] : [2];
+        playerSkinRestDownFrames: Sprite[] : [1];
+        playerSkinWalkDownFrames: Sprite[] : [2];
+        playerBodyRestDownFrames: Sprite[] : [1];
+        playerBodyWalkDownFrames: Sprite[] : [2];
+        playerHairRestDownFrames: Sprite[] : [1];
+        playerHairWalkDownFrames: Sprite[] : [2];
 
-    playerEyesRestDownFrames:  Sprite[] : [1];
-    playerEyesRestUpFrames:    Sprite[] : [1];
-    playerEyesRestRightFrames: Sprite[] : [1];
-    playerEyesWalkDownFrames:  Sprite[] : [2];
-    playerEyesWalkUpFrames:    Sprite[] : [2];
-    playerEyesWalkRightFrames: Sprite[] : [2];
-    playerHairRestDownFrames:  Sprite[] : [1];
-    playerHairRestUpFrames:    Sprite[] : [1];
-    playerHairRestRightFrames: Sprite[] : [1];
-    playerHairWalkDownFrames:  Sprite[] : [2];
-    playerHairWalkUpFrames:    Sprite[] : [2];
-    playerHairWalkRightFrames: Sprite[] : [2];
-    playerSkinRestDownFrames:  Sprite[] : [1];
-    playerSkinRestUpFrames:    Sprite[] : [1];
-    playerSkinRestRightFrames: Sprite[] : [1];
-    playerSkinWalkDownFrames:  Sprite[] : [2];
-    playerSkinWalkUpFrames:    Sprite[] : [2];
-    playerSkinWalkRightFrames: Sprite[] : [2];
-    playerBodyRestDownFrames:  Sprite[] : [1];
-    playerBodyRestUpFrames:    Sprite[] : [1];
-    playerBodyRestRightFrames: Sprite[] : [1];
-    playerBodyWalkDownFrames:  Sprite[] : [2];
-    playerBodyWalkUpFrames:    Sprite[] : [2];
-    playerBodyWalkRightFrames: Sprite[] : [2];
+        playerEyesRestUpFrames: Sprite[] : [1];
+        playerEyesWalkUpFrames: Sprite[] : [2];
+        playerSkinRestUpFrames: Sprite[] : [1];
+        playerSkinWalkUpFrames: Sprite[] : [2];
+        playerBodyRestUpFrames: Sprite[] : [1];
+        playerBodyWalkUpFrames: Sprite[] : [2];
+        playerHairRestUpFrames: Sprite[] : [1];
+        playerHairWalkUpFrames: Sprite[] : [2];
 
-    playerEyesRestDownAnimation:  Animation;
-    playerEyesRestUpAnimation:    Animation;
-    playerEyesRestRightAnimation: Animation;
-    playerEyesWalkDownAnimation:  Animation;
-    playerEyesWalkUpAnimation:    Animation;
-    playerEyesWalkRightAnimation: Animation;
-    playerHairRestDownAnimation:  Animation;
-    playerHairRestUpAnimation:    Animation;
-    playerHairRestRightAnimation: Animation;
-    playerHairWalkDownAnimation:  Animation;
-    playerHairWalkUpAnimation:    Animation;
-    playerHairWalkRightAnimation: Animation;
-    playerSkinRestDownAnimation:  Animation;
-    playerSkinRestUpAnimation:    Animation;
-    playerSkinRestRightAnimation: Animation;
-    playerSkinWalkDownAnimation:  Animation;
-    playerSkinWalkUpAnimation:    Animation;
-    playerSkinWalkRightAnimation: Animation;
-    playerBodyRestDownAnimation:  Animation;
-    playerBodyRestUpAnimation:    Animation;
-    playerBodyRestRightAnimation: Animation;
-    playerBodyWalkDownAnimation:  Animation;
-    playerBodyWalkUpAnimation:    Animation;
-    playerBodyWalkRightAnimation: Animation;
+        playerEyesRestRightFrames: Sprite[] : [1];
+        playerEyesWalkRightFrames: Sprite[] : [2];
+        playerSkinRestRightFrames: Sprite[] : [1];
+        playerSkinWalkRightFrames: Sprite[] : [2];
+        playerBodyRestRightFrames: Sprite[] : [1];
+        playerBodyWalkRightFrames: Sprite[] : [2];
+        playerHairRestRightFrames: Sprite[] : [1];
+        playerHairWalkRightFrames: Sprite[] : [2];
 
-    eyeFrames: Sprite[] : [4];
-    eyeSlowFrames: Sprite[] : [6];
-    eyeAnimation: Animation;
+        playerEyesRestDown: Animation;
+        playerEyesWalkDown: Animation;
+        playerSkinRestDown: Animation;
+        playerSkinWalkDown: Animation;
+        playerBodyRestDown: Animation;
+        playerBodyWalkDown: Animation;
+        playerHairRestDown: Animation;
+        playerHairWalkDown: Animation;
 
-    fireballFrames: Sprite[] : [4];
-    eyeballFrames: Sprite[] : [4];
-    fireballAnimation: Animation;
-    eyeballAnimation: Animation;
+        playerEyesRestUp: Animation;
+        playerEyesWalkUp: Animation;
+        playerSkinRestUp: Animation;
+        playerSkinWalkUp: Animation;
+        playerBodyRestUp: Animation;
+        playerBodyWalkUp: Animation;
+        playerHairRestUp: Animation;
+        playerHairWalkUp: Animation;
 
-    fireballParticle: Sprite;
-    eyeballParticle: Sprite;
+        playerEyesRestRight: Animation;
+        playerEyesWalkRight: Animation;
+        playerSkinRestRight: Animation;
+        playerSkinWalkRight: Animation;
+        playerBodyRestRight: Animation;
+        playerBodyWalkRight: Animation;
+        playerHairRestRight: Animation;
+        playerHairWalkRight: Animation;
 
-    heartSprite: Sprite;
-    manaSprite: Sprite;
-    inventorySprite: Sprite;
-    actionBarSprites: Sprite[] : [PLAYER_ABILITY_COUNT];
+        slimeFrames: Sprite[] : [2];
+        slime: Animation;
 
-    effectBoxSprite: Sprite;
-    effectHealthRegenSprite: Sprite;
-    effectManaRegenSprite: Sprite;
-    effectPoisonSprite: Sprite;
+        overlordFrames: Sprite[] : [4];
+        overlordFramesSlow: Sprite[] : [6];
+        overlord: Animation;
+    }
+
+    namespace projectile
+    {
+        fireballFrames: Sprite[] : [4];
+        fireball: Animation;
+
+        eyeballFrames: Sprite[] : [4];
+        eyeball: Animation;
+    }
+
+    namespace particle
+    {
+        fireballTrail: Sprite[] : [2];
+        eyeballTrail: Sprite[] : [2];
+
+        smallBloodStain: Sprite[] : [2];
+        bigBloodStain: Sprite[] : [1];
+
+        overlordTentacleRemains: Sprite[] : [5];
+        overlordSmallRemains: Sprite[] : [4];
+    }
+
+    namespace ui
+    {
+        leftMouseButton: Sprite;
+        rightMouseButton: Sprite;
+        actionBarSprites: Sprite[] : [6];
+
+        TEMP_inventoryBox: Sprite;
+
+        heart: Sprite;
+        mana: Sprite;
+
+        invalidSprite: Sprite;
+        invalidFrames: Sprite[] : [1];
+        invalidAnimation: Animation;
+
+        namespace effect
+        {
+            healthRegen: Sprite;
+            manaRegen: Sprite;
+            poison: Sprite;
+        }
+    }
+}
+
+getFrameArray :: func void(a: Sprite[], ss: SpriteSheet, lpx: int32, tpx: int32,
+                           w: int32, h: int32, cellSize: int32)
+{
+    i := 0;
+    while i < a.n
+    {
+        a[i] = getSprite(ss, lpx, tpx, w, h, cellSize);
+        lpx = lpx + w;
+        i = i + 1;
+    }
+}
+
+getFrameArrayLoop :: func void(a: Sprite[], ss: SpriteSheet, lpx: int32, tpx: int32,
+                               w: int32, h: int32, cellSize: int32)
+{
+    upc := a.n / 2 + 1;
+
+    i := 0;
+    while i < a.n
+    {
+        a[i] = getSprite(ss, lpx, tpx, w, h, cellSize);
+
+        i = i + 1;
+        if i >= upc then
+            lpx = lpx - w;
+        else
+            lpx = lpx + w;
+    }
 }
 
 setAnimationFrames :: func void(a: Animation^, frames: Sprite[], frameTime: int32, tick: int32)
@@ -130,115 +197,118 @@ setAnimationSlowFrames :: func void(a: Animation^, slowFrames: Sprite[], slowFra
 
 loadArt :: func void()
 {
-    art.ss1 = loadSpriteSheet("spritesheet1.bmp");
+    art.ssTerrain = loadSpriteSheet("res/terrain.bmp");
+    art.ssEntities = loadSpriteSheet("res/entities.bmp");
+    art.ssProjectiles = loadSpriteSheet("res/projectiles.bmp");
+    art.ssParticles = loadSpriteSheet("res/particles.bmp");
+    art.ssUI = loadSpriteSheet("res/ui.bmp");
 
-    art.invalidFrames[0] = getSprite(art.ss1, 30, 27, 2, 2, 8);
-    setAnimationFrames(&art.invalidAnimation, art.invalidFrames, 1, 0);
+    /* ENTITIES */
 
-    art.playerEyesRestDownFrames[0]  = getSprite(art.ss1,  0,  7, 2, 2, 8);
-    art.playerEyesRestUpFrames[0]    = getSprite(art.ss1,  2,  7, 2, 2, 8);
-    art.playerEyesRestRightFrames[0] = getSprite(art.ss1,  4,  7, 2, 2, 8);
-    art.playerEyesWalkDownFrames[0]  = getSprite(art.ss1,  0,  9, 2, 2, 8);
-    art.playerEyesWalkDownFrames[1]  = getSprite(art.ss1,  0, 11, 2, 2, 8);
-    art.playerEyesWalkUpFrames[0]    = getSprite(art.ss1,  2,  9, 2, 2, 8);
-    art.playerEyesWalkUpFrames[1]    = getSprite(art.ss1,  2, 11, 2, 2, 8);
-    art.playerEyesWalkRightFrames[0] = getSprite(art.ss1,  4,  9, 2, 2, 8);
-    art.playerEyesWalkRightFrames[1] = getSprite(art.ss1,  4, 11, 2, 2, 8);
-    art.playerSkinRestDownFrames[0]  = getSprite(art.ss1,  0, 13, 2, 2, 8);
-    art.playerSkinRestUpFrames[0]    = getSprite(art.ss1,  2, 13, 2, 2, 8);
-    art.playerSkinRestRightFrames[0] = getSprite(art.ss1,  4, 13, 2, 2, 8);
-    art.playerSkinWalkDownFrames[0]  = getSprite(art.ss1,  0, 15, 2, 2, 8);
-    art.playerSkinWalkDownFrames[1]  = getSprite(art.ss1,  0, 17, 2, 2, 8);
-    art.playerSkinWalkUpFrames[0]    = getSprite(art.ss1,  2, 15, 2, 2, 8);
-    art.playerSkinWalkUpFrames[1]    = getSprite(art.ss1,  2, 17, 2, 2, 8);
-    art.playerSkinWalkRightFrames[0] = getSprite(art.ss1,  4, 15, 2, 2, 8);
-    art.playerSkinWalkRightFrames[1] = getSprite(art.ss1,  4, 17, 2, 2, 8);
-    art.playerHairRestDownFrames[0]  = getSprite(art.ss1,  0, 19, 2, 2, 8);
-    art.playerHairRestUpFrames[0]    = getSprite(art.ss1,  2, 19, 2, 2, 8);
-    art.playerHairRestRightFrames[0] = getSprite(art.ss1,  4, 19, 2, 2, 8);
-    art.playerHairWalkDownFrames[0]  = getSprite(art.ss1,  0, 21, 2, 2, 8);
-    art.playerHairWalkDownFrames[1]  = getSprite(art.ss1,  0, 23, 2, 2, 8);
-    art.playerHairWalkUpFrames[0]    = getSprite(art.ss1,  2, 21, 2, 2, 8);
-    art.playerHairWalkUpFrames[1]    = getSprite(art.ss1,  2, 23, 2, 2, 8);
-    art.playerHairWalkRightFrames[0] = getSprite(art.ss1,  4, 21, 2, 2, 8);
-    art.playerHairWalkRightFrames[1] = getSprite(art.ss1,  4, 23, 2, 2, 8);
-    art.playerBodyRestDownFrames[0]  = getSprite(art.ss1,  6,  7, 2, 2, 8);
-    art.playerBodyRestUpFrames[0]    = getSprite(art.ss1,  8,  7, 2, 2, 8);
-    art.playerBodyRestRightFrames[0] = getSprite(art.ss1, 10,  7, 2, 2, 8);
-    art.playerBodyWalkDownFrames[0]  = getSprite(art.ss1,  6,  9, 2, 2, 8);
-    art.playerBodyWalkDownFrames[1]  = getSprite(art.ss1,  6, 11, 2, 2, 8);
-    art.playerBodyWalkUpFrames[0]    = getSprite(art.ss1,  8,  9, 2, 2, 8);
-    art.playerBodyWalkUpFrames[1]    = getSprite(art.ss1,  8, 11, 2, 2, 8);
-    art.playerBodyWalkRightFrames[0] = getSprite(art.ss1, 10,  9, 2, 2, 8);
-    art.playerBodyWalkRightFrames[1] = getSprite(art.ss1, 10, 11, 2, 2, 8);
+    getFrameArray(art.entity.playerEyesRestDownFrames, art.ssEntities, 0, 0, 2, 2, 8);
+    getFrameArray(art.entity.playerEyesWalkDownFrames, art.ssEntities, 2, 0, 2, 2, 8);
+    getFrameArray(art.entity.playerSkinRestDownFrames, art.ssEntities, 0, 2, 2, 2, 8);
+    getFrameArray(art.entity.playerSkinWalkDownFrames, art.ssEntities, 2, 2, 2, 2, 8);
+    getFrameArray(art.entity.playerBodyRestDownFrames, art.ssEntities, 0, 4, 2, 2, 8);
+    getFrameArray(art.entity.playerBodyWalkDownFrames, art.ssEntities, 2, 4, 2, 2, 8);
+    getFrameArray(art.entity.playerHairRestDownFrames, art.ssEntities, 0, 6, 2, 2, 8);
+    getFrameArray(art.entity.playerHairWalkDownFrames, art.ssEntities, 2, 6, 2, 2, 8);
 
-    setAnimationFrames(&art.playerEyesRestDownAnimation,  art.playerEyesRestDownFrames,  1,  0);
-    setAnimationFrames(&art.playerEyesRestUpAnimation,    art.playerEyesRestUpFrames,    1,  0);
-    setAnimationFrames(&art.playerEyesRestRightAnimation, art.playerEyesRestRightFrames, 1,  0);
-    setAnimationFrames(&art.playerEyesWalkDownAnimation,  art.playerEyesWalkDownFrames,  10, 0);
-    setAnimationFrames(&art.playerEyesWalkUpAnimation,    art.playerEyesWalkUpFrames,    10, 0);
-    setAnimationFrames(&art.playerEyesWalkRightAnimation, art.playerEyesWalkRightFrames, 10, 0);
-    setAnimationFrames(&art.playerHairRestDownAnimation,  art.playerHairRestDownFrames,  1,  0);
-    setAnimationFrames(&art.playerHairRestUpAnimation,    art.playerHairRestUpFrames,    1,  0);
-    setAnimationFrames(&art.playerHairRestRightAnimation, art.playerHairRestRightFrames, 1,  0);
-    setAnimationFrames(&art.playerHairWalkDownAnimation,  art.playerHairWalkDownFrames,  10, 0);
-    setAnimationFrames(&art.playerHairWalkUpAnimation,    art.playerHairWalkUpFrames,    10, 0);
-    setAnimationFrames(&art.playerHairWalkRightAnimation, art.playerHairWalkRightFrames, 10, 0);
-    setAnimationFrames(&art.playerSkinRestDownAnimation,  art.playerSkinRestDownFrames,  1,  0);
-    setAnimationFrames(&art.playerSkinRestUpAnimation,    art.playerSkinRestUpFrames,    1,  0);
-    setAnimationFrames(&art.playerSkinRestRightAnimation, art.playerSkinRestRightFrames, 1,  0);
-    setAnimationFrames(&art.playerSkinWalkDownAnimation,  art.playerSkinWalkDownFrames,  10, 0);
-    setAnimationFrames(&art.playerSkinWalkUpAnimation,    art.playerSkinWalkUpFrames,    10, 0);
-    setAnimationFrames(&art.playerSkinWalkRightAnimation, art.playerSkinWalkRightFrames, 10, 0);
-    setAnimationFrames(&art.playerBodyRestDownAnimation,  art.playerBodyRestDownFrames,  1,  0);
-    setAnimationFrames(&art.playerBodyRestUpAnimation,    art.playerBodyRestUpFrames,    1,  0);
-    setAnimationFrames(&art.playerBodyRestRightAnimation, art.playerBodyRestRightFrames, 1,  0);
-    setAnimationFrames(&art.playerBodyWalkDownAnimation,  art.playerBodyWalkDownFrames,  10, 0);
-    setAnimationFrames(&art.playerBodyWalkUpAnimation,    art.playerBodyWalkUpFrames,    10, 0);
-    setAnimationFrames(&art.playerBodyWalkRightAnimation, art.playerBodyWalkRightFrames, 10, 0);
+    getFrameArray(art.entity.playerEyesRestUpFrames, art.ssEntities, 0,  8, 2, 2, 8);
+    getFrameArray(art.entity.playerEyesWalkUpFrames, art.ssEntities, 2,  8, 2, 2, 8);
+    getFrameArray(art.entity.playerSkinRestUpFrames, art.ssEntities, 0, 10, 2, 2, 8);
+    getFrameArray(art.entity.playerSkinWalkUpFrames, art.ssEntities, 2, 10, 2, 2, 8);
+    getFrameArray(art.entity.playerBodyRestUpFrames, art.ssEntities, 0, 12, 2, 2, 8);
+    getFrameArray(art.entity.playerBodyWalkUpFrames, art.ssEntities, 2, 12, 2, 2, 8);
+    getFrameArray(art.entity.playerHairRestUpFrames, art.ssEntities, 0, 14, 2, 2, 8);
+    getFrameArray(art.entity.playerHairWalkUpFrames, art.ssEntities, 2, 14, 2, 2, 8);
 
-    art.eyeFrames[0] = getSprite(art.ss1, 29, 0, 3, 3, 8);
-    art.eyeFrames[1] = getSprite(art.ss1, 29, 3, 3, 3, 8);
-    art.eyeFrames[2] = getSprite(art.ss1, 29, 6, 3, 3, 8);
-    art.eyeFrames[3] = getSprite(art.ss1, 29, 3, 3, 3, 8);
-    art.eyeSlowFrames[0] = getSprite(art.ss1, 29,  9, 3, 3, 8);
-    art.eyeSlowFrames[1] = getSprite(art.ss1, 29, 12, 3, 3, 8);
-    art.eyeSlowFrames[2] = getSprite(art.ss1, 29, 15, 3, 3, 8);
-    art.eyeSlowFrames[3] = getSprite(art.ss1, 29, 18, 3, 3, 8);
-    art.eyeSlowFrames[4] = getSprite(art.ss1, 29, 15, 3, 3, 8);
-    art.eyeSlowFrames[5] = getSprite(art.ss1, 29, 12, 3, 3, 8);
-    setAnimationFrames(&art.eyeAnimation, art.eyeFrames, 10, 0);
-    setAnimationSlowFrames(&art.eyeAnimation, art.eyeSlowFrames, 5, 250, 0);
+    getFrameArray(art.entity.playerEyesRestRightFrames, art.ssEntities, 0, 16, 2, 2, 8);
+    getFrameArray(art.entity.playerEyesWalkRightFrames, art.ssEntities, 2, 16, 2, 2, 8);
+    getFrameArray(art.entity.playerSkinRestRightFrames, art.ssEntities, 0, 18, 2, 2, 8);
+    getFrameArray(art.entity.playerSkinWalkRightFrames, art.ssEntities, 2, 18, 2, 2, 8);
+    getFrameArray(art.entity.playerBodyRestRightFrames, art.ssEntities, 0, 20, 2, 2, 8);
+    getFrameArray(art.entity.playerBodyWalkRightFrames, art.ssEntities, 2, 20, 2, 2, 8);
+    getFrameArray(art.entity.playerHairRestRightFrames, art.ssEntities, 0, 22, 2, 2, 8);
+    getFrameArray(art.entity.playerHairWalkRightFrames, art.ssEntities, 2, 22, 2, 2, 8);
 
-    art.fireballFrames[0] = getSprite(art.ss1, 27, 0, 2, 2, 8);
-    art.fireballFrames[1] = getSprite(art.ss1, 27, 2, 2, 2, 8);
-    art.fireballFrames[2] = getSprite(art.ss1, 27, 4, 2, 2, 8);
-    art.fireballFrames[3] = getSprite(art.ss1, 27, 2, 2, 2, 8);
-    art.eyeballFrames[0] = getSprite(art.ss1, 27,  6, 2, 2, 8);
-    art.eyeballFrames[1] = getSprite(art.ss1, 27,  8, 2, 2, 8);
-    art.eyeballFrames[2] = getSprite(art.ss1, 27, 10, 2, 2, 8);
-    art.eyeballFrames[3] = getSprite(art.ss1, 27,  8, 2, 2, 8);
-    setAnimationFrames(&art.fireballAnimation, art.fireballFrames, 2, 0);
-    setAnimationFrames(&art.eyeballAnimation, art.eyeballFrames, 6, 0);
+    setAnimationFrames(&art.entity.playerEyesRestDown,  art.entity.playerEyesRestDownFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerEyesWalkDown,  art.entity.playerEyesWalkDownFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerSkinRestDown,  art.entity.playerSkinRestDownFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerSkinWalkDown,  art.entity.playerSkinWalkDownFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerBodyRestDown,  art.entity.playerBodyRestDownFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerBodyWalkDown,  art.entity.playerBodyWalkDownFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerHairRestDown,  art.entity.playerHairRestDownFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerHairWalkDown,  art.entity.playerHairWalkDownFrames, 10, 0);
 
-    art.fireballParticle = getSprite(art.ss1, 26, 6, 1, 1, 8);
-    art.eyeballParticle = getSprite(art.ss1, 26, 7, 1, 1, 8);
+    setAnimationFrames(&art.entity.playerEyesRestUp,  art.entity.playerEyesRestUpFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerEyesWalkUp,  art.entity.playerEyesWalkUpFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerSkinRestUp,  art.entity.playerSkinRestUpFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerSkinWalkUp,  art.entity.playerSkinWalkUpFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerBodyRestUp,  art.entity.playerBodyRestUpFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerBodyWalkUp,  art.entity.playerBodyWalkUpFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerHairRestUp,  art.entity.playerHairRestUpFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerHairWalkUp,  art.entity.playerHairWalkUpFrames, 10, 0);
 
-    art.heartSprite = getSprite(art.ss1, 22, 4, 1, 1, 8);
-    art.manaSprite = getSprite(art.ss1, 21, 4, 1, 1, 8);
-    art.inventorySprite = getSprite(art.ss1, 24, 6, 2, 2, 8);
+    setAnimationFrames(&art.entity.playerEyesRestRight,  art.entity.playerEyesRestRightFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerEyesWalkRight,  art.entity.playerEyesWalkRightFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerSkinRestRight,  art.entity.playerSkinRestRightFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerSkinWalkRight,  art.entity.playerSkinWalkRightFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerBodyRestRight,  art.entity.playerBodyRestRightFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerBodyWalkRight,  art.entity.playerBodyWalkRightFrames, 10, 0);
+    setAnimationFrames(&art.entity.playerHairRestRight,  art.entity.playerHairRestRightFrames, 1,  0);
+    setAnimationFrames(&art.entity.playerHairWalkRight,  art.entity.playerHairWalkRightFrames, 10, 0);
 
-    art.actionBarSprites[0] = getSprite(art.ss1, 20, 6, 2, 2, 8);
-    art.actionBarSprites[1] = getSprite(art.ss1, 22, 6, 2, 2, 8);
-    art.actionBarSprites[2] = getSprite(art.ss1, 1, 31, 1, 1, 8);
-    art.actionBarSprites[3] = getSprite(art.ss1, 2, 31, 1, 1, 8);
-    art.actionBarSprites[4] = getSprite(art.ss1, 3, 31, 1, 1, 8);
-    art.actionBarSprites[5] = getSprite(art.ss1, 4, 31, 1, 1, 8);
+    getFrameArray(art.entity.slimeFrames, art.ssEntities, 0, 24, 2, 2, 8);
+    setAnimationFrames(&art.entity.slime,  art.entity.slimeFrames, 5, 0);
 
-    art.effectBoxSprite = getSprite(art.ss1, 8, 27, 2, 2, 8);
-    art.effectHealthRegenSprite = getSprite(art.ss1, 10, 27, 2, 2, 8);
-    art.effectManaRegenSprite = getSprite(art.ss1, 12, 27, 2, 2, 8);
-    art.effectPoisonSprite = getSprite(art.ss1, 14, 27, 2, 2, 8);
+    getFrameArrayLoop(art.entity.overlordFrames, art.ssEntities, 0, 29, 3, 3, 8);
+    getFrameArrayLoop(art.entity.overlordFramesSlow, art.ssEntities, 0, 26, 3, 3, 8);
+    setAnimationFrames(&art.entity.overlord, art.entity.overlordFrames, 10, 0);
+    setAnimationSlowFrames(&art.entity.overlord, art.entity.overlordFramesSlow, 5, 250, 0);
+
+    /* PROJECTILES */
+
+    getFrameArrayLoop(art.projectile.fireballFrames, art.ssProjectiles, 0, 0, 2, 2, 8);
+    setAnimationFrames(&art.projectile.fireball, art.projectile.fireballFrames, 2, 0);
+
+    getFrameArrayLoop(art.projectile.eyeballFrames, art.ssProjectiles, 0, 2, 2, 2, 8);
+    setAnimationFrames(&art.projectile.eyeball, art.projectile.eyeballFrames, 6, 0);
+
+    /* PARTICLES */
+
+    getFrameArray(art.particle.fireballTrail, art.ssParticles, 0, 0, 1, 1, 8);
+    getFrameArray(art.particle.eyeballTrail, art.ssParticles, 0, 1, 1, 1, 8);
+
+    getFrameArray(art.particle.smallBloodStain, art.ssParticles, 0, 2, 1, 1, 8);
+    getFrameArray(art.particle.bigBloodStain, art.ssParticles, 0, 5, 2, 2, 8);
+
+    getFrameArray(art.particle.overlordTentacleRemains, art.ssParticles, 0, 3, 1, 1, 8);
+    getFrameArray(art.particle.overlordSmallRemains, art.ssParticles, 0, 4, 1, 1, 8);
+
+    /* UI */
+
+    art.ui.leftMouseButton = getSprite(art.ssUI, 0, 5, 2, 2, 8);
+    art.ui.rightMouseButton = getSprite(art.ssUI, 2, 5, 2, 2, 8);
+    art.ui.actionBarSprites[0] = art.ui.leftMouseButton;
+    art.ui.actionBarSprites[1] = art.ui.rightMouseButton;
+    art.ui.actionBarSprites[2] = getSprite(art.ssUI, 1, 2, 1, 1, 8);
+    art.ui.actionBarSprites[3] = getSprite(art.ssUI, 2, 2, 1, 1, 8);
+    art.ui.actionBarSprites[4] = getSprite(art.ssUI, 3, 2, 1, 1, 8);
+    art.ui.actionBarSprites[5] = getSprite(art.ssUI, 4, 2, 1, 1, 8);
+
+    art.ui.TEMP_inventoryBox = getSprite(art.ssUI, 0, 7, 3, 3, 8);
+
+    art.ui.heart = getSprite(art.ssUI, 1, 10, 1, 1, 8);
+    art.ui.mana = getSprite(art.ssUI, 0, 10, 1, 1, 8);
+
+    getFrameArray(art.ui.invalidFrames, art.ssUI, 30, 30, 2, 2, 8);
+    setAnimationFrames(&art.ui.invalidAnimation, art.ui.invalidFrames, 1, 0);
+    art.ui.invalidSprite = art.ui.invalidFrames[0];
+
+    art.ui.effect.healthRegen = getSprite(art.ssUI, 0, 11, 2, 2, 8);
+    art.ui.effect.manaRegen = getSprite(art.ssUI, 2, 11, 2, 2, 8);
+    art.ui.effect.poison = getSprite(art.ssUI, 4, 11, 2, 2, 8);
 }
 
 getSprite :: func Sprite(ss: SpriteSheet, lpx: int32, tpx: int32,

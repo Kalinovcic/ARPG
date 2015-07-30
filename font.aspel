@@ -34,7 +34,7 @@ renderText :: func void(text: asl.string, x: float32, y: float32, s: float32,
         row := index / 32;
         col := index % 32;
 
-        glyph := getSprite(art.ss1, col, 29 + row, 1, 1, 8);
+        glyph := getSprite(art.ssUI, col, row, 1, 1, 8);
         renderSprite(ox + x + cast(float32) i * s, oy + y, s, s, glyph);
 
         i = i + 1;

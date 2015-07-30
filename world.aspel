@@ -119,11 +119,12 @@ populateWorld :: func void(world: World^)
     initPlayer(world.player, world.terrain.w / 2.0, world.terrain.h / 2.0);
 
     i := 0;
-    while i < 511
+    while i < 256
     {
-        eye := addEntityToWorld(world);
-        initEye(eye, cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.w),
-                     cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.h));
+        x := cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.w);
+        y := cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.h);
+        overlord := addEntityToWorld(world);
+        initOverlord(overlord, x, y);
         i = i + 1;
     }
 }

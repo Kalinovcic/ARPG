@@ -47,7 +47,9 @@ tickProjectile :: func void(world: World^, p: Projectile^)
             {
                 addParticle(p.x, p.y,
                             asl.randomInt32(&random) % 180,
-                            0.1, 0.7, 0.1, p.particleSprite, 10, 25);
+                            0.1, 0.7,
+                            asl.randomInt32(&random) % 180, 0.0, 0.0,
+                            0.1, p.particleSprite, 10, 25);
                 i = i + 1;
             }
 
@@ -64,8 +66,10 @@ tickProjectile :: func void(world: World^, p: Projectile^)
 
     if (p.lifetime % 4) == 0 then
         addParticle(p.x, p.y,
-                    p.a + 180.0 + asl.randomInt32(&random) % 30,
-                    0.05, 0.7, 0.1, p.particleSprite, 10, 25);
+                    p.a + 180.0 + asl.randomInt32(&random) % 45,
+                    0.05, 0.7,
+                    asl.randomInt32(&random) % 180, 0.0, 0.0,
+                    0.1, p.particleSprite, 10, 25);
 }
 
 renderProjectile :: func void(p: Projectile^)

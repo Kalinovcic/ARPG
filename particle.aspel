@@ -8,6 +8,10 @@ Particle :: type struct
     speed: float32;
     damping: float32;
 
+    va: float32;
+    rotSpeed: float32;
+    rotDamping: float32;
+
     r: float32;
     sprite: Sprite;
 
@@ -24,6 +28,7 @@ initParticles :: func void()
 
 addParticle :: func void(x: float32, y: float32, a: float32,
                          speed: float32, damping: float32,
+                         va: float32, rotSpeed: float32, rotDamping: float32,
                          r: float32, sprite: Sprite,
                          fadetime: int32, lifetime: int32)
 {
@@ -42,6 +47,9 @@ addParticle :: func void(x: float32, y: float32, a: float32,
         p.a = a;
         p.speed = speed;
         p.damping = damping;
+        p.va = va;
+        p.rotSpeed = rotSpeed;
+        p.rotDamping = rotDamping;
         p.r = r;
         p.sprite = sprite;
         p.fadetime = fadetime;
@@ -71,8 +79,10 @@ tickParticles :: func void()
 
         p.x = p.x + dx;
         p.y = p.y + dy;
+        p.va = p.va + p.rotSpeed;
 
         p.speed = p.speed * p.damping;
+        p.rotSpeed = p.rotSpeed * p.rotDamping;
     }
 }
 
@@ -104,7 +114,7 @@ renderParticles :: func void(camLeft: float32, camRight: float32,
             alpha = lifetime / cast(float32) fadetime;
 
         renderSpriteAdv(x - r, y - r,
-                        r * 2.0, r * 2.0, 0.0,
+                        r * 2.0, r * 2.0, p.va,
                         0.0, 1.0, 0.0, 1.0,
                         1.0, 1.0, 1.0, alpha,
                         p.sprite);
