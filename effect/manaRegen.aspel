@@ -1,0 +1,23 @@
+import "../imports.aspel";
+
+EFFECT_MANA_REGEN_PER_TICK: float32 : 0.6;
+
+namespace effect
+{
+    manaRegen: Effect;
+}
+
+applyManaRegen :: func void(world: World^, effect: Effect^, e: Entity^)
+{
+    e.mana = e.mana + effect.power * EFFECT_MANA_REGEN_PER_TICK;
+    if e.mana > e.maxMana then
+        e.mana = e.maxMana;
+}
+
+initEffectManaRegen :: func void()
+{
+    effect.manaRegen.id = EFFECT_TYPEID_MANA_REGEN;
+    effect.manaRegen.apply = applyManaRegen;
+    effect.manaRegen.icon = art.ui.effect.manaRegen;
+    effect.manaRegen.iconbg = EFFECT_ICONBG_POSITIVE;
+}

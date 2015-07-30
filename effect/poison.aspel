@@ -1,0 +1,21 @@
+import "../imports.aspel";
+
+EFFECT_POISON_PER_TICK: float32 : 0.05;
+
+namespace effect
+{
+    poison: Effect;
+}
+
+applyPoison :: func void(world: World^, effect: Effect^, e: Entity^)
+{
+    entityTakeDamage(world, e, effect.power * EFFECT_POISON_PER_TICK);
+}
+
+initEffectPoison :: func void()
+{
+    effect.poison.id = EFFECT_TYPEID_POISON;
+    effect.poison.apply = applyPoison;
+    effect.poison.icon = art.ui.effect.poison;
+    effect.poison.iconbg = EFFECT_ICONBG_NEGATIVE;
+}

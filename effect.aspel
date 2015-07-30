@@ -18,85 +18,25 @@ STATIC_EFFECT_LIST: Effect[] : [MAX_ENTITY_COUNT * MAX_EFFECTS_ON_ENTITY];
 EFFECT_ICONBG_POSITIVE :: 0;
 EFFECT_ICONBG_NEGATIVE :: 1;
 
-/* NONE */
-
-EFFECT_TYPEID_NONE :: 0;
+// CLEANUP: enum
+EFFECT_TYPEID_NONE         :: 0;
+EFFECT_TYPEID_HEALTH_REGEN :: 1;
+EFFECT_TYPEID_MANA_REGEN   :: 2;
+EFFECT_TYPEID_POISON       :: 3;
 
 namespace effect
 {
     none: Effect;
 }
 
-/* HEALTH REGENERATION */
-
-EFFECT_TYPEID_HEALTHREGEN :: 1;
-EFFECT_HEALTH_REGEN_PER_TICK: float32 : 0.6;
-
-namespace effect
-{
-    healthRegen: Effect;
-}
-
-applyHealthRegen :: func void(world: World^, effect: Effect^, e: Entity^)
-{
-    e.health = e.health + effect.power * EFFECT_HEALTH_REGEN_PER_TICK;
-    if e.health > e.maxHealth then
-        e.health = e.maxHealth;
-}
-
-/* MANA REGENERATION */
-
-EFFECT_TYPEID_MANAREGEN :: 2;
-EFFECT_MANA_REGEN_PER_TICK: float32 : 0.6;
-
-namespace effect
-{
-    manaRegen: Effect;
-}
-
-applyManaRegen :: func void(world: World^, effect: Effect^, e: Entity^)
-{
-    e.mana = e.mana + effect.power * EFFECT_MANA_REGEN_PER_TICK;
-    if e.mana > e.maxMana then
-        e.mana = e.maxMana;
-}
-
-/* POISON */
-
-EFFECT_TYPEID_POISON :: 3;
-EFFECT_POISON_PER_TICK: float32 : 0.05;
-
-namespace effect
-{
-    poison: Effect;
-}
-
-applyPoison :: func void(world: World^, effect: Effect^, e: Entity^)
-{
-    entityTakeDamage(world, e, effect.power * EFFECT_POISON_PER_TICK);
-}
-
-/**/
-
 initEffects :: func void()
 {
     effect.none.id = EFFECT_TYPEID_NONE;
     effect.none.icon = art.ui.invalidSprite;
 
-    effect.healthRegen.id = EFFECT_TYPEID_HEALTHREGEN;
-    effect.healthRegen.apply = applyHealthRegen;
-    effect.healthRegen.icon = art.ui.effect.healthRegen;
-    effect.healthRegen.iconbg = EFFECT_ICONBG_POSITIVE;
-
-    effect.manaRegen.id = EFFECT_TYPEID_MANAREGEN;
-    effect.manaRegen.apply = applyManaRegen;
-    effect.manaRegen.icon = art.ui.effect.manaRegen;
-    effect.manaRegen.iconbg = EFFECT_ICONBG_POSITIVE;
-
-    effect.poison.id = EFFECT_TYPEID_POISON;
-    effect.poison.apply = applyPoison;
-    effect.poison.icon = art.ui.effect.poison;
-    effect.poison.iconbg = EFFECT_ICONBG_NEGATIVE;
+    initEffectHealthRegen();
+    initEffectManaRegen();
+    initEffectPoison();
 }
 
 applyEffect :: func bool(array: Effect[], effect: Effect^, time: int32, power: float32)

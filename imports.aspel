@@ -37,3 +37,7 @@ import "particle.aspel";
 
 import "entity/player.aspel";
 import "entity/overlord.aspel";
+
+import "effect/healthRegen.aspel";
+import "effect/manaRegen.aspel";
+import "effect/poison.aspel";

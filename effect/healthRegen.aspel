@@ -1,0 +1,23 @@
+import "../imports.aspel";
+
+EFFECT_HEALTH_REGEN_PER_TICK: float32 : 0.6;
+
+namespace effect
+{
+    healthRegen: Effect;
+}
+
+applyHealthRegen :: func void(world: World^, effect: Effect^, e: Entity^)
+{
+    e.health = e.health + effect.power * EFFECT_HEALTH_REGEN_PER_TICK;
+    if e.health > e.maxHealth then
+        e.health = e.maxHealth;
+}
+
+initEffectHealthRegen :: func void()
+{
+    effect.healthRegen.id = EFFECT_TYPEID_HEALTH_REGEN;
+    effect.healthRegen.apply = applyHealthRegen;
+    effect.healthRegen.icon = art.ui.effect.healthRegen;
+    effect.healthRegen.iconbg = EFFECT_ICONBG_POSITIVE;
+}
