@@ -33,3 +33,4 @@ import "world.aspel";
 import "projectile.aspel";
 import "ability.aspel";
 import "effect.aspel";
+import "particle.aspel";

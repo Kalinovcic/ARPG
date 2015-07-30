@@ -9,6 +9,7 @@ gameInit :: func void()
     initInputState();
     initAbilities();
     initEffects();
+    initParticles();
 
     initWorld(&world);
     populateWorld(&world);
@@ -95,7 +96,6 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
 
     text: uint8[] : [64];
     textOff: int32 = 0;
-    textOff = textOff + copyString("Life: ", text, textOff);
     textOff = textOff + intToString(life, text, textOff);
     textOff = textOff + copyString("/", text, textOff);
     textOff = textOff + intToString(maxLife, text, textOff);
@@ -208,7 +208,6 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
         text: uint8[] : [64];
         textOff: int32 = 0;
         textOff = textOff + intToString(sec, text, textOff);
-        textOff = textOff + copyString("s", text, textOff);
         text.n = cast(uint64) textOff;
 
         renderText(text, -halfOW + 0.45 + activeEffectCount * 0.4,

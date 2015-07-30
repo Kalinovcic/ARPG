@@ -14,10 +14,15 @@ Projectile :: type struct
     radius: float32;
     lifetime: int32;
     animation: Animation;
+
+    particleSprite: Sprite;
 };
 
 tickProjectile :: func void(world: World^, p: Projectile^)
 {
+    random: asl.Random;
+    asl.seedRandomTime(&random);
+
     s: float32 = cast(float32) asl.sin(asl.to_radians(p.a));
     c: float32 = cast(float32) asl.cos(asl.to_radians(p.a));
 
@@ -37,6 +42,15 @@ tickProjectile :: func void(world: World^, p: Projectile^)
 
         if collisionC > index
         {
+            i := 0;
+            while i < 10
+            {
+                addParticle(p.x, p.y,
+                            asl.randomInt32(&random) % 180,
+                            0.1, 0.7, 0.1, p.particleSprite, 10, 25);
+                i = i + 1;
+            }
+
             entityTakeDamage(world, collisions[index], p.damage);
             removeProjectileFromWorld(world, p);
         }
@@ -47,9 +61,15 @@ tickProjectile :: func void(world: World^, p: Projectile^)
     {
         removeProjectileFromWorld(world, p);
     }
+
+    if (p.lifetime % 4) == 0 then
+        addParticle(p.x, p.y,
+                    p.a + 180.0 + asl.randomInt32(&random) % 30,
+                    0.05, 0.7, 0.1, p.particleSprite, 10, 25);
 }
 
 renderProjectile :: func void(p: Projectile^)
 {
-    renderAnimation(&p.animation, p.x, p.y, p.radius * 2.0, p.radius * 2.0, p.a);
+    renderAnimation(&p.animation, p.x - p.radius, p.y - p.radius,
+                    p.radius * 2.0, p.radius * 2.0, p.a);
 }

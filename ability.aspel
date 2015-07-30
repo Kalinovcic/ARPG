@@ -57,6 +57,8 @@ fireballActivate :: func void(world: World^, e: Entity^)
     fireball.radius = FIREBALL_RADIUS;
     fireball.lifetime = FIREBALL_LIFETIME;
     fireball.animation = art.fireballAnimation;
+
+    fireball.particleSprite = art.fireballParticle;
 }
 
 /* EYEBALL */
@@ -97,6 +99,8 @@ eyeballActivate :: func void(world: World^, e: Entity^)
     eyeball.radius = EYEBALL_RADIUS;
     eyeball.lifetime = EYEBALL_LIFETIME;
     eyeball.animation = art.eyeballAnimation;
+
+    eyeball.particleSprite = art.eyeballParticle;
 }
 
 initAbilities :: func void()

@@ -30,7 +30,7 @@ namespace effect
 /* HEALTH REGENERATION */
 
 EFFECT_TYPEID_HEALTHREGEN :: 1;
-EFFECT_HEALTH_REGEN_PER_TICK: float32 : 0.1;
+EFFECT_HEALTH_REGEN_PER_TICK: float32 : 0.6;
 
 namespace effect
 {
@@ -47,7 +47,7 @@ applyHealthRegen :: func void(world: World^, effect: Effect^, e: Entity^)
 /* MANA REGENERATION */
 
 EFFECT_TYPEID_MANAREGEN :: 2;
-EFFECT_MANA_REGEN_PER_TICK: float32 : 0.1;
+EFFECT_MANA_REGEN_PER_TICK: float32 : 0.6;
 
 namespace effect
 {

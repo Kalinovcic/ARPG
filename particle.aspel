@@ -1,0 +1,112 @@
+
+Particle :: type struct
+{
+    x: float32;
+    y: float32;
+
+    a: float32;
+    speed: float32;
+    damping: float32;
+
+    r: float32;
+    sprite: Sprite;
+
+    fadetime: int32;
+    lifetime: int32;
+};
+
+STATIC_PARTICLE_LIST: Particle[] : [2048];
+
+initParticles :: func void()
+{
+
+}
+
+addParticle :: func void(x: float32, y: float32, a: float32,
+                         speed: float32, damping: float32,
+                         r: float32, sprite: Sprite,
+                         fadetime: int32, lifetime: int32)
+{
+    particleI := 0;
+    while particleI < STATIC_PARTICLE_LIST.n
+    {
+        if STATIC_PARTICLE_LIST[particleI].lifetime > 0
+        {
+            particleI = particleI + 1;
+            continue;
+        }
+
+        p := &STATIC_PARTICLE_LIST[particleI];
+        p.x = x;
+        p.y = y;
+        p.a = a;
+        p.speed = speed;
+        p.damping = damping;
+        p.r = r;
+        p.sprite = sprite;
+        p.fadetime = fadetime;
+        p.lifetime = lifetime;
+        break;
+    }
+}
+
+tickParticles :: func void()
+{
+    particleI := 0;
+    while particleI < STATIC_PARTICLE_LIST.n
+    {
+        p := &STATIC_PARTICLE_LIST[particleI];
+        particleI = particleI + 1;
+
+        if p.lifetime <= 0 then
+            continue;
+
+        p.lifetime = p.lifetime - 1;
+
+        s: float32 = cast(float32) asl.sin(asl.to_radians(p.a));
+        c: float32 = cast(float32) asl.cos(asl.to_radians(p.a));
+
+        dx := -s * p.speed;
+        dy := c * p.speed;
+
+        p.x = p.x + dx;
+        p.y = p.y + dy;
+
+        p.speed = p.speed * p.damping;
+    }
+}
+
+renderParticles :: func void(camLeft: float32, camRight: float32,
+                             camBottom: float32, camTop: float32)
+{
+    particleI := 0;
+    while particleI < STATIC_PARTICLE_LIST.n
+    {
+        p := &STATIC_PARTICLE_LIST[particleI];
+        particleI = particleI + 1;
+
+        lifetime := p.lifetime;
+        if lifetime <= 0 then
+            continue;
+
+        x := p.x;
+        y := p.y;
+        r := p.r;
+        if (x + r) < camLeft then continue;
+        if (x - r) > camRight then continue;
+        if (y + r) < camBottom then continue;
+        if (y - r) > camTop then continue;
+
+        alpha: float32 = 1.0;
+
+        fadetime := p.fadetime;
+        if lifetime < fadetime then
+            alpha = lifetime / cast(float32) fadetime;
+
+        renderSpriteAdv(x - r, y - r,
+                        r * 2.0, r * 2.0, 0.0,
+                        0.0, 1.0, 0.0, 1.0,
+                        1.0, 1.0, 1.0, alpha,
+                        p.sprite);
+    }
+}

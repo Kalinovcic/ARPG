@@ -97,6 +97,9 @@ namespace art
     fireballAnimation: Animation;
     eyeballAnimation: Animation;
 
+    fireballParticle: Sprite;
+    eyeballParticle: Sprite;
+
     heartSprite: Sprite;
     manaSprite: Sprite;
     inventorySprite: Sprite;
@@ -217,6 +220,9 @@ loadArt :: func void()
     art.eyeballFrames[3] = getSprite(art.ss1, 27,  8, 2, 2, 8);
     setAnimationFrames(&art.fireballAnimation, art.fireballFrames, 2, 0);
     setAnimationFrames(&art.eyeballAnimation, art.eyeballFrames, 6, 0);
+
+    art.fireballParticle = getSprite(art.ss1, 26, 6, 1, 1, 8);
+    art.eyeballParticle = getSprite(art.ss1, 26, 7, 1, 1, 8);
 
     art.heartSprite = getSprite(art.ss1, 22, 4, 1, 1, 8);
     art.manaSprite = getSprite(art.ss1, 21, 4, 1, 1, 8);
