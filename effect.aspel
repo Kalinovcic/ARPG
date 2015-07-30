@@ -1,0 +1,130 @@
+import "imports.aspel";
+
+Effect :: type struct
+{
+    id: int32;
+    time: int32;
+    power: float32;
+    apply: delegate void(world: World^, effect: Effect^, e: Entity^);
+    icon: Sprite;
+    iconbg: int32;
+};
+
+MAX_EFFECTS_ON_ENTITY :: 16;
+// No need for this, once we can put a static array in the Entity structure.
+STATIC_EFFECT_LIST: Effect[] : [MAX_ENTITY_COUNT * MAX_EFFECTS_ON_ENTITY];
+
+// CLEANUP: enum
+EFFECT_ICONBG_POSITIVE :: 0;
+EFFECT_ICONBG_NEGATIVE :: 1;
+
+/* NONE */
+
+EFFECT_TYPEID_NONE :: 0;
+
+namespace effect
+{
+    none: Effect;
+}
+
+/* HEALTH REGENERATION */
+
+EFFECT_TYPEID_HEALTHREGEN :: 1;
+EFFECT_HEALTH_REGEN_PER_TICK: float32 : 0.1;
+
+namespace effect
+{
+    healthRegen: Effect;
+}
+
+applyHealthRegen :: func void(world: World^, effect: Effect^, e: Entity^)
+{
+    e.health = e.health + effect.power * EFFECT_HEALTH_REGEN_PER_TICK;
+    if e.health > e.maxHealth then
+        e.health = e.maxHealth;
+}
+
+/* MANA REGENERATION */
+
+EFFECT_TYPEID_MANAREGEN :: 2;
+EFFECT_MANA_REGEN_PER_TICK: float32 : 0.1;
+
+namespace effect
+{
+    manaRegen: Effect;
+}
+
+applyManaRegen :: func void(world: World^, effect: Effect^, e: Entity^)
+{
+    e.mana = e.mana + effect.power * EFFECT_MANA_REGEN_PER_TICK;
+    if e.mana > e.maxMana then
+        e.mana = e.maxMana;
+}
+
+/* POISON */
+
+EFFECT_TYPEID_POISON :: 3;
+EFFECT_POISON_PER_TICK: float32 : 0.05;
+
+namespace effect
+{
+    poison: Effect;
+}
+
+applyPoison :: func void(world: World^, effect: Effect^, e: Entity^)
+{
+    entityTakeDamage(world, e, effect.power * EFFECT_POISON_PER_TICK);
+}
+
+/**/
+
+initEffects :: func void()
+{
+    effect.none.id = EFFECT_TYPEID_NONE;
+    effect.none.icon = art.invalidFrames[0];
+
+    effect.healthRegen.id = EFFECT_TYPEID_HEALTHREGEN;
+    effect.healthRegen.apply = applyHealthRegen;
+    effect.healthRegen.icon = art.effectHealthRegenSprite;
+    effect.healthRegen.iconbg = EFFECT_ICONBG_POSITIVE;
+
+    effect.manaRegen.id = EFFECT_TYPEID_MANAREGEN;
+    effect.manaRegen.apply = applyManaRegen;
+    effect.manaRegen.icon = art.effectManaRegenSprite;
+    effect.manaRegen.iconbg = EFFECT_ICONBG_POSITIVE;
+
+    effect.poison.id = EFFECT_TYPEID_POISON;
+    effect.poison.apply = applyPoison;
+    effect.poison.icon = art.effectPoisonSprite;
+    effect.poison.iconbg = EFFECT_ICONBG_NEGATIVE;
+}
+
+applyEffect :: func bool(array: Effect[], effect: Effect^, time: int32, power: float32)
+{
+    effectI := 0;
+    while effectI < array.n
+    {
+        if array[effectI].id == effect.id
+        {
+            array[effectI].time = time;
+            array[effectI].power = power;
+            return true;
+        }
+        effectI = effectI + 1;
+    }
+
+    effectI = 0;
+    while effectI < array.n
+    {
+        if array[effectI].id == EFFECT_TYPEID_NONE
+        {
+            array[effectI] = ^effect;
+            array[effectI].time = time;
+            array[effectI].power = power;
+            return true;
+        }
+        effectI = effectI + 1;
+    }
+
+    return false;
+}

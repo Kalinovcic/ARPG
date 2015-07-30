@@ -1,8 +1,8 @@
 
 Ability :: type struct
 {
-    checkRequirements: delegate bool(eV: void^);
-    activate: delegate void(worldV: void^, eV: void^);
+    checkRequirements: delegate bool(e: Entity^);
+    activate: delegate void(world: World^, e: Entity^);
 
     icon: Animation;
 };
@@ -32,17 +32,13 @@ namespace ability
     fireball: Ability;
 }
 
-fireballRequirements :: func bool(eV: void^)
+fireballRequirements :: func bool(e: Entity^)
 {
-    e := cast(Entity^) eV;
     return manaRequirement(e, FIREBALL_MANA);
 }
 
-fireballActivate :: func void(worldV: void^, eV: void^)
+fireballActivate :: func void(world: World^, e: Entity^)
 {
-    world := cast(World^) worldV;
-    e := cast(Entity^) eV;
-
     spendMana(e, FIREBALL_MANA);
 
     // TODO: make this work for enemies, they need to specify what they're targeting.
@@ -76,17 +72,13 @@ namespace ability
     eyeball: Ability;
 }
 
-eyeballRequirements :: func bool(eV: void^)
+eyeballRequirements :: func bool(e: Entity^)
 {
-    e := cast(Entity^) eV;
     return manaRequirement(e, EYEBALL_MANA);
 }
 
-eyeballActivate :: func void(worldV: void^, eV: void^)
+eyeballActivate :: func void(world: World^, e: Entity^)
 {
-    world := cast(World^) worldV;
-    e := cast(Entity^) eV;
-
     spendMana(e, EYEBALL_MANA);
 
     // TODO: make this work for enemies, they need to specify what they're targeting.

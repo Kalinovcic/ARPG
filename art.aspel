@@ -101,6 +101,11 @@ namespace art
     manaSprite: Sprite;
     inventorySprite: Sprite;
     actionBarSprites: Sprite[] : [PLAYER_ABILITY_COUNT];
+
+    effectBoxSprite: Sprite;
+    effectHealthRegenSprite: Sprite;
+    effectManaRegenSprite: Sprite;
+    effectPoisonSprite: Sprite;
 }
 
 setAnimationFrames :: func void(a: Animation^, frames: Sprite[], frameTime: int32, tick: int32)
@@ -223,6 +228,11 @@ loadArt :: func void()
     art.actionBarSprites[3] = getSprite(art.ss1, 2, 31, 1, 1, 8);
     art.actionBarSprites[4] = getSprite(art.ss1, 3, 31, 1, 1, 8);
     art.actionBarSprites[5] = getSprite(art.ss1, 4, 31, 1, 1, 8);
+
+    art.effectBoxSprite = getSprite(art.ss1, 8, 27, 2, 2, 8);
+    art.effectHealthRegenSprite = getSprite(art.ss1, 10, 27, 2, 2, 8);
+    art.effectManaRegenSprite = getSprite(art.ss1, 12, 27, 2, 2, 8);
+    art.effectPoisonSprite = getSprite(art.ss1, 14, 27, 2, 2, 8);
 }
 
 getSprite :: func Sprite(ss: SpriteSheet, lpx: int32, tpx: int32,

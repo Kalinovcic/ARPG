@@ -19,6 +19,8 @@ Entity :: type struct
     mana: float32;
     maxMana: float32;
 
+    effects: Effect[];
+
     userdata: int32;
     tick: delegate void(world: void^, entity: Entity^);
     render: delegate void(entity: Entity^);
@@ -169,7 +171,7 @@ entityTakeDamage :: func void(world: World^, e: Entity^, dmg: float32)
 {
     // TODO: Check resistance, effects...
     e.health = e.health - dmg;
-    if e.health < 0.0
+    if e.health <= 0.0
     {
         removeEntityFromWorld(world, e);
     }
@@ -246,7 +248,7 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
     world: World^ = cast(World^) worldV;
 
     moved: bool = false;
-    if input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]
+    if input.key[INPUT_KEY_LMB]
     {
         playerCX := player.x + player.vw / 2.0;
         playerCY := player.y + player.vh / 2.0;
@@ -335,16 +337,6 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
         }
     }
 
-
-    // TODO: Make this an effect
-    player.health = player.health + 0.02;
-    if player.health > player.maxHealth then
-        player.health = player.maxHealth;
-
-    player.mana = player.mana + 0.2;
-    if player.mana > player.maxMana then
-        player.mana = player.maxMana;
-
     abilityKeys: int64[] : [8];
     abilityKeys[0] = INPUT_KEY_LMB;
     abilityKeys[1] = INPUT_KEY_SHIFT_LMB;
@@ -364,6 +356,13 @@ tickPlayer :: func void(worldV: void^, player: Entity^)
     abilityIndex[5] = 3;
     abilityIndex[6] = 4;
     abilityIndex[7] = 5;
+
+    if input.key[INPUT_KEY_F1] && !prevInput.key[INPUT_KEY_F1] then
+        applyEffect(player.effects, &effect.healthRegen, 300, 1.0);
+    if input.key[INPUT_KEY_F2] && !prevInput.key[INPUT_KEY_F2] then
+        applyEffect(player.effects, &effect.manaRegen, 300, 1.0);
+    if input.key[INPUT_KEY_F3] && !prevInput.key[INPUT_KEY_F3] then
+        applyEffect(player.effects, &effect.poison, 300, 1.0);
 
     abilityI := 0;
     while abilityI < abilityIndex.n

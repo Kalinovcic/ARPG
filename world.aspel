@@ -35,7 +35,15 @@ addEntityToWorld :: func Entity^(world: World^)
         if !world.entityOccupied[i]
         {
             world.entityOccupied[i] = true;
-            return &world.entityList[i];
+
+            entity := &world.entityList[i];
+            effectI := 0;
+            while effectI < entity.effects.n
+            {
+                entity.effects[effectI].id = EFFECT_TYPEID_NONE;
+                effectI = effectI + 1;
+            }
+            return entity;
         }
         i = i + 1;
     }
@@ -79,6 +87,16 @@ initWorld :: func void(world: World^)
     world.entityOccupied = STATIC_WORLD_ENTITY_OCCUPIED;
     asl.memset(world.entityOccupied, 0, sizeof(bool) * world.entityOccupied.n);
 
+    entityI := 0;
+    while entityI < world.entityList.n
+    {
+        entity := &world.entityList[entityI];
+        entity.effects.n = cast(uint64) MAX_EFFECTS_ON_ENTITY;
+        entity.effects.a = STATIC_EFFECT_LIST.a + entityI * entity.effects.n;
+
+        entityI = entityI + 1;
+    }
+
     world.projectileList = STATIC_WORLD_PROJECTILE_LIST;
     world.projectileOccupied = STATIC_WORLD_PROJECTILE_OCCUPIED;
     asl.memset(world.projectileOccupied, 0, sizeof(bool) * world.projectileOccupied.n);
@@ -118,6 +136,21 @@ tickWorld :: func void(world: World^)
         if world.entityOccupied[i]
         {
             entity := &world.entityList[i];
+
+            effectI := 0;
+            while effectI < entity.effects.n
+            {
+                effect := &entity.effects[effectI];
+                if effect.id != EFFECT_TYPEID_NONE
+                {
+                    effect.apply(world, effect, entity);
+                    effect.time = effect.time - 1;
+                    if effect.time <= 0 then
+                        effect.id = EFFECT_TYPEID_NONE;
+                }
+                effectI = effectI + 1;
+            }
+
             entity.tick(world, entity);
         }
 

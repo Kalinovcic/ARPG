@@ -18,3 +18,31 @@ reportString :: func void(msg: asl.string)
 {
     asl.stdout.write(asl.stdout, msg.a, msg.n);
 }
+
+intToString :: func int32(a: int64, s: uint8[], o: int32)
+{
+    dc := 0;
+    ba := a;
+    while ba != 0 { dc = dc + 1; ba = ba / 10; }
+
+    i := 0;
+    while a != 0
+    {
+        s[o + dc - i - 1] = cast(uint8)((a % 10) + char "0");
+        a = a / 10;
+        i = i + 1;
+    }
+
+    return dc;
+}
+
+copyString :: func int32(s: uint8[], d: uint8[], o: int32)
+{
+    i := 0;
+    while i < s.n
+    {
+        d[o + i] = s[i];
+        i = i + 1;
+    }
+    return s.n;
+}
