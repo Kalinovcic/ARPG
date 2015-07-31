@@ -41,13 +41,16 @@ fireballActivate :: func void(world: World^, e: Entity^, tx: float32, ty: float3
 {
     spendMana(e, FIREBALL_MANA);
 
-    dx := tx - (e.x + e.vw / 2.0);
-    dy := ty - (e.y + e.vh / 2.0);
+    ecx := e.x + e.vw / 2.0;
+    ecy := e.y + e.vh / 2.0;
+
+    dx := tx - ecx;
+    dy := ty - ecy;
     mouseAngle := asl.atan2(-dx, dy);
 
     fireball := addProjectileToWorld(world);
-    fireball.x = e.x + e.vw / 2.0 - FIREBALL_RADIUS;
-    fireball.y = e.y + e.vh / 2.0 - FIREBALL_RADIUS;
+    fireball.x = ecx;
+    fireball.y = ecy;
     fireball.z = 0;
 
     fireball.a = asl.to_degrees(mouseAngle);
@@ -89,13 +92,16 @@ eyeballActivate :: func void(world: World^, e: Entity^, tx: float32, ty: float32
 {
     spendMana(e, EYEBALL_MANA);
 
-    dx := tx - e.x;
-    dy := ty - e.y;
+    ecx := e.x + e.vw / 2.0;
+    ecy := e.y + e.vh / 2.0;
+    
+    dx := tx - ecx;
+    dy := ty - ecy;
     mouseAngle := asl.atan2(-dx, dy);
 
     eyeball := addProjectileToWorld(world);
-    eyeball.x = e.x + e.vw / 2.0 - EYEBALL_RADIUS;
-    eyeball.y = e.y + e.vh / 2.0 - EYEBALL_RADIUS;
+    eyeball.x = ecx;
+    eyeball.y = ecy;
     eyeball.z = 0;
 
     eyeball.a = asl.to_degrees(mouseAngle);

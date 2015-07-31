@@ -53,7 +53,8 @@ tickProjectile :: func void(world: World^, p: Projectile^)
                 i = i + 1;
             }
 
-            entityTakeDamage(world, collisions[index], p.damage);
+            entity := collisions[index];
+            entity.entityType.hurt(world, entity, p.damage);
             removeProjectileFromWorld(world, p);
         }
     }

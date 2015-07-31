@@ -226,7 +226,7 @@ gameRender :: func void()
 
         if entity != null
         {
-            renderText("TODO: enemy name",
+            renderText(entity.entityType.name,
                        0.0, -halfOH + 0.5,
                        0.2, TEXT_ALIGN_CENTER);
 

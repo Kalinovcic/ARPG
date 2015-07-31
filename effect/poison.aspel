@@ -9,7 +9,7 @@ namespace effect
 
 applyPoison :: func void(world: World^, effect: Effect^, e: Entity^)
 {
-    entityTakeDamage(world, e, effect.power * EFFECT_POISON_PER_TICK);
+    e.entityType.hurt(world, e, effect.power * EFFECT_POISON_PER_TICK);
 }
 
 initEffectPoison :: func void()

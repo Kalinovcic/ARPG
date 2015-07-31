@@ -1,21 +1,50 @@
 import "../imports.aspel";
 
+OVERLORD_NAME: asl.string : "Overlord";
+overlordType: EntityType;
+isInitOverlordType: bool = false;
+
+initOverlordType :: func void()
+{
+    overlordType.name = OVERLORD_NAME;
+
+    overlordType.tick = tickOverlord;
+    overlordType.render = renderEntity;
+    overlordType.hurt = hurtOverlord;
+}
+
 initOverlord :: func void(overlord: Entity^, posX: float32, posY: float32)
 {
+    if !isInitOverlordType
+    {
+        initOverlordType();
+        isInitOverlordType = true;
+    }
+
     random: asl.Random;
     asl.seedRandomTime(&random);
     
     seed: int16 = cast(int16) (asl.randomInt32(&random) & 0xFFFF);
     tick: int16 = 0;
 
+    overlord.entityType = &overlordType;
+
     overlord.x = posX;
     overlord.y = posY;
+
     overlord.vw = 2.0;
     overlord.vh = 2.0;
     overlord.pw = 1.8;
     overlord.ph = 1.8;
     overlord.pox = 0.1;
     overlord.poy = 0.1;
+    
+    overlord.health = 100;
+    overlord.maxHealth = 100;
+
+    overlord.mana = 31;
+    overlord.maxMana = 31;
+
     overlord.animation = art.entity.overlord;
     overlord.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
                                      cast(uint32)(overlord.animation.frameTime *
@@ -25,15 +54,7 @@ initOverlord :: func void(overlord: Entity^, posX: float32, posY: float32)
                                                       overlord.animation.slowFrameTime *
                                                       overlord.animation.slowFrames.n));
 
-    overlord.health = 100;
-    overlord.maxHealth = 100;
-    overlord.mana = 31;
-    overlord.maxMana = 31;
-
     overlord.userdata = (cast(int32)(seed) << 16) | (cast(int32) tick);
-    overlord.tick = tickOverlord;
-    overlord.render = renderEntity;
-    overlord.onDeath = onDeathOverlord;
 }
 
 tickOverlord :: func void(world: World^, overlord: Entity^)
@@ -87,62 +108,65 @@ tickOverlord :: func void(world: World^, overlord: Entity^)
     }
 }
 
-onDeathOverlord :: func void(world: World^, overlord: Entity^)
+hurtOverlord :: func void(world: World^, overlord: Entity^, dmg: float32)
 {
-    random: asl.Random;
-    asl.seedRandomTime(&random);
-
-    i := 0;
-    while i < 5
+    if hurtEntity(world, overlord, dmg)
     {
-        ox := asl.randomFloat32(&random) * overlord.vw;
-        oy := asl.randomFloat32(&random) * overlord.vh;
+        random: asl.Random;
+        asl.seedRandomTime(&random);
 
-        randomIndex := cast(uint32) asl.randomInt32(&random);
-        spriteIndex := randomIndex % art.particle.overlordTentacleRemains.n;
-        sprite := art.particle.overlordTentacleRemains[spriteIndex];
+        i := 0;
+        while i < 5
+        {
+            ox := asl.randomFloat32(&random) * overlord.vw;
+            oy := asl.randomFloat32(&random) * overlord.vh;
 
-        addParticle(overlord.x + ox, overlord.y + oy,
-                    asl.randomInt32(&random) % 180,
-                    0.1, 0.95,
-                    asl.randomInt32(&random) % 180, 10.0, 0.99,
-                    0.25, sprite, 40, 120);
-        i = i + 1;
-    }
+            randomIndex := cast(uint32) asl.randomInt32(&random);
+            spriteIndex := randomIndex % art.particle.overlordTentacleRemains.n;
+            sprite := art.particle.overlordTentacleRemains[spriteIndex];
 
-    i = 0;
-    while i < 10
-    {
-        ox := asl.randomFloat32(&random) * overlord.vw;
-        oy := asl.randomFloat32(&random) * overlord.vh;
+            addParticle(overlord.x + ox, overlord.y + oy,
+                        asl.randomInt32(&random) % 180,
+                        0.1, 0.95,
+                        asl.randomInt32(&random) % 180, 10.0, 0.99,
+                        0.25, sprite, 40, 120);
+            i = i + 1;
+        }
 
-        randomIndex := cast(uint32) asl.randomInt32(&random);
-        spriteIndex := randomIndex % art.particle.overlordSmallRemains.n;
-        sprite := art.particle.overlordSmallRemains[spriteIndex];
+        i = 0;
+        while i < 10
+        {
+            ox := asl.randomFloat32(&random) * overlord.vw;
+            oy := asl.randomFloat32(&random) * overlord.vh;
 
-        addParticle(overlord.x + ox, overlord.y + oy,
-                    asl.randomInt32(&random) % 180,
-                    0.1, 0.1,
-                    asl.randomInt32(&random) % 180, 10.0, 0.9,
-                    0.25, sprite, 40, 300);
-        i = i + 1;
-    }
+            randomIndex := cast(uint32) asl.randomInt32(&random);
+            spriteIndex := randomIndex % art.particle.overlordSmallRemains.n;
+            sprite := art.particle.overlordSmallRemains[spriteIndex];
 
-    i = 0;
-    while i < 30
-    {
-        ox := asl.randomFloat32(&random) * overlord.vw;
-        oy := asl.randomFloat32(&random) * overlord.vh;
+            addParticle(overlord.x + ox, overlord.y + oy,
+                        asl.randomInt32(&random) % 180,
+                        0.1, 0.1,
+                        asl.randomInt32(&random) % 180, 10.0, 0.9,
+                        0.25, sprite, 40, 300);
+            i = i + 1;
+        }
 
-        randomIndex := cast(uint32) asl.randomInt32(&random);
-        spriteIndex := randomIndex % art.particle.smallBloodStain.n;
-        sprite := art.particle.smallBloodStain[spriteIndex];
+        i = 0;
+        while i < 30
+        {
+            ox := asl.randomFloat32(&random) * overlord.vw;
+            oy := asl.randomFloat32(&random) * overlord.vh;
 
-        addParticle(overlord.x + ox, overlord.y + oy,
-                    asl.randomInt32(&random) % 180,
-                    0.1, 0.1,
-                    asl.randomInt32(&random) % 180, 10.0, 0.9,
-                    0.1, sprite, 40, 300);
-        i = i + 1;
+            randomIndex := cast(uint32) asl.randomInt32(&random);
+            spriteIndex := randomIndex % art.particle.smallBloodStain.n;
+            sprite := art.particle.smallBloodStain[spriteIndex];
+
+            addParticle(overlord.x + ox, overlord.y + oy,
+                        asl.randomInt32(&random) % 180,
+                        0.1, 0.1,
+                        asl.randomInt32(&random) % 180, 10.0, 0.9,
+                        0.1, sprite, 40, 300);
+            i = i + 1;
+        }
     }
 }

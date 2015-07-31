@@ -1,5 +1,18 @@
 import "../imports.aspel";
 
+PLAYER_NAME: asl.string : "Player";
+playerType: EntityType;
+isInitPlayerType: bool = false;
+
+initPlayerType :: func void()
+{
+    playerType.name = PLAYER_NAME;
+
+    playerType.tick = tickPlayer;
+    playerType.render = renderPlayer;
+    playerType.hurt = hurtPlayer;
+}
+
 // CLEANUP: Move these somewhere!
 playerHasMoveTarget: bool = false;
 playerTargetX: float32;
@@ -7,24 +20,31 @@ playerTargetY: float32;
 
 initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
 {
+    if !isInitPlayerType
+    {
+        initPlayerType();
+        isInitPlayerType = true;
+    }
+
+    player.entityType = &playerType;
+
     player.x = posX;
     player.y = posY;
+    
     player.vw = 0.8;
     player.vh = 0.8;
     player.pw = 0.6;
     player.ph = 0.3;
     player.pox = 0.1;
     player.poy = 0.0;
-    player.animation = art.ui.invalidAnimation;
 
     player.health = 322;
     player.maxHealth = 400;
+
     player.mana = 124;
     player.maxMana = 150;
 
-    player.tick = tickPlayer;
-    player.render = renderPlayer;
-    player.onDeath = onDeathPlayer;
+    player.animation = art.ui.invalidAnimation;
 }
 
 tickPlayer :: func void(world: World^, player: Entity^)
@@ -302,7 +322,49 @@ renderPlayer :: func void(player: Entity^)
                        tl, tr, 0.0, 1.0, hairColorR, hairColorG, hairColorB, 1.0);
 }
 
-onDeathPlayer :: func void(world: World^, player: Entity^)
+hurtPlayer :: func void(world: World^, player: Entity^, dmg: float32)
 {
-    world.player = null;
+    random: asl.Random;
+    asl.seedRandomTime(&random);
+    
+    i := 0;
+    while i < 2
+    {
+        ox := asl.randomFloat32(&random) * player.pw;
+        oy := asl.randomFloat32(&random) * player.ph;
+
+        randomIndex := cast(uint32) asl.randomInt32(&random);
+        spriteIndex := randomIndex % art.particle.smallBloodStain.n;
+        sprite := art.particle.smallBloodStain[spriteIndex];
+
+        addParticle(player.x + player.pox + ox, player.y + player.poy + oy,
+                    asl.randomInt32(&random) % 180,
+                    0.1, 0.1,
+                    asl.randomInt32(&random) % 180, 10.0, 0.9,
+                    0.1, sprite, 40, 300);
+        i = i + 1;
+    }
+
+    if hurtEntity(world, player, dmg)
+    {
+        world.player = null;
+
+        i := 0;
+        while i < 10
+        {
+            ox := asl.randomFloat32(&random) * player.pw;
+            oy := asl.randomFloat32(&random) * player.ph;
+
+            randomIndex := cast(uint32) asl.randomInt32(&random);
+            spriteIndex := randomIndex % art.particle.smallBloodStain.n;
+            sprite := art.particle.smallBloodStain[spriteIndex];
+
+            addParticle(player.x + player.pox + ox, player.y + player.poy + oy,
+                        asl.randomInt32(&random) % 180,
+                        0.1, 0.1,
+                        asl.randomInt32(&random) % 180, 10.0, 0.9,
+                        0.1, sprite, 40, 300);
+            i = i + 1;
+        }
+    }
 }

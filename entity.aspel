@@ -1,7 +1,18 @@
 import "imports.aspel";
 
+EntityType :: type struct
+{
+    name: asl.string;
+
+    tick: delegate void(world: World^, entity: Entity^);
+    render: delegate void(entity: Entity^);
+    hurt: delegate void(world: World^, entitY: Entity^, dmg: float32);
+};
+
 Entity :: type struct
 {
+    entityType: EntityType^;
+
     x: float32;
     y: float32;
 
@@ -12,19 +23,16 @@ Entity :: type struct
     pox: float32;
     poy: float32;
 
-    animation: Animation;
-
     health: float32;
     maxHealth: float32;
+
     mana: float32;
     maxMana: float32;
 
     effects: Effect[];
+    animation: Animation;
 
-    userdata: int32;
-    tick: delegate void(world: World^, entity: Entity^);
-    render: delegate void(entity: Entity^);
-    onDeath: delegate void(world: World^, entitY: Entity^);
+    userdata: int32; // CLEANUP: deal with this
 };
 
 partialEntityCollideWithTerrain :: func bool(terrain: Terrain^, entity: Entity^,
@@ -168,17 +176,20 @@ projectileCollideWithEntities :: func int32(world: World^, projectile: Projectil
     return resultCount;
 }
 
-entityTakeDamage :: func void(world: World^, e: Entity^, dmg: float32)
+hurtEntity :: func bool(world: World^, e: Entity^, dmg: float32)
 {
     // TODO: Check resistance, effects...
-    
+
     e.health = e.health - dmg;
     if e.health <= 0.0
     {
         e.health = 0.0;
-        e.onDeath(world, e);
         removeEntityFromWorld(world, e);
+
+        return true;
     }
+
+    return false;
 }
 
 renderEntity :: func void(e: Entity^)
