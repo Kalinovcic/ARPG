@@ -21,6 +21,12 @@ reportString :: func void(msg: asl.string)
 
 intToString :: func int32(a: int64, s: uint8[], o: int32)
 {
+    if a == 0
+    {
+        s[0] = char "0";
+        return 1;
+    }
+
     dc := 0;
     ba := a;
     while ba != 0 { dc = dc + 1; ba = ba / 10; }

@@ -52,94 +52,18 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
     // HUD
     gl.glTranslatef(-camTransX, -camTransY, 0.0);
 
-    HEALTH_PER_HEART: float32 : 20.0;
-    HEARTS_PER_ROW: int64 : 10;
-    heartI: int32 = 0;
-    healthI: float32 = 0;
-    while healthI < player.maxHealth
-    {
-        percGray: float32 = (player.maxHealth - healthI) / HEALTH_PER_HEART;
-        if percGray > 1.0 then percGray = 1.0;
+    renderHealthbar(halfOW - 4.1, halfOH - 0.5,
+                    4.0, 0.4,
+                    player.health, player.maxHealth,
+                    1.0, 0.1, 0.1,
+                    0.0, 0.0, 0.0);
 
-        percRed: float32 = (player.health - healthI) / HEALTH_PER_HEART;
-        if percRed > 1.0 then percRed = 1.0;
-        if percRed < 0.0 then percRed = 0.0;
+    renderHealthbar(halfOW - 4.1, halfOH - 1.0,
+                    4.0, 0.4,
+                    player.mana, player.maxMana,
+                    0.8, 0.8, 0.0,
+                    0.0, 0.0, 0.0);
 
-        row: int32 = heartI / HEARTS_PER_ROW;
-        col: int32 = heartI % HEARTS_PER_ROW;
-
-        renderSpriteAdv(halfOW - 0.7 - HEARTS_PER_ROW * 0.3 + col * 0.3 + percRed * 0.28,
-                        halfOH - 0.55 - row * 0.3,
-                        0.28 * (percGray - percRed), 0.28, 0.0,
-                        percRed, percGray,
-                        0.0, 1.0,
-                        0.8, 0.8, 0.8, 1.0,
-                        art.ui.heart);
-
-        renderSpriteAdv(halfOW - 0.7 - HEARTS_PER_ROW * 0.3 + col * 0.3,
-                        halfOH - 0.55 - row * 0.3,
-                        0.28 * percRed, 0.28, 0.0,
-                        0.0, percRed,
-                        0.0, 1.0,
-                        1.0, 0.1, 0.1, 1.0,
-                        art.ui.heart);
-
-        heartI = heartI + 1;
-        healthI = heartI * HEALTH_PER_HEART;
-    }
-
-    healthTextOff: float32 = asl.min(HEARTS_PER_ROW, player.maxHealth / HEALTH_PER_HEART);
-
-    // CLEANUP: sprintf
-    life: int64 = cast(int64) asl.ceil(player.health);
-    maxLife: int64 = cast(int64) asl.ceil(player.maxHealth);
-
-    text: uint8[] : [64];
-    textOff: int32 = 0;
-    textOff = textOff + intToString(life, text, textOff);
-    textOff = textOff + copyString("/", text, textOff);
-    textOff = textOff + intToString(maxLife, text, textOff);
-    text.n = cast(uint64) textOff;
-
-    renderText(text, halfOW - 0.7 - healthTextOff / 2.0 * 0.3,
-                     halfOH - 0.2, 0.18, TEXT_ALIGN_CENTER);
-
-    // CLEANUP: I need a better name for this.
-    MANA_PER_MANAICON: float32 : 20.0;
-    manaIconI: int32 = 0;
-    manaI: float32 = 0;
-    while manaI < player.maxMana
-    {
-        percGray: float32 = (player.maxMana - manaI) / MANA_PER_MANAICON;
-        if percGray > 1.0 then percGray = 1.0;
-
-        percYellow: float32 = (player.mana - manaI) / MANA_PER_MANAICON;
-        if percYellow < 0.0 then percYellow = 0.0;
-        if percYellow > 1.0 then percYellow = 1.0;
-
-        totalGray: float32 = percGray - percYellow;
-
-        renderSpriteAdv(halfOW - 0.51,
-                        halfOH - 0.55 - manaIconI * 0.3 + (1.0 - percGray) * 0.28,
-                        0.28, 0.28 * totalGray, 0.0,
-                        0.0, 1.0,
-                        1.0 - percGray, 1.0 - percYellow,
-                        0.8, 0.8, 0.8, 1.0,
-                        art.ui.mana);
-
-        renderSpriteAdv(halfOW - 0.51,
-                        halfOH - 0.55 - manaIconI * 0.3 + (1.0 - percYellow) * 0.28,
-                        0.28, 0.28 * percYellow, 0.0,
-                        0.0, 1.0,
-                        1.0 - percYellow, 1.0,
-                        1.0, 1.0, 0.0, 1.0,
-                        art.ui.mana);
-
-        manaIconI = manaIconI + 1;
-        manaI = manaIconI * MANA_PER_MANAICON;
-    }
-
-    renderText("Mana", halfOW - 0.37, halfOH - 0.2, 0.18, TEXT_ALIGN_CENTER);
 
     actionBarI: int32 = 0;
     while actionBarI < PLAYER_ABILITY_COUNT
@@ -273,6 +197,43 @@ gameRender :: func void(orthoW: float32, orthoH: float32)
                        0.2, TEXT_ALIGN_RIGHT);
 
             equipmentI = equipmentI + 1;
+        }
+    }
+
+    /**/
+
+    {
+        playerCX := player.x + player.vw / 2.0;
+        playerCY := player.y + player.vh / 2.0;
+        mousePointX := input.mouseX + playerCX;
+        mousePointY := input.mouseY + playerCY;
+
+        hit: Entity^[] : [2];
+        hitCount: int32 = pointCollideWithEntity(&world, mousePointX, mousePointY, hit);
+        entity: Entity^ = null;
+
+        hitI := 0;
+        while hitI < hitCount
+        {
+            if hit[hitI] != player
+            {
+                entity = hit[hitI];
+                break;
+            }
+            hitI = hitI + 1;
+        }
+
+        if entity != null
+        {
+            renderText("TODO: enemy name",
+                       0.0, -halfOH + 0.5,
+                       0.2, TEXT_ALIGN_CENTER);
+
+            renderHealthbar(-2.0, -halfOH + 0.05,
+                            4.0, 0.4,
+                            entity.health, entity.maxHealth,
+                            1.0, 0.1, 0.1,
+                            0.0, 0.0, 0.0);
         }
     }
 }

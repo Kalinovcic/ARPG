@@ -135,6 +135,10 @@ namespace art
         heart: Sprite;
         mana: Sprite;
 
+        healthBarEdge: Sprite;
+        healthBar: Sprite;
+        healthBarFilling: Sprite;
+
         invalidSprite: Sprite;
         invalidFrames: Sprite[] : [1];
         invalidAnimation: Animation;
@@ -301,6 +305,10 @@ loadArt :: func void()
 
     art.ui.heart = getSprite(art.ssUI, 1, 10, 1, 1, 8);
     art.ui.mana = getSprite(art.ssUI, 0, 10, 1, 1, 8);
+
+    art.ui.healthBarEdge = getSprite(art.ssUI, 2, 10, 1, 1, 8);
+    art.ui.healthBar = getSprite(art.ssUI, 3, 10, 1, 1, 8);
+    art.ui.healthBarFilling = getSprite(art.ssUI, 4, 10, 1, 1, 8);
 
     getFrameArray(art.ui.invalidFrames, art.ssUI, 30, 30, 2, 2, 8);
     setAnimationFrames(&art.ui.invalidAnimation, art.ui.invalidFrames, 1, 0);

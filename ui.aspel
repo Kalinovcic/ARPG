@@ -1,0 +1,57 @@
+import "imports.aspel";
+
+renderHealthbar :: func void(x: float32, y: float32,
+                             width: float32, height: float32,
+                             health: float32, maxHealth: float32,
+                             r: float32, g: float32, b: float32,
+                             br: float32, bg: float32, bb: float32)
+{
+    fwidth := width - height * 2.0;
+    hperc := health / maxHealth;
+
+    renderSpriteAdv(x, y,
+                    height, height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0,
+                    art.ui.healthBarEdge);
+
+    renderSpriteAdv(x + width - height, y,
+                    height, height, 0.0,
+                    1.0, 0.0, 0.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0,
+                    art.ui.healthBarEdge);
+
+    renderSpriteAdv(x + height, y,
+                    fwidth, height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0,
+                    art.ui.healthBar);
+
+    renderSpriteAdv(x + height, y,
+                    fwidth * hperc, height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, 1.0,
+                    art.ui.healthBarFilling);
+
+    renderSpriteAdv(x + height + fwidth * hperc, y,
+                    fwidth * (1.0 - hperc), height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    br, bg, bb, 1.0,
+                    art.ui.healthBarFilling);
+
+
+    healthI: int64 = cast(int64) asl.ceil(health);
+    maxHealthI: int64 = cast(int64) asl.ceil(maxHealth);
+
+    text: uint8[] : [64];
+    textOff: int32 = 0;
+    textOff = textOff + intToString(healthI, text, textOff);
+    textOff = textOff + copyString("/", text, textOff);
+    textOff = textOff + intToString(maxHealthI, text, textOff);
+    text.n = cast(uint64) textOff;
+
+    textHeight := height * 0.5;
+
+    renderText(text, x + width / 2.0, y + (height - textHeight) / 2.0,
+               textHeight, TEXT_ALIGN_CENTER);
+}
