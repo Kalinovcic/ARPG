@@ -91,13 +91,12 @@ handleMotionInput :: func void(xpos: float32, ypos: float32)
     rawMouseYPos = ypos;
 }
 
-processInput :: func void(windowW: int32, windowH: int32,
-                          orthoW: float32, orthoH: float32)
+processInput :: func void()
 {
-    mouseXP := rawMouseXPos / cast(float32) windowW;
-    mouseYP := rawMouseYPos / cast(float32) windowH;
-    input.mouseX =  (mouseXP - 0.5) * orthoW;
-    input.mouseY = -(mouseYP - 0.5) * orthoH;
+    mouseXP := rawMouseXPos / cast(float32) cameraWindowWidth;
+    mouseYP := rawMouseYPos / cast(float32) cameraWindowHeight;
+    input.mouseX =  (mouseXP - 0.5) * cameraOrthoWidth;
+    input.mouseY = -(mouseYP - 0.5) * cameraOrthoHeight;
 }
 
 updateInput :: func void()

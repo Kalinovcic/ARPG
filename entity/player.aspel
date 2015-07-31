@@ -24,7 +24,7 @@ initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
 
     player.tick = tickPlayer;
     player.render = renderPlayer;
-    player.onDeath = defaultOnDeath;
+    player.onDeath = onDeathPlayer;
 }
 
 tickPlayer :: func void(world: World^, player: Entity^)
@@ -32,10 +32,8 @@ tickPlayer :: func void(world: World^, player: Entity^)
     moved: bool = false;
     if input.key[INPUT_KEY_LMB]
     {
-        playerCX := player.x + player.vw / 2.0;
-        playerCY := player.y + player.vh / 2.0;
-        movePointX := input.mouseX + playerCX;
-        movePointY := input.mouseY + playerCY;
+        movePointX := input.mouseX + cameraFocusX;
+        movePointY := input.mouseY + cameraFocusY;
 
         hit: Entity^[] : [2];
         hitCount: int32 = pointCollideWithEntity(world, movePointX, movePointY, hit);
@@ -164,12 +162,18 @@ tickPlayer :: func void(world: World^, player: Entity^)
                         player.userdata = player.userdata & ~0x1;
                     }
 
-                    if ability.checkRequirements(player) then
-                        ability.activate(world, player);
+                    if ability.checkRequirements(player)
+                    {
+                        tx := input.mouseX + cameraFocusX;
+                        ty := input.mouseY + cameraFocusY;
+                        ability.activate(world, player, tx, ty);
+                    }
                 }
             }
         abilityI = abilityI + 1;
     }
+
+    focusCameraOnEntity(player);
 }
 
 renderPlayer :: func void(player: Entity^)
@@ -282,8 +286,8 @@ renderPlayer :: func void(player: Entity^)
     skinColorG := 0.82;
     skinColorB := 0.18;
     bodyColorR := 0.02;
-    bodyColorG := 0.61;
-    bodyColorB := 0.00;
+    bodyColorG := 0.00;
+    bodyColorB := 0.61;
     hairColorR := 0.62;
     hairColorG := 0.31;
     hairColorB := 0.92;
@@ -296,4 +300,9 @@ renderPlayer :: func void(player: Entity^)
                        tl, tr, 0.0, 1.0, bodyColorR, bodyColorG, bodyColorB, 1.0);
     renderAnimationAdv(&hairAnim, player.x, player.y, player.vw, player.vh, 0.0,
                        tl, tr, 0.0, 1.0, hairColorR, hairColorG, hairColorB, 1.0);
+}
+
+onDeathPlayer :: func void(world: World^, player: Entity^)
+{
+    world.player = null;
 }

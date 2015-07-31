@@ -34,179 +34,180 @@ gameTick :: func void()
     tickWorld(&world);
 }
 
-gameRender :: func void(orthoW: float32, orthoH: float32)
+gameRender :: func void()
 {
-    halfOW := orthoW / 2.0;
-    halfOH := orthoH / 2.0;
-
     player := world.player;
-    camTransX := -player.x - player.vw / 2.0;
-    camTransY := -player.y - player.vh / 2.0;
+    halfOW := cameraOrthoWidth / 2.0;
+    halfOH := cameraOrthoHeight / 2.0;
 
     // Game world
-    gl.glTranslatef(camTransX, camTransY, 0.0);
-    renderWorld(&world,
-                -camTransX - halfOW, -camTransX + halfOW,
-                -camTransY - halfOH, -camTransY + halfOH);
+    gl.glTranslatef(-cameraFocusX, -cameraFocusY, 0.0);
+    renderWorld(&world);
 
-    // HUD
-    gl.glTranslatef(-camTransX, -camTransY, 0.0);
+    // HUDs
+    gl.glTranslatef(cameraFocusX, cameraFocusY, 0.0);
 
-    renderHealthbar(halfOW - 4.1, halfOH - 0.5,
-                    4.0, 0.4,
-                    player.health, player.maxHealth,
-                    1.0, 0.1, 0.1,
-                    0.0, 0.0, 0.0);
-
-    renderHealthbar(halfOW - 4.1, halfOH - 1.0,
-                    4.0, 0.4,
-                    player.mana, player.maxMana,
-                    0.8, 0.8, 0.0,
-                    0.0, 0.0, 0.0);
-
-
-    actionBarI: int32 = 0;
-    while actionBarI < PLAYER_ABILITY_COUNT
+    if player != null
     {
-        renderSpriteAdv(-halfOW + 0.3 + actionBarI * 0.60,
-                     halfOH - 0.85,
-                     0.58, 0.58, 0.0,
-                     0.0, 1.0, 0.0, 1.0,
-                     0.09, 0.66, 0.97, 0.7,
-                     art.ui.TEMP_inventoryBox);
+        /* HEALTH BAR and MANA BAR */
 
-        ability := world.playerAbilities[actionBarI];
-        if ability != null
+        renderHealthbar(halfOW - 4.1, halfOH - 0.5,
+                        4.0, 0.4,
+                        player.health, player.maxHealth,
+                        1.00, 0.16, 0.16,
+                        0.0, 0.0, 0.0);
+
+        renderHealthbar(halfOW - 4.1, halfOH - 1.0,
+                        4.0, 0.4,
+                        player.mana, player.maxMana,
+                        0.15, 0.45, 0.87,
+                        0.0, 0.0, 0.0);
+
+        /* ACTION BAR */
+
+        actionBarI: int32 = 0;
+        while actionBarI < PLAYER_ABILITY_COUNT
         {
-            renderAnimation(&ability.icon,
-                            -halfOW + 0.4 + actionBarI * 0.60,
-                            halfOH - 0.75,
-                            0.38, 0.38, -45.0);
-        }
+            renderSpriteAdv(-halfOW + 0.3 + actionBarI * 0.60,
+                         halfOH - 0.85,
+                         0.58, 0.58, 0.0,
+                         0.0, 1.0, 0.0, 1.0,
+                         0.09, 0.66, 0.97, 0.7,
+                         art.ui.TEMP_inventoryBox);
 
-        renderSprite(-halfOW + 0.25 + actionBarI * 0.60,
-                     halfOH - 0.9,
-                     0.2, 0.2,
-                     art.ui.actionBarSprites[actionBarI]);
-
-        actionBarI = actionBarI + 1;
-    }
-
-    activeEffectCount: int32 = 0;
-    effectI: int32 = 0;
-    while effectI < world.player.effects.n
-    {
-        effect := &world.player.effects[effectI];
-        effectI = effectI + 1;
-
-        if effect.id == EFFECT_TYPEID_NONE then
-            continue;
-
-        bgColorR := 0.09;
-        bgColorG := 0.97;
-        bgColorB := 0.36;
-        if effect.iconbg == EFFECT_ICONBG_NEGATIVE
-        {
-            bgColorR = 0.97;
-            bgColorG = 0.09;
-            bgColorB = 0.36;
-        }
-
-        renderSpriteAdv(-halfOW + 0.42 + activeEffectCount * 0.4,
-                        halfOH - 1.3,
-                        0.38, 0.38, 0.0,
-                        0.0, 1.0, 0.0, 1.0,
-                        bgColorR, bgColorG, bgColorB, 0.8,
-                        art.ui.TEMP_inventoryBox);
-
-        renderSpriteAdv(-halfOW + 0.45 + activeEffectCount * 0.4 + 0.01,
-                        halfOH - 1.3 + 0.01,
-                        0.36, 0.36, 0.0,
-                        0.0, 1.0, 0.0, 1.0,
-                        1.0, 1.0, 1.0, 1.0,
-                        effect.icon);
-
-        // CLEANUP: sprintf
-        sec: int64 = cast(int64) asl.ceil(effect.time / 60.0);
-
-        text: uint8[] : [64];
-        textOff: int32 = 0;
-        textOff = textOff + intToString(sec, text, textOff);
-        text.n = cast(uint64) textOff;
-
-        renderText(text, -halfOW + 0.45 + activeEffectCount * 0.4,
-                          halfOH - 1.3 - 0.1, 0.13, TEXT_ALIGN_LEFT);
-
-        activeEffectCount = activeEffectCount + 1;
-    }
-
-    if world.inventoryUp
-    {
-        INVENTORY_WIDTH: int32 = 12;
-        INVENTORY_HEIGHT: int32 = 4;
-
-        inventoryYI: int32 = 0;
-        while inventoryYI < INVENTORY_HEIGHT
-        {
-            inventoryXI: int32 = 0;
-            while inventoryXI < INVENTORY_WIDTH
+            ability := world.playerAbilities[actionBarI];
+            if ability != null
             {
-                renderSpriteAdv(-halfOW + 0.4 + inventoryXI * 0.5,
-                                halfOH - 2.3 - inventoryYI * 0.5,
+                renderAnimation(&ability.icon,
+                                -halfOW + 0.4 + actionBarI * 0.60,
+                                halfOH - 0.75,
+                                0.38, 0.38, -45.0);
+            }
+
+            renderSprite(-halfOW + 0.25 + actionBarI * 0.60,
+                         halfOH - 0.9,
+                         0.2, 0.2,
+                         art.ui.actionBarSprites[actionBarI]);
+
+            actionBarI = actionBarI + 1;
+        }
+
+        /* EFFECT ICONS */
+
+        activeEffectCount: int32 = 0;
+        effectI: int32 = 0;
+        while effectI < world.player.effects.n
+        {
+            effect := &world.player.effects[effectI];
+            effectI = effectI + 1;
+
+            if effect.id == EFFECT_TYPEID_NONE then
+                continue;
+
+            bgColorR := 0.09;
+            bgColorG := 0.97;
+            bgColorB := 0.36;
+            if effect.iconbg == EFFECT_ICONBG_NEGATIVE
+            {
+                bgColorR = 0.97;
+                bgColorG = 0.09;
+                bgColorB = 0.36;
+            }
+
+            renderSpriteAdv(-halfOW + 0.42 + activeEffectCount * 0.4,
+                            halfOH - 1.3,
+                            0.38, 0.38, 0.0,
+                            0.0, 1.0, 0.0, 1.0,
+                            bgColorR, bgColorG, bgColorB, 0.8,
+                            art.ui.TEMP_inventoryBox);
+
+            renderSpriteAdv(-halfOW + 0.45 + activeEffectCount * 0.4 + 0.01,
+                            halfOH - 1.3 + 0.01,
+                            0.36, 0.36, 0.0,
+                            0.0, 1.0, 0.0, 1.0,
+                            1.0, 1.0, 1.0, 1.0,
+                            effect.icon);
+
+            // CLEANUP: sprintf
+            sec: int64 = cast(int64) asl.ceil(effect.time / 60.0);
+
+            text: uint8[] : [64];
+            textOff: int32 = 0;
+            textOff = textOff + intToString(sec, text, textOff);
+            text.n = cast(uint64) textOff;
+
+            renderText(text, -halfOW + 0.45 + activeEffectCount * 0.4,
+                              halfOH - 1.3 - 0.1, 0.13, TEXT_ALIGN_LEFT);
+
+            activeEffectCount = activeEffectCount + 1;
+        }
+
+        if world.inventoryUp
+        {
+            INVENTORY_WIDTH: int32 = 12;
+            INVENTORY_HEIGHT: int32 = 4;
+
+            inventoryYI: int32 = 0;
+            while inventoryYI < INVENTORY_HEIGHT
+            {
+                inventoryXI: int32 = 0;
+                while inventoryXI < INVENTORY_WIDTH
+                {
+                    renderSpriteAdv(-halfOW + 0.4 + inventoryXI * 0.5,
+                                    halfOH - 2.3 - inventoryYI * 0.5,
+                                    0.49, 0.49, 0.0,
+                                    0.0, 1.0, 0.0, 1.0,
+                                    0.09, 0.66, 0.97, 0.9,
+                                    art.ui.TEMP_inventoryBox);
+
+                    // TODO: Place icons in these...
+
+                    inventoryXI = inventoryXI + 1;
+                }
+
+                inventoryYI = inventoryYI + 1;
+            }
+
+            renderText("Inventory",
+                       -halfOW + 0.5,
+                       halfOH - 1.75,
+                       0.2, TEXT_ALIGN_LEFT);
+
+            EQUIPMENT_COUNT: int32 = 7;
+            EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_COUNT];
+            EQUIPMENT_TITLES[0] = "Helmet";
+            EQUIPMENT_TITLES[1] = "Shirt";
+            EQUIPMENT_TITLES[2] = "Pants";
+            EQUIPMENT_TITLES[3] = "Accessories";
+            EQUIPMENT_TITLES[4] = "";
+            EQUIPMENT_TITLES[5] = "";
+            EQUIPMENT_TITLES[6] = "Mount";
+
+            equipmentI: int32 = 0;
+            while equipmentI < EQUIPMENT_COUNT
+            {
+                renderSpriteAdv(halfOW - 0.8,
+                                -halfOH + 0.2 + (EQUIPMENT_COUNT - equipmentI - 1) * 0.5,
                                 0.49, 0.49, 0.0,
                                 0.0, 1.0, 0.0, 1.0,
                                 0.09, 0.66, 0.97, 0.9,
                                 art.ui.TEMP_inventoryBox);
 
-                // TODO: Place icons in these...
+                renderText(EQUIPMENT_TITLES[equipmentI],
+                           halfOW - 0.9,
+                           -halfOH + 0.2 + (EQUIPMENT_COUNT - equipmentI - 0.65) * 0.5,
+                           0.2, TEXT_ALIGN_RIGHT);
 
-                inventoryXI = inventoryXI + 1;
+                equipmentI = equipmentI + 1;
             }
-
-            inventoryYI = inventoryYI + 1;
-        }
-
-        renderText("Inventory",
-                   -halfOW + 0.5,
-                   halfOH - 1.75,
-                   0.2, TEXT_ALIGN_LEFT);
-
-        EQUIPMENT_COUNT: int32 = 7;
-        EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_COUNT];
-        EQUIPMENT_TITLES[0] = "Helmet";
-        EQUIPMENT_TITLES[1] = "Shirt";
-        EQUIPMENT_TITLES[2] = "Pants";
-        EQUIPMENT_TITLES[3] = "Accessories";
-        EQUIPMENT_TITLES[4] = "";
-        EQUIPMENT_TITLES[5] = "";
-        EQUIPMENT_TITLES[6] = "Mount";
-
-        equipmentI: int32 = 0;
-        while equipmentI < EQUIPMENT_COUNT
-        {
-            renderSpriteAdv(halfOW - 0.8,
-                            -halfOH + 0.2 + (EQUIPMENT_COUNT - equipmentI - 1) * 0.5,
-                            0.49, 0.49, 0.0,
-                            0.0, 1.0, 0.0, 1.0,
-                            0.09, 0.66, 0.97, 0.9,
-                            art.ui.TEMP_inventoryBox);
-
-            renderText(EQUIPMENT_TITLES[equipmentI],
-                       halfOW - 0.9,
-                       -halfOH + 0.2 + (EQUIPMENT_COUNT - equipmentI - 0.65) * 0.5,
-                       0.2, TEXT_ALIGN_RIGHT);
-
-            equipmentI = equipmentI + 1;
         }
     }
 
-    /**/
+    /* ENEMY HOVER INFO */
 
     {
-        playerCX := player.x + player.vw / 2.0;
-        playerCY := player.y + player.vh / 2.0;
-        mousePointX := input.mouseX + playerCX;
-        mousePointY := input.mouseY + playerCY;
+        mousePointX := input.mouseX + cameraFocusX;
+        mousePointY := input.mouseY + cameraFocusY;
 
         hit: Entity^[] : [2];
         hitCount: int32 = pointCollideWithEntity(&world, mousePointX, mousePointY, hit);

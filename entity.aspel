@@ -24,7 +24,7 @@ Entity :: type struct
     userdata: int32;
     tick: delegate void(world: World^, entity: Entity^);
     render: delegate void(entity: Entity^);
-    onDeath: delegate void(entitY: Entity^);
+    onDeath: delegate void(world: World^, entitY: Entity^);
 };
 
 partialEntityCollideWithTerrain :: func bool(terrain: Terrain^, entity: Entity^,
@@ -171,10 +171,12 @@ projectileCollideWithEntities :: func int32(world: World^, projectile: Projectil
 entityTakeDamage :: func void(world: World^, e: Entity^, dmg: float32)
 {
     // TODO: Check resistance, effects...
+    
     e.health = e.health - dmg;
     if e.health <= 0.0
     {
-        e.onDeath(e);
+        e.health = 0.0;
+        e.onDeath(world, e);
         removeEntityFromWorld(world, e);
     }
 }

@@ -131,16 +131,12 @@ renderLoop :: func void()
         height: int32;
         glfw3.glfwGetFramebufferSize(window, &width, &height);
 
-        ratio: float64 = width / cast(float64) height;
-        orthoW := ratio * 9.0;
-        orthoH := 9.0;
-        halfOW := orthoW / 2.0;
-        halfOH := orthoH / 2.0;
+        setCameraViewport(width, height);
 
         ticked: bool = false;
         while deltaTime >= frameTime
         {
-            processInput(width, height, orthoW, orthoH);
+            processInput();
             gameTick();
             updateInput();
 
@@ -152,16 +148,11 @@ renderLoop :: func void()
 
         if ticked
         {
-            gl.glMatrixMode(gl.GL_PROJECTION);
-            gl.glLoadIdentity();
-            gl.glOrtho(-halfOW, halfOW, -halfOH, halfOH, 1.0, -1.0);
-            gl.glViewport(0, 0, width, height);
-
             gl.glClear(gl.GL_COLOR_BUFFER_BIT);
             gl.glMatrixMode(gl.GL_MODELVIEW);
             gl.glLoadIdentity();
 
-            gameRender(orthoW, orthoH);
+            gameRender();
 
             glfw3.glfwSwapBuffers(window);
             glfw3.glfwPollEvents();

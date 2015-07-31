@@ -12,31 +12,31 @@ renderHealthbar :: func void(x: float32, y: float32,
     renderSpriteAdv(x, y,
                     height, height, 0.0,
                     0.0, 1.0, 0.0, 1.0,
-                    1.0, 1.0, 1.0, 1.0,
+                    0.09, 0.66, 0.97, 0.9,
                     art.ui.healthBarEdge);
 
     renderSpriteAdv(x + width - height, y,
                     height, height, 0.0,
                     1.0, 0.0, 0.0, 1.0,
-                    1.0, 1.0, 1.0, 1.0,
+                    0.09, 0.66, 0.97, 0.9,
                     art.ui.healthBarEdge);
 
     renderSpriteAdv(x + height, y,
                     fwidth, height, 0.0,
                     0.0, 1.0, 0.0, 1.0,
-                    1.0, 1.0, 1.0, 1.0,
+                    0.09, 0.66, 0.97, 0.9,
                     art.ui.healthBar);
 
     renderSpriteAdv(x + height, y,
                     fwidth * hperc, height, 0.0,
                     0.0, 1.0, 0.0, 1.0,
-                    r, g, b, 1.0,
+                    r, g, b, 0.9,
                     art.ui.healthBarFilling);
 
     renderSpriteAdv(x + height + fwidth * hperc, y,
                     fwidth * (1.0 - hperc), height, 0.0,
                     0.0, 1.0, 0.0, 1.0,
-                    br, bg, bb, 1.0,
+                    br, bg, bb, 0.9,
                     art.ui.healthBarFilling);
 
 

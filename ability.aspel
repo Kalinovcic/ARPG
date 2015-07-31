@@ -2,7 +2,7 @@
 Ability :: type struct
 {
     checkRequirements: delegate bool(e: Entity^);
-    activate: delegate void(world: World^, e: Entity^);
+    activate: delegate void(world: World^, e: Entity^, tx: float32, ty: float32);
 
     icon: Animation;
 };
@@ -37,12 +37,13 @@ fireballRequirements :: func bool(e: Entity^)
     return manaRequirement(e, FIREBALL_MANA);
 }
 
-fireballActivate :: func void(world: World^, e: Entity^)
+fireballActivate :: func void(world: World^, e: Entity^, tx: float32, ty: float32)
 {
     spendMana(e, FIREBALL_MANA);
 
-    // TODO: make this work for enemies, they need to specify what they're targeting.
-    mouseAngle := asl.atan2(-input.mouseX, input.mouseY);
+    dx := tx - (e.x + e.vw / 2.0);
+    dy := ty - (e.y + e.vh / 2.0);
+    mouseAngle := asl.atan2(-dx, dy);
 
     fireball := addProjectileToWorld(world);
     fireball.x = e.x + e.vw / 2.0 - FIREBALL_RADIUS;
@@ -84,12 +85,13 @@ eyeballRequirements :: func bool(e: Entity^)
     return manaRequirement(e, EYEBALL_MANA);
 }
 
-eyeballActivate :: func void(world: World^, e: Entity^)
+eyeballActivate :: func void(world: World^, e: Entity^, tx: float32, ty: float32)
 {
     spendMana(e, EYEBALL_MANA);
 
-    // TODO: make this work for enemies, they need to specify what they're targeting.
-    mouseAngle := asl.atan2(-input.mouseX, input.mouseY);
+    dx := tx - e.x;
+    dy := ty - e.y;
+    mouseAngle := asl.atan2(-dx, dy);
 
     eyeball := addProjectileToWorld(world);
     eyeball.x = e.x + e.vw / 2.0 - EYEBALL_RADIUS;

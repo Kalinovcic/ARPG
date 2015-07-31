@@ -1,0 +1,58 @@
+import "imports.aspel";
+
+TARGET_ORTHO_HEIGHT: float32 : 9.0;
+
+cameraWindowWidth: int32;
+cameraWindowHeight: int32;
+cameraOrthoWidth: float32;
+cameraOrthoHeight: float32;
+
+cameraOrthoLeft: float32;
+cameraOrthoRight: float32;
+cameraOrthoBottom: float32;
+cameraOrthoTop: float32;
+
+cameraLeft: float32;
+cameraRight: float32;
+cameraBottom: float32;
+cameraTop: float32;
+cameraFocusX: float32;
+cameraFocusY: float32;
+
+focusCameraOnEntity :: func void(e: Entity^)
+{
+    entityCX := e.x + e.vw / 2.0;
+    entityCY := e.y + e.vh / 2.0;
+
+    cameraFocusX = entityCX;
+    cameraFocusY = entityCY;
+
+    cameraLeft   = cameraFocusX - cameraOrthoWidth / 2.0;
+    cameraRight  = cameraFocusX + cameraOrthoWidth / 2.0;
+    cameraBottom = cameraFocusY - cameraOrthoHeight / 2.0;
+    cameraTop    = cameraFocusY + cameraOrthoHeight / 2.0;
+}
+
+setCameraViewport :: func void(width: int32, height: int32)
+{
+    cameraWindowWidth = width;
+    cameraWindowHeight = height;
+
+    ratio: float64 = width / cast(float64) height;
+    cameraOrthoWidth  = TARGET_ORTHO_HEIGHT * ratio;
+    cameraOrthoHeight = TARGET_ORTHO_HEIGHT;
+
+    halfOrthoWidth  := cameraOrthoWidth / 2.0;
+    halfOrthoHeight := cameraOrthoHeight / 2.0;
+    cameraOrthoLeft   = -halfOrthoWidth;
+    cameraOrthoRight  =  halfOrthoWidth;
+    cameraOrthoBottom = -halfOrthoHeight;
+    cameraOrthoTop    =  halfOrthoHeight;
+
+    gl.glMatrixMode(gl.GL_PROJECTION);
+    gl.glLoadIdentity();
+    gl.glOrtho(cameraOrthoLeft, cameraOrthoRight,
+               cameraOrthoBottom, cameraOrthoTop,
+               1.0, -1.0);
+    gl.glViewport(0, 0, width, height);
+}

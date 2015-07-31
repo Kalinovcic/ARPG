@@ -86,8 +86,7 @@ tickParticles :: func void()
     }
 }
 
-renderParticles :: func void(camLeft: float32, camRight: float32,
-                             camBottom: float32, camTop: float32)
+renderParticles :: func void()
 {
     particleI := 0;
     while particleI < STATIC_PARTICLE_LIST.n
@@ -102,10 +101,10 @@ renderParticles :: func void(camLeft: float32, camRight: float32,
         x := p.x;
         y := p.y;
         r := p.r;
-        if (x + r) < camLeft then continue;
-        if (x - r) > camRight then continue;
-        if (y + r) < camBottom then continue;
-        if (y - r) > camTop then continue;
+        if (x + r) < cameraLeft then continue;
+        if (x - r) > cameraRight then continue;
+        if (y + r) < cameraBottom then continue;
+        if (y - r) > cameraTop then continue;
 
         alpha: float32 = 1.0;
 

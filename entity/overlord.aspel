@@ -27,8 +27,8 @@ initOverlord :: func void(overlord: Entity^, posX: float32, posY: float32)
 
     overlord.health = 100;
     overlord.maxHealth = 100;
-    overlord.mana = 0;
-    overlord.maxMana = 0;
+    overlord.mana = 31;
+    overlord.maxMana = 31;
 
     overlord.userdata = (cast(int32)(seed) << 16) | (cast(int32) tick);
     overlord.tick = tickOverlord;
@@ -64,9 +64,30 @@ tickOverlord :: func void(world: World^, overlord: Entity^)
 
     overlord.x = overlord.x + moveX;
     overlord.y = overlord.y + moveY;
+
+    overlord.mana = overlord.mana + 0.5;
+    if overlord.mana > overlord.maxMana then
+        overlord.mana = overlord.maxMana;
+
+    player := world.player;
+    if player != null
+    {
+        playerCX := player.x + player.vw / 2.0;
+        playerCY := player.y + player.vh / 2.0;
+        distanceX := playerCX - (overlord.x + overlord.vw / 2.0);
+        distanceY := playerCY - (overlord.y + overlord.vh / 2.0);
+        distance := asl.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+        if distance < 4.5
+        {
+            attack := &ability.eyeball;
+            if attack.checkRequirements(overlord) then
+                attack.activate(world, overlord, playerCX, playerCY);
+        }
+    }
 }
 
-onDeathOverlord :: func void(overlord: Entity^)
+onDeathOverlord :: func void(world: World^, overlord: Entity^)
 {
     random: asl.Random;
     asl.seedRandomTime(&random);

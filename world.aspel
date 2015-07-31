@@ -173,13 +173,10 @@ tickWorld :: func void(world: World^)
     tickParticles();
 }
 
-renderWorld :: func void(world: World^,
-                         camLeft: float32, camRight: float32,
-                         camBottom: float32, camTop: float32)
+renderWorld :: func void(world: World^)
 {
-    renderTerrain(&world.terrain, camLeft, camRight, camBottom, camTop);
-
-    renderParticles(camLeft, camRight, camBottom, camTop);
+    renderTerrain(&world.terrain);
+    renderParticles();
 
     i := 0;
     while i < world.entityList.n
