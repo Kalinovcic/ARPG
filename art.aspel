@@ -446,6 +446,20 @@ renderRotatedSprite :: func void(x: float32, y: float32,
     renderSpriteAdv(x, y, w, h, a, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, s);
 }
 
+tickAnimation :: func void(a: Animation^)
+{
+    a.tick = a.tick + 1;
+    if a.tick >= (a.frameTime * a.frames.n) then
+        a.tick = 0;
+
+    if a.hasSlowFrames
+    {
+        a.slowTick = a.slowTick + 1;
+        if a.slowTick >= a.slowFrameFreq + (a.slowFrameTime * a.slowFrames.n) then
+            a.slowTick = 0;
+    }
+}
+
 renderAnimationAdv :: func void(a: Animation^,
                                 x: float32, y: float32,
                                 w: float32, h: float32,
@@ -463,10 +477,6 @@ renderAnimationAdv :: func void(a: Animation^,
                     cr, cg, cb, ca,
                     a.frames[frameIndex]);
 
-    a.tick = a.tick + 1;
-    if a.tick >= (a.frameTime * a.frames.n) then
-        a.tick = 0;
-
     if a.hasSlowFrames
     {
         slowFrameIndex: int32 = 0;
@@ -479,10 +489,6 @@ renderAnimationAdv :: func void(a: Animation^,
                         tb, tt,
                         cr, cg, cb, ca,
                         a.slowFrames[slowFrameIndex]);
-
-        a.slowTick = a.slowTick + 1;
-        if a.slowTick >= a.slowFrameFreq + (a.slowFrameTime * a.slowFrames.n) then
-            a.slowTick = 0;
     }
 }
 

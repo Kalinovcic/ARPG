@@ -71,6 +71,8 @@ tickProjectile :: func void(world: World^, p: Projectile^)
                     0.05, 0.7,
                     asl.randomInt32(&random) % 180, 0.0, 0.0,
                     0.1, p.particleSprite, 10, 25);
+
+    tickAnimation(&p.animation);
 }
 
 renderProjectile :: func void(p: Projectile^)

@@ -20,7 +20,11 @@ keyCallback :: func void(window: glfw3.GLFWwindow^, key: int32, scancode: int32,
     }
 }
 
-// TODO: Focus listener. Require mouse click to get back in focus.
+focusCallback :: func void(window: glfw3.GLFWwindow^, focused: int32)
+{
+    focus := focused == gl.GL_TRUE;
+    handleFocusInput(focus);
+}
 
 mouseButtonCallback :: func void(window: glfw3.GLFWwindow^, button: int32,
                                  action: int32, mods: int32)
@@ -93,6 +97,7 @@ setupWindow :: func void()
     glfw3.glfwSetKeyCallback(window, keyCallback);
     glfw3.glfwSetCursorPosCallback(window, mouseMotionCallback);
     glfw3.glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfw3.glfwSetWindowFocusCallback(window, focusCallback);
 
     initGL();
 }

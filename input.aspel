@@ -91,6 +91,11 @@ handleMotionInput :: func void(xpos: float32, ypos: float32)
     rawMouseYPos = ypos;
 }
 
+handleFocusInput :: func void(focus: bool)
+{
+    input.focus = focus;
+}
+
 processInput :: func void()
 {
     mouseXP := rawMouseXPos / cast(float32) cameraWindowWidth;

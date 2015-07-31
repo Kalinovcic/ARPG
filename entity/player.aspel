@@ -176,11 +176,8 @@ tickPlayer :: func void(world: World^, player: Entity^)
                 ability := world.playerAbilities[index];
                 if ability != null
                 {
-                    if (key == INPUT_KEY_LMB) || (key == INPUT_KEY_SHIFT_LMB)
-                    {
-                        playerHasMoveTarget = false;
-                        player.userdata = player.userdata & ~0x1;
-                    }
+                    playerHasMoveTarget = false;
+                    player.userdata = player.userdata & ~0x1;
 
                     if ability.checkRequirements(player)
                     {

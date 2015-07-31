@@ -20,18 +20,21 @@ gameInit :: func void()
 
 gameTick :: func void()
 {
-    // Inventory toggle
-    if input.key[INPUT_KEY_ITEMS] && !prevInput.key[INPUT_KEY_ITEMS] then
-        world.inventoryUp = !world.inventoryUp;
+    if input.focus
+    {
+        // Inventory toggle
+        if input.key[INPUT_KEY_ITEMS] && !prevInput.key[INPUT_KEY_ITEMS] then
+            world.inventoryUp = !world.inventoryUp;
 
-    // Statistics toggle
-    if input.key[INPUT_KEY_STATS] && !prevInput.key[INPUT_KEY_STATS] then
-        world.statisticsUp = !world.statisticsUp;
+        // Statistics toggle
+        if input.key[INPUT_KEY_STATS] && !prevInput.key[INPUT_KEY_STATS] then
+            world.statisticsUp = !world.statisticsUp;
 
-    if input.key[INPUT_KEY_F4] && !prevInput.key[INPUT_KEY_F4] then
-        toggleFullscreen();
+        if input.key[INPUT_KEY_F4] && !prevInput.key[INPUT_KEY_F4] then
+            toggleFullscreen();
 
-    tickWorld(&world);
+        tickWorld(&world);
+    }
 }
 
 gameRender :: func void()
@@ -42,7 +45,9 @@ gameRender :: func void()
 
     // Game world
     gl.glTranslatef(-cameraFocusX, -cameraFocusY, 0.0);
-    renderWorld(&world);
+    {
+        renderWorld(&world);
+    }
 
     // HUDs
     gl.glTranslatef(cameraFocusX, cameraFocusY, 0.0);
@@ -78,6 +83,7 @@ gameRender :: func void()
             ability := world.playerAbilities[actionBarI];
             if ability != null
             {
+                tickAnimation(&ability.icon);
                 renderAnimation(&ability.icon,
                                 -halfOW + 0.4 + actionBarI * 0.60,
                                 halfOH - 0.75,
@@ -236,5 +242,24 @@ gameRender :: func void()
                             1.0, 0.1, 0.1,
                             0.0, 0.0, 0.0);
         }
+    }
+
+    /* OUT OF FOCUS */
+
+    if !input.focus
+    {
+        // CLEANUP: Move to some renderer function
+        gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+        gl.glColor4f(0.0, 0.0, 0.0, 0.5);
+
+        gl.glBegin(gl.GL_QUADS);
+        gl.glVertex2f(-halfOW, -halfOH);
+        gl.glVertex2f( halfOW, -halfOH);
+        gl.glVertex2f( halfOW,  halfOH);
+        gl.glVertex2f(-halfOW,  halfOH);
+        gl.glEnd();
+
+        renderText("Out of focus!", 0.0, 0.0,
+                                    0.4, TEXT_ALIGN_CENTER);
     }
 }

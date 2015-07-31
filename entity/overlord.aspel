@@ -42,8 +42,8 @@ initOverlord :: func void(overlord: Entity^, posX: float32, posY: float32)
     overlord.health = 100;
     overlord.maxHealth = 100;
 
-    overlord.mana = 31;
-    overlord.maxMana = 31;
+    overlord.mana = 0;
+    overlord.maxMana = 16;
 
     overlord.animation = art.entity.overlord;
     overlord.animation.tick = cast(int32)(cast(uint32) asl.randomInt32(&random) %
@@ -89,6 +89,8 @@ tickOverlord :: func void(world: World^, overlord: Entity^)
     overlord.mana = overlord.mana + 0.5;
     if overlord.mana > overlord.maxMana then
         overlord.mana = overlord.maxMana;
+
+    tickAnimation(&overlord.animation);
 
     player := world.player;
     if player != null
