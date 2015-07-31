@@ -37,6 +37,9 @@ import "particle.aspel";
 import "ui.aspel";
 import "camera.aspel";
 
+import "ability/fireball.aspel";
+import "ability/eyeball.aspel";
+
 import "entity/player.aspel";
 import "entity/overlord.aspel";
 
