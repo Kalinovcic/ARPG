@@ -50,7 +50,7 @@ openWindow :: func void()
     }
 
     windowFullscreen = false;
-    window = glfw3.glfwCreateWindow(960, 540, "ARPG\0", null, null);
+    window = glfw3.glfwCreateWindow(800, 600, "ARPG\0", null, null);
     if window == 0
     {
         reportString("Failed to open GLFW window.\n");
@@ -68,12 +68,23 @@ toggleFullscreen :: func void()
     newWindow: glfw3.GLFWwindow^;
     if windowFullscreen
     {
+        /*
+        // borderless fullscreen
         primaryMonitor := glfw3.glfwGetPrimaryMonitor();
-        newWindow = glfw3.glfwCreateWindow(1920, 1080, "ARPG\0", primaryMonitor, window);
+        mode := glfw3.glfwGetVideoMode(primaryMonitor);
+        glfw3.glfwWindowHint(glfw3.GLFW_RED_BITS, mode.redBits);
+        glfw3.glfwWindowHint(glfw3.GLFW_GREEN_BITS, mode.greenBits);
+        glfw3.glfwWindowHint(glfw3.GLFW_BLUE_BITS, mode.blueBits);
+        glfw3.glfwWindowHint(glfw3.GLFW_REFRESH_RATE, mode.refreshRate);
+        newWindow = glfw3.glfwCreateWindow(mode.width, mode.height, "ARPG\0", primaryMonitor, window);
+        */
+
+        primaryMonitor := glfw3.glfwGetPrimaryMonitor();
+        newWindow = glfw3.glfwCreateWindow(800, 600, "ARPG\0", primaryMonitor, window);
     }
     else
     {
-        newWindow = glfw3.glfwCreateWindow(960, 540, "ARPG\0", null, window);
+        newWindow = glfw3.glfwCreateWindow(800, 600, "ARPG\0", null, window);
     }
 
     if newWindow == 0

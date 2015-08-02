@@ -33,10 +33,14 @@ initPlayer :: func void(player: Entity^, posX: float32, posY: float32)
     
     player.vw = 0.8;
     player.vh = 0.8;
-    player.pw = 0.6;
-    player.ph = 0.3;
-    player.pox = 0.1;
+    player.pw = 0.5;
+    player.ph = 0.2;
+    player.pox = 0.15;
     player.poy = 0.0;
+    player.hw = 0.5;
+    player.hh = 0.65;
+    player.hox = 0.15;
+    player.hoy = 0.0;
 
     player.health = 322;
     player.maxHealth = 400;
@@ -137,25 +141,23 @@ tickPlayer :: func void(world: World^, player: Entity^)
         }
     }
 
-    abilityKeys: int64[] : [8];
+    abilityKeys: int64[] : [7];
     abilityKeys[0] = INPUT_KEY_LMB;
     abilityKeys[1] = INPUT_KEY_SHIFT_LMB;
     abilityKeys[2] = INPUT_KEY_RMB;
-    abilityKeys[3] = INPUT_KEY_SHIFT_RMB;
-    abilityKeys[4] = INPUT_KEY_MACRO1;
-    abilityKeys[5] = INPUT_KEY_MACRO2;
-    abilityKeys[6] = INPUT_KEY_MACRO3;
-    abilityKeys[7] = INPUT_KEY_MACRO4;
+    abilityKeys[3] = INPUT_KEY_MACRO1;
+    abilityKeys[4] = INPUT_KEY_MACRO2;
+    abilityKeys[5] = INPUT_KEY_MACRO3;
+    abilityKeys[6] = INPUT_KEY_MACRO4;
 
     abilityIndex: int64[] : [abilityKeys.n];
     abilityIndex[0] = 0;
     abilityIndex[1] = 0;
     abilityIndex[2] = 1;
-    abilityIndex[3] = 1;
-    abilityIndex[4] = 2;
-    abilityIndex[5] = 3;
-    abilityIndex[6] = 4;
-    abilityIndex[7] = 5;
+    abilityIndex[3] = 2;
+    abilityIndex[4] = 3;
+    abilityIndex[5] = 4;
+    abilityIndex[6] = 5;
 
     if input.key[INPUT_KEY_F1] && !prevInput.key[INPUT_KEY_F1] then
         applyEffect(player.effects, &effect.healthRegen, 300, 1.0);
@@ -296,15 +298,15 @@ renderPlayer :: func void(player: Entity^)
         tr = 0.0;
     }
 
-    eyesColorR := 0.10;
-    eyesColorG := 0.34;
-    eyesColorB := 0.00;
+    eyesColorR := 0.30;
+    eyesColorG := 0.20;
+    eyesColorB := 0.64;
     skinColorR := 0.98;
     skinColorG := 0.82;
     skinColorB := 0.18;
-    bodyColorR := 0.02;
-    bodyColorG := 0.00;
-    bodyColorB := 0.61;
+    bodyColorR := 0.04;
+    bodyColorG := 0.12;
+    bodyColorB := 0.41;
     hairColorR := 0.62;
     hairColorG := 0.31;
     hairColorB := 0.92;

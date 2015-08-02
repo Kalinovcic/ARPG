@@ -36,6 +36,7 @@ namespace art
     ssTerrain: SpriteSheet;
     ssEntities: SpriteSheet;
     ssProjectiles: SpriteSheet;
+    ssItems: SpriteSheet;
     ssParticles: SpriteSheet;
     ssUI: SpriteSheet;
 
@@ -112,6 +113,12 @@ namespace art
         eyeball: Animation;
     }
 
+    namespace item
+    {
+        healthPotion: Sprite;
+        manaPotion: Sprite;
+    }
+
     namespace particle
     {
         fireballTrail: Sprite[] : [2];
@@ -129,8 +136,6 @@ namespace art
         leftMouseButton: Sprite;
         rightMouseButton: Sprite;
         actionBarSprites: Sprite[] : [6];
-
-        TEMP_inventoryBox: Sprite;
 
         heart: Sprite;
         mana: Sprite;
@@ -204,6 +209,7 @@ loadArt :: func void()
     art.ssTerrain = loadSpriteSheet("res/terrain.bmp");
     art.ssEntities = loadSpriteSheet("res/entities.bmp");
     art.ssProjectiles = loadSpriteSheet("res/projectiles.bmp");
+    art.ssItems = loadSpriteSheet("res/items.bmp");
     art.ssParticles = loadSpriteSheet("res/particles.bmp");
     art.ssUI = loadSpriteSheet("res/ui.bmp");
 
@@ -279,6 +285,11 @@ loadArt :: func void()
     getFrameArrayLoop(art.projectile.eyeballFrames, art.ssProjectiles, 0, 2, 2, 2, 8);
     setAnimationFrames(&art.projectile.eyeball, art.projectile.eyeballFrames, 6, 0);
 
+    /* ITEMS */
+
+    art.item.healthPotion = getSprite(art.ssItems, 0, 0, 2, 2, 8);
+    art.item.manaPotion = getSprite(art.ssItems, 2, 0, 2, 2, 8);
+
     /* PARTICLES */
 
     getFrameArray(art.particle.fireballTrail, art.ssParticles, 0, 0, 1, 1, 8);
@@ -300,8 +311,6 @@ loadArt :: func void()
     art.ui.actionBarSprites[3] = getSprite(art.ssUI, 2, 2, 1, 1, 8);
     art.ui.actionBarSprites[4] = getSprite(art.ssUI, 3, 2, 1, 1, 8);
     art.ui.actionBarSprites[5] = getSprite(art.ssUI, 4, 2, 1, 1, 8);
-
-    art.ui.TEMP_inventoryBox = getSprite(art.ssUI, 0, 7, 3, 3, 8);
 
     art.ui.heart = getSprite(art.ssUI, 1, 10, 1, 1, 8);
     art.ui.mana = getSprite(art.ssUI, 0, 10, 1, 1, 8);
@@ -409,10 +418,10 @@ renderSpriteAdv :: func void(x: float32, y: float32,
     hh := h / 2.0;
     tw := s.r - s.l;
     th := s.t - s.b;
-    utl := s.l + tw * tl + 1e-7;
-    utr := s.l + tw * tr - 1e-7;
-    utb := s.b + th * tb + 1e-7;
-    utt := s.b + th * tt - 1e-7;
+    utl := s.l + tw * tl;
+    utr := s.l + tw * tr;
+    utb := s.b + th * tb;
+    utt := s.b + th * tt;
 
     gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
 
@@ -423,10 +432,10 @@ renderSpriteAdv :: func void(x: float32, y: float32,
     gl.glColor4f(cr, cg, cb, ca);
 
     gl.glBegin(gl.GL_QUADS);
-    gl.glTexCoord2f(utl, utb); gl.glVertex2f(-hw - 1e-7, -hh - 1e-7);
-    gl.glTexCoord2f(utr, utb); gl.glVertex2f( hw + 1e-7, -hh - 1e-7);
-    gl.glTexCoord2f(utr, utt); gl.glVertex2f( hw + 1e-7,  hh + 1e-7);
-    gl.glTexCoord2f(utl, utt); gl.glVertex2f(-hw - 1e-7,  hh + 1e-7);
+    gl.glTexCoord2f(utl, utb); gl.glVertex2f(-hw - 1e-3, -hh - 1e-3);
+    gl.glTexCoord2f(utr, utb); gl.glVertex2f( hw + 1e-3, -hh - 1e-3);
+    gl.glTexCoord2f(utr, utt); gl.glVertex2f( hw + 1e-3,  hh + 1e-3);
+    gl.glTexCoord2f(utl, utt); gl.glVertex2f(-hw - 1e-3,  hh + 1e-3);
     gl.glEnd();
 
     gl.glPopMatrix();
@@ -500,4 +509,33 @@ renderAnimation :: func void(a: Animation^,
     renderAnimationAdv(a, x, y, w, h, r,
                        0.0, 1.0, 0.0, 1.0,
                        1.0, 1.0, 1.0, 1.0);
+}
+
+renderBoxOutline :: func void(x: float32, y: float32, w: float32, h: float32, rot: float32,
+                              r: float32, g: float32, b: float32, a: float32)
+{
+    hw := w / 2.0;
+    hh := h / 2.0;
+
+    gl.glPushMatrix();
+    gl.glTranslatef(x, y, 0);
+    gl.glRotatef(rot, 0, 0, 1);
+
+    gl.glLineWidth(3.0);
+
+    gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+    gl.glColor4f(r, g, b, a);
+
+    gl.glBegin(gl.GL_LINES);
+    gl.glVertex2f(-hw, -hh);
+    gl.glVertex2f( hw, -hh);
+    gl.glVertex2f( hw, -hh);
+    gl.glVertex2f( hw,  hh);
+    gl.glVertex2f( hw,  hh);
+    gl.glVertex2f(-hw,  hh);
+    gl.glVertex2f(-hw,  hh);
+    gl.glVertex2f(-hw, -hh);
+    gl.glEnd();
+
+    gl.glPopMatrix();
 }

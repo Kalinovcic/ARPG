@@ -5,7 +5,7 @@ generateIslands :: func void(terrain: Terrain^, rand: asl.Random^)
     w := terrain.w;
     h := terrain.h;
 
-    islandCount := cast(int32)(32 + cast(uint32) asl.randomInt32(rand) % 32);
+    islandCount := cast(int32)(64 + cast(uint32) asl.randomInt32(rand) % 64);
     islandI := 0;
     while islandI < islandCount
     {
@@ -71,7 +71,7 @@ generateGroundIslands :: func void(terrain: Terrain^, rand: asl.Random^,
     w := terrain.w;
     h := terrain.h;
 
-    islandCount := cast(int32)(32 + cast(uint32) asl.randomInt32(rand) % 32);
+    islandCount := cast(int32)(64 + cast(uint32) asl.randomInt32(rand) % 64);
     islandI := 0;
     while islandI < islandCount
     {

@@ -22,6 +22,10 @@ Entity :: type struct
     ph: float32;
     pox: float32;
     poy: float32;
+    hw: float32;
+    hh: float32;
+    hox: float32;
+    hoy: float32;
 
     health: float32;
     maxHealth: float32;
@@ -108,12 +112,12 @@ pointCollideWithEntity :: func int32(world: World^, x: float32, y: float32, resu
         if !world.entityOccupied[i - 1] then continue;
         entity := &world.entityList[i - 1];
 
-        ew := entity.pw;
-        eh := entity.ph;
+        ew := entity.hw;
+        eh := entity.hh;
         ehw := ew / 2.0;
         ehh := eh / 2.0;
-        ex := entity.x + entity.pox + ehw;
-        ey := entity.y + entity.poy + ehh;
+        ex := entity.x + entity.hox + ehw;
+        ey := entity.y + entity.hoy + ehh;
 
         dx := cast(float32) asl.abs(x - ex);
         dy := cast(float32) asl.abs(y - ey);
@@ -149,12 +153,12 @@ projectileCollideWithEntities :: func int32(world: World^, projectile: Projectil
         entity := &world.entityList[i - 1];
 
         // RECONSIDER: Should we use the visual or physical box?
-        ew := entity.vw;
-        eh := entity.vh;
+        ew := entity.hw;
+        eh := entity.hh;
         ehw := ew / 2.0;
         ehh := eh / 2.0;
-        ex := entity.x + ehw;
-        ey := entity.y + ehh;
+        ex := entity.x + entity.hox + ehw;
+        ey := entity.y + entity.hoy + ehh;
 
         dx := cast(float32) asl.abs(x - ex);
         dy := cast(float32) asl.abs(y - ey);
@@ -200,4 +204,24 @@ renderEntity :: func void(e: Entity^)
 defaultOnDeath :: func void(e: Entity^)
 {
 
+}
+
+renderEntityHitboxes :: func void(e: Entity^)
+{
+    x   := e.x;
+    y   := e.y;
+    vw  := e.vw;
+    vh  := e.vh;
+    pw  := e.pw;
+    ph  := e.ph;
+    pox := e.pox;
+    poy := e.poy;
+    hw  := e.hw;
+    hh  := e.hh;
+    hox := e.hox;
+    hoy := e.hoy;
+
+    renderBoxOutline(x + 0.0 + vw / 2.0, y + 0.0 + vh / 2.0, vw, vh, 0.0, 1.0, 0.0, 0.0, 1.0);
+    renderBoxOutline(x + pox + pw / 2.0, y + poy + ph / 2.0, pw, ph, 0.0, 0.0, 1.0, 0.0, 1.0);
+    renderBoxOutline(x + hox + hw / 2.0, y + hoy + hh / 2.0, hw, hh, 0.0, 0.0, 0.0, 1.0, 1.0);
 }

@@ -80,3 +80,9 @@ renderProjectile :: func void(p: Projectile^)
     renderAnimation(&p.animation, p.x - p.radius, p.y - p.radius,
                     p.radius * 2.0, p.radius * 2.0, p.a);
 }
+
+
+renderProjectileHitboxes :: func void(p: Projectile^)
+{
+    renderBoxOutline(p.x, p.y, p.radius * 2.0, p.radius * 2.0, p.a, 1.0, 0.0, 0.0, 1.0);
+}

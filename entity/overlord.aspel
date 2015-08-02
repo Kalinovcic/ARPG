@@ -38,6 +38,10 @@ initOverlord :: func void(overlord: Entity^, posX: float32, posY: float32)
     overlord.ph = 1.8;
     overlord.pox = 0.1;
     overlord.poy = 0.1;
+    overlord.hw = 1.5;
+    overlord.hh = 1.5;
+    overlord.hox = 0.25;
+    overlord.hoy = 0.25;
     
     overlord.health = 100;
     overlord.maxHealth = 100;

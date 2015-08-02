@@ -25,6 +25,7 @@ World :: type struct
     inventoryUp: bool;
     statisticsUp: bool;
     playerAbilities: Ability^[];
+    playerInventory: Inventory;
 };
 
 addEntityToWorld :: func Entity^(world: World^)
@@ -108,6 +109,7 @@ initWorld :: func void(world: World^)
     asl.memset(world.playerAbilities, 0, sizeof(Ability^) * world.playerAbilities.n);
 
     initTerrain(&world.terrain, 128, 128);
+    initInventory(&world.playerInventory);
 }
 
 populateWorld :: func void(world: World^)
@@ -119,7 +121,7 @@ populateWorld :: func void(world: World^)
     initPlayer(world.player, world.terrain.w / 2.0, world.terrain.h / 2.0);
 
     i := 0;
-    while i < 256
+    while i < 64
     {
         x := cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.w);
         y := cast(int32)(cast(uint32) asl.randomInt32(&random) % cast(uint32) world.terrain.h);
@@ -129,8 +131,13 @@ populateWorld :: func void(world: World^)
     }
 }
 
+renderDebugHitboxes: bool = false;
+
 tickWorld :: func void(world: World^)
 {
+    if input.key[INPUT_KEY_DEBUG4] && !prevInput.key[INPUT_KEY_DEBUG4] then
+        renderDebugHitboxes = !renderDebugHitboxes;
+
     i := 0;
     while i < world.entityList.n
     {
@@ -185,6 +192,9 @@ renderWorld :: func void(world: World^)
         {
             entity := &world.entityList[i];
             entity.entityType.render(entity);
+
+            if renderDebugHitboxes then
+                renderEntityHitboxes(entity);
         }
 
         i = i + 1;
@@ -197,6 +207,9 @@ renderWorld :: func void(world: World^)
         {
             projectile := &world.projectileList[i];
             renderProjectile(projectile);
+
+            if renderDebugHitboxes then
+                renderProjectileHitboxes(projectile);
         }
 
         i = i + 1;

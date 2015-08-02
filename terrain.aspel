@@ -67,8 +67,42 @@ getEdgeSpriteYOffset :: func int32(tileType: TileType)
     return 5;
 }
 
+waterAnimationTick: int32 = 0;
+
+renderWaterTile :: func void(x: float32, y: float32, sprite: Sprite)
+{
+    tickPerc := waterAnimationTick / 120.0;
+    texOffX := (asl.sin(asl.to_radians(tickPerc * 360)) / 2.0 + 0.5) * 0.3;
+    texOffY := (asl.cos(asl.to_radians(tickPerc * 360)) / 2.0 + 0.5) * 0.3;
+
+    renderSpriteAdv(x + (1.0 - texOffX) * 0.5, y,
+                    texOffX * 0.5, (1.0 - texOffY) * 0.5, 0.0,
+                    0.0, texOffX, texOffY, 1.0,
+                    1.0, 1.0, 1.0, 1.0,
+                    sprite);
+
+    renderSpriteAdv(x, y,
+                    (1.0 - texOffX) * 0.5, (1.0 - texOffY) * 0.5, 0.0,
+                    texOffX, 1.0, texOffY, 1.0,
+                    1.0, 1.0, 1.0, 1.0,
+                    sprite);
+
+    renderSpriteAdv(x + (1.0 - texOffX) * 0.5, y + (1.0 - texOffY) * 0.5,
+                    texOffX * 0.5, texOffY * 0.5, 0.0,
+                    0.0, texOffX, 0.0, texOffY,
+                    1.0, 1.0, 1.0, 1.0,
+                    sprite);
+
+    renderSpriteAdv(x, y + (1.0 - texOffY) * 0.5,
+                    (1.0 - texOffX) * 0.5, texOffY * 0.5, 0.0,
+                    texOffX, 1.0, 0.0, texOffY,
+                    1.0, 1.0, 1.0, 1.0,
+                    sprite);
+}
+
 renderTerrain :: func void(terrain: Terrain^)
 {
+    waterAnimationTick = (waterAnimationTick + 1) % 120;
     w := terrain.w;
     h := terrain.h;
 
@@ -87,7 +121,17 @@ renderTerrain :: func void(terrain: Terrain^)
 
             if (t.tileType == TILE_TYPE_WATER)
             {
-                renderSprite(x, y, 1, 1, getBaseSpriteForTile(t.tileType));
+                sprite := getBaseSpriteForTile(t.tileType);
+
+                i := 0;
+                while i < 4
+                {
+                    dx := i % 2;
+                    dy := i / 2;
+
+                    renderWaterTile(x + dx * 0.5, y + dy * 0.5, sprite);
+                    i = i + 1;
+                }
             }
             else
             {
@@ -121,8 +165,12 @@ renderTerrain :: func void(terrain: Terrain^)
 
                     if edgeX != 1 || edgeY != 1
                     {
-                        renderSprite(x + dx * 0.5, y + dy * 0.5, 0.5, 0.5,
-                            getBaseSpriteForTile(getUnderEdgeTile(t.tileType)));
+                        underEdgeTile := getUnderEdgeTile(t.tileType);
+                        underEdgeSprite := getBaseSpriteForTile(underEdgeTile);
+                        if underEdgeTile == TILE_TYPE_WATER then
+                            renderWaterTile(x + dx * 0.5, y + dy * 0.5, underEdgeSprite);
+                        else
+                            renderSprite(x + dx * 0.5, y + dy * 0.5, 0.5, 0.5, underEdgeSprite);
                     }
 
                     renderSprite(x + dx * 0.5, y + dy * 0.5, 0.5, 0.5,

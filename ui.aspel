@@ -58,3 +58,309 @@ renderHealthbar :: func void(x: float32, y: float32,
     renderText(text, x + width / 2.0, y + (height - textHeight) / 2.0,
                textHeight, TEXT_ALIGN_CENTER);
 }
+
+renderInventoryBox :: func void(x: float32, y: float32, w: float32, h: float32, edge: float32,
+                                r: float32, g: float32, b: float32, a: float32)
+{
+    // Corners
+    renderSpriteAdv(x, y,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 0, 9, 1, 1, 8));
+    renderSpriteAdv(x + w - edge, y,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 2, 9, 1, 1, 8));
+    renderSpriteAdv(x + w - edge, y + h - edge,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 2, 7, 1, 1, 8));
+    renderSpriteAdv(x, y + h - edge,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 0, 7, 1, 1, 8));
+
+    // Edges
+    renderSpriteAdv(x, y + edge,
+                    edge, h - edge * 2.0, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 0, 8, 1, 1, 8));
+    renderSpriteAdv(x + w - edge, y + edge,
+                    edge, h - edge * 2.0, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 2, 8, 1, 1, 8));
+    renderSpriteAdv(x + edge, y,
+                    w - edge * 2.0, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 1, 9, 1, 1, 8));
+    renderSpriteAdv(x + edge, y + w - edge,
+                    w - edge * 2.0, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 1, 7, 1, 1, 8));
+
+    // Center
+    renderSpriteAdv(x + edge, y + edge,
+                    w - edge * 2.0, h - edge * 2.0, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 1, 8, 1, 1, 8));
+}
+
+renderActionBar :: func void(abilities: Ability^[], x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    actionBarI: int32 = 0;
+    while actionBarI < abilities.n
+    {
+        renderInventoryBox(x + actionBarI * PIX8 * 7.25,
+                           y - PIX8 * 7.0,
+                           PIX8 * 7.0, PIX8 * 7.0, PIX8 * 2.0,
+                           0.09, 0.66, 0.97, 0.7);
+
+        ability := abilities[actionBarI];
+        if ability != null
+        {
+            tickAnimation(&ability.icon);
+            renderAnimation(&ability.icon,
+                            x + PIX8 * 0.5 + actionBarI * PIX8 * 7.25,
+                            y - PIX8 * 6.5,
+                            PIX8 * 6.0, PIX8 * 6.0, 0.0);
+        }
+
+        renderSprite(x + PIX8 * 0.5 + actionBarI * PIX8 * 7.25,
+                     y - PIX8 * 7.5,
+                     PIX8 * 2.0, PIX8 * 2.0,
+                     art.ui.actionBarSprites[actionBarI]);
+
+        actionBarI = actionBarI + 1;
+    }
+}
+
+renderEffectBar :: func void(effects: Effect[], x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    activeEffectCount: int32 = 0;
+    effectI: int32 = 0;
+    while effectI < effects.n
+    {
+        effect := effects[effectI];
+        effectI = effectI + 1;
+
+        if effect.id == EFFECT_TYPEID_NONE then
+            continue;
+
+        bgColorR := 0.09;
+        bgColorG := 0.97;
+        bgColorB := 0.36;
+        if effect.iconbg == EFFECT_ICONBG_NEGATIVE
+        {
+            bgColorR = 0.97;
+            bgColorG = 0.09;
+            bgColorB = 0.36;
+        }
+
+        renderInventoryBox(x - PIX8 * 5.0 - activeEffectCount * PIX8 * 5.25,
+                           y - PIX8 * 5.0,
+                           PIX8 * 5.0, PIX8 * 5.0, PIX8 * 2.0,
+                           bgColorR, bgColorG, bgColorB, 0.8);
+
+        renderSpriteAdv(x - PIX8 * 4.5 - activeEffectCount * PIX8 * 5.25,
+                        y - PIX8 * 5.0,
+                        PIX8 * 4.0, PIX8 * 4.0, 0.0,
+                        0.0, 1.0, 0.0, 1.0,
+                        1.0, 1.0, 1.0, 1.0,
+                        effect.icon);
+
+        // CLEANUP: sprintf
+        sec: int64 = cast(int64) asl.ceil(effect.time / 60.0);
+
+        text: uint8[] : [64];
+        textOff: int32 = 0;
+        textOff = textOff + intToString(sec, text, textOff);
+        text.n = cast(uint64) textOff;
+
+        renderText(text, x - PIX8 * 4.5 - activeEffectCount * PIX8 * 5.25,
+                         y - PIX8 * 6.0, PIX8 * 2.0, TEXT_ALIGN_LEFT);
+
+        activeEffectCount = activeEffectCount + 1;
+    }
+}
+
+renderInventory :: func void(inventory: Inventory^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    renderText("Inventory",
+               x + PIX8 * 2.0,
+               y - PIX8 * 3.0,
+               PIX8 * 3.0, TEXT_ALIGN_LEFT);
+
+    inventoryYI: int32 = 0;
+    while inventoryYI < INVENTORY_HEIGHT
+    {
+        inventoryXI: int32 = 0;
+        while inventoryXI < INVENTORY_WIDTH
+        {
+            renderInventoryBox(x + inventoryXI * PIX8 * 6.75,
+                               y - PIX8 * 10.0 - inventoryYI * PIX8 * 6.75,
+                               PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
+                               0.09, 0.66, 0.97, 0.9);
+
+            inventoryI := inventoryYI * INVENTORY_WIDTH + inventoryXI;
+            item := &inventory.items[inventoryI];
+
+            if item.itemType != ITEM_TYPE_NONE
+            {
+                renderSpriteAdv(x + PIX8 * 0.25 + inventoryXI * PIX8 * 6.75,
+                                y - PIX8 * 9.75 - inventoryYI * PIX8 * 6.75,
+                                PIX8 * 6.0, PIX8 * 6.0, 0.0,
+                                0.0, 1.0, 0.0, 1.0,
+                                1.0, 1.0, 1.0, 1.0,
+                                art.item.healthPotion);
+            }
+
+            inventoryXI = inventoryXI + 1;
+        }
+
+        inventoryYI = inventoryYI + 1;
+    }
+}
+
+renderEquipment :: func void(inventory: Inventory^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_SLOT_TOTAL];
+    EQUIPMENT_TITLES[0] = "Helmet";
+    EQUIPMENT_TITLES[1] = "Shirt";
+    EQUIPMENT_TITLES[2] = "Pants";
+    EQUIPMENT_TITLES[3] = "Accessories";
+    EQUIPMENT_TITLES[4] = "";
+    EQUIPMENT_TITLES[5] = "";
+    EQUIPMENT_TITLES[6] = "Mount";
+
+    equipmentI: int32 = 0;
+    while equipmentI < EQUIPMENT_SLOT_TOTAL
+    {
+        offY: float32 = (EQUIPMENT_SLOT_TOTAL - equipmentI - 1.0);
+
+        renderInventoryBox(x, y + offY * PIX8 * 6.75,
+                           PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
+                           0.09, 0.66, 0.97, 0.9);
+
+        renderText(EQUIPMENT_TITLES[equipmentI],
+                   x - PIX8 * 0.25,
+                   y + PIX8 * 2.0 + offY * PIX8 * 6.75,
+                   PIX8 * 2.0, TEXT_ALIGN_RIGHT);
+
+        equipmentI = equipmentI + 1;
+    }
+}
+
+renderEnemyHoverInfo :: func void(player: Entity^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    mousePointX := input.mouseX + cameraFocusX;
+    mousePointY := input.mouseY + cameraFocusY;
+
+    hit: Entity^[] : [2];
+    hitCount: int32 = pointCollideWithEntity(&world, mousePointX, mousePointY, hit);
+    entity: Entity^ = null;
+
+    hitI := 0;
+    while hitI < hitCount
+    {
+        if hit[hitI] != player
+        {
+            entity = hit[hitI];
+            break;
+        }
+        hitI = hitI + 1;
+    }
+
+    if entity != null
+    {
+        renderText(entity.entityType.name,
+                   x, y + PIX8 * 4.5,
+                   PIX8 * 3.0, TEXT_ALIGN_CENTER);
+
+        renderHealthbar(x - PIX8 * 24.0, y,
+                        PIX8 * 48.0, PIX8 * 4.0,
+                        entity.health, entity.maxHealth,
+                        1.00, 0.16, 0.16,
+                        0.0, 0.0, 0.0);
+    }
+}
+
+renderOutOfFocusOverlay :: func void()
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+    gl.glColor4f(0.0, 0.0, 0.0, 0.5);
+
+    gl.glBegin(gl.GL_QUADS);
+    gl.glVertex2f(cameraOrthoLeft,  cameraOrthoBottom);
+    gl.glVertex2f(cameraOrthoRight, cameraOrthoBottom);
+    gl.glVertex2f(cameraOrthoRight, cameraOrthoTop);
+    gl.glVertex2f(cameraOrthoLeft,  cameraOrthoTop);
+    gl.glEnd();
+
+    renderText("Out of focus!", 0.0, -PIX8 * 2.5,
+                                PIX8 * 5.0, TEXT_ALIGN_CENTER);
+}
+
+renderHUD :: func void()
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+    halfOW := cameraOrthoWidth / 2.0;
+    halfOH := cameraOrthoHeight / 2.0;
+    player := world.player;
+    
+    if player != null
+    {
+        /* HEALTH BAR and MANA BAR */
+        renderHealthbar(halfOW - PIX8 * 50.0, halfOH - PIX8 * 6.0,
+                        PIX8 * 48.0, PIX8 * 4.0,
+                        player.health, player.maxHealth,
+                        1.00, 0.16, 0.16,
+                        0.0, 0.0, 0.0);
+
+        renderHealthbar(halfOW - PIX8 * 50.0, halfOH - PIX8 * 10.5,
+                        PIX8 * 48.0, PIX8 * 4.0,
+                        player.mana, player.maxMana,
+                        0.15, 0.45, 0.87,
+                        0.0, 0.0, 0.0);
+
+        /* ACTION BAR */
+        renderActionBar(world.playerAbilities, -halfOW + PIX8 * 2.0, halfOH - PIX8 * 2.0);
+
+        /* EFFECT ICONS */
+        renderEffectBar(world.player.effects, halfOW - PIX8 * 6.5, halfOH - PIX8 * 12.5);
+
+        /* INVENTORY and EQUIPMENT */
+        if world.inventoryUp
+        {
+            renderInventory(&world.playerInventory, -halfOW + PIX8 * 4.0, halfOH - PIX8 * 10.0);
+            renderEquipment(&world.playerInventory, halfOW - PIX8 * 8.5, -halfOH + PIX8 * 2.0);
+        }
+    }
+
+    /* ENEMY HOVER INFO */
+    renderEnemyHoverInfo(player, 0.0, -halfOH + PIX8 * 2.0);
+
+    /* OUT OF FOCUS */
+    if !input.focus then
+        renderOutOfFocusOverlay();
+}

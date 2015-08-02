@@ -36,6 +36,7 @@ import "effect.aspel";
 import "particle.aspel";
 import "ui.aspel";
 import "camera.aspel";
+import "item.aspel";
 
 import "ability/fireball.aspel";
 import "ability/eyeball.aspel";

@@ -1,0 +1,48 @@
+
+// CLEANUP: enum
+ITEM_TYPE_NONE :: 0;
+ITEM_TYPE_POTION :: 1;
+
+Item :: type struct
+{
+    itemType: int32;
+};
+
+INVENTORY_WIDTH :: 8;
+INVENTORY_HEIGHT :: 3;
+
+// CLEANUP: enum
+EQUIPMENT_SLOT_HELMET     :: 0;
+EQUIPMENT_SLOT_SHIRT      :: 1;
+EQUIPMENT_SLOT_PANTS      :: 2;
+EQUIPMENT_SLOT_ACCESSORY1 :: 3;
+EQUIPMENT_SLOT_ACCESSORY2 :: 4;
+EQUIPMENT_SLOT_ACCESSORY3 :: 5;
+EQUIPMENT_SLOT_MOUNT      :: 6;
+EQUIPMENT_SLOT_TOTAL      :: 7;
+
+// CLEANUP: you know...
+STATIC_ITEMS_ARRAY: Item[] : [INVENTORY_WIDTH * INVENTORY_HEIGHT];
+STATIC_EQUIPMENT_ARRAY: Item[] : [EQUIPMENT_SLOT_TOTAL];
+
+Inventory :: type struct
+{
+    items: Item[];
+    equipment: Item[];
+};
+
+initInventory :: func void(inventory: Inventory^)
+{
+    inventory.items = STATIC_ITEMS_ARRAY;
+    inventory.equipment = STATIC_EQUIPMENT_ARRAY;
+
+    asl.memset(inventory.items, 0, sizeof(Item) * inventory.items.n);
+    asl.memset(inventory.equipment, 0, sizeof(Item) * inventory.equipment.n);
+
+    i := 0;
+    while i < 16
+    {
+        inventory.items[i].itemType = ITEM_TYPE_POTION;
+        i = i + 1;
+    }
+}

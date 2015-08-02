@@ -17,19 +17,22 @@ prevInput: InputState;
 INPUT_KEY_LMB       :: 1;
 INPUT_KEY_RMB       :: 2;
 INPUT_KEY_SHIFT_LMB :: 3;
-INPUT_KEY_SHIFT_RMB :: 4;
-INPUT_KEY_MACRO1    :: 5;
-INPUT_KEY_MACRO2    :: 6;
-INPUT_KEY_MACRO3    :: 7;
-INPUT_KEY_MACRO4    :: 8;
-INPUT_KEY_ITEMS     :: 9;
-INPUT_KEY_STATS     :: 10;
-INPUT_KEY_F1        :: 11;
-INPUT_KEY_F2        :: 12;
-INPUT_KEY_F3        :: 13;
-INPUT_KEY_F4        :: 14;
+INPUT_KEY_MACRO1    :: 4;
+INPUT_KEY_MACRO2    :: 5;
+INPUT_KEY_MACRO3    :: 6;
+INPUT_KEY_MACRO4    :: 7;
+INPUT_KEY_ITEMS     :: 8;
+INPUT_KEY_STATS     :: 9;
+INPUT_KEY_F1        :: 10;
+INPUT_KEY_F2        :: 11;
+INPUT_KEY_F3        :: 12;
+INPUT_KEY_F4        :: 13;
+INPUT_KEY_DEBUG1    :: 14;
+INPUT_KEY_DEBUG2    :: 15;
+INPUT_KEY_DEBUG3    :: 16;
+INPUT_KEY_DEBUG4    :: 17;
 
-INPUT_KEY_TOTAL  :: 16;
+INPUT_KEY_TOTAL  :: 32;
 
 initInputState :: func void()
 {
@@ -58,17 +61,22 @@ handleKeyInput :: func void(key: int32, state: bool, shift: bool)
     }
     else
     {
-        if key == glfw3.GLFW_KEY_1     then input.key[INPUT_KEY_MACRO1] = state;
-        if key == glfw3.GLFW_KEY_2     then input.key[INPUT_KEY_MACRO2] = state;
-        if key == glfw3.GLFW_KEY_3     then input.key[INPUT_KEY_MACRO3] = state;
-        if key == glfw3.GLFW_KEY_4     then input.key[INPUT_KEY_MACRO4] = state;
-        if key == glfw3.GLFW_KEY_I     then input.key[INPUT_KEY_ITEMS]  = state;
-        if key == glfw3.GLFW_KEY_C     then input.key[INPUT_KEY_STATS]  = state;
-        if key == glfw3.GLFW_KEY_F1    then input.key[INPUT_KEY_F1]     = state;
-        if key == glfw3.GLFW_KEY_F2    then input.key[INPUT_KEY_F2]     = state;
-        if key == glfw3.GLFW_KEY_F3    then input.key[INPUT_KEY_F3]     = state;
-        if key == glfw3.GLFW_KEY_F4    then input.key[INPUT_KEY_F4]     = state;
     }
+
+    if key == glfw3.GLFW_KEY_1     then input.key[INPUT_KEY_MACRO1] = state;
+    if key == glfw3.GLFW_KEY_2     then input.key[INPUT_KEY_MACRO2] = state;
+    if key == glfw3.GLFW_KEY_3     then input.key[INPUT_KEY_MACRO3] = state;
+    if key == glfw3.GLFW_KEY_4     then input.key[INPUT_KEY_MACRO4] = state;
+    if key == glfw3.GLFW_KEY_I     then input.key[INPUT_KEY_ITEMS]  = state;
+    if key == glfw3.GLFW_KEY_C     then input.key[INPUT_KEY_STATS]  = state;
+    if key == glfw3.GLFW_KEY_F1    then input.key[INPUT_KEY_F1]     = state;
+    if key == glfw3.GLFW_KEY_F2    then input.key[INPUT_KEY_F2]     = state;
+    if key == glfw3.GLFW_KEY_F3    then input.key[INPUT_KEY_F3]     = state;
+    if key == glfw3.GLFW_KEY_F4    then input.key[INPUT_KEY_F4]     = state;
+    if key == glfw3.GLFW_KEY_F9    then input.key[INPUT_KEY_DEBUG1] = state;
+    if key == glfw3.GLFW_KEY_F10   then input.key[INPUT_KEY_DEBUG2] = state;
+    if key == glfw3.GLFW_KEY_F11   then input.key[INPUT_KEY_DEBUG3] = state;
+    if key == glfw3.GLFW_KEY_F12   then input.key[INPUT_KEY_DEBUG4] = state;
 }
 
 handleMouseInput :: func void(button: int32, state: bool, shift: bool)
@@ -76,13 +84,13 @@ handleMouseInput :: func void(button: int32, state: bool, shift: bool)
     if shift
     {
         if (button == glfw3.GLFW_MOUSE_BUTTON_LEFT)  then input.key[INPUT_KEY_SHIFT_LMB] = state;
-        if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_SHIFT_RMB] = state;
     }
     else
     {
         if (button == glfw3.GLFW_MOUSE_BUTTON_LEFT)  then input.key[INPUT_KEY_LMB] = state;
-        if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_RMB] = state;
     }
+
+    if (button == glfw3.GLFW_MOUSE_BUTTON_RIGHT) then input.key[INPUT_KEY_RMB] = state;
 }
 
 handleMotionInput :: func void(xpos: float32, ypos: float32)
