@@ -57,6 +57,7 @@ openWindow :: func void()
     }
 
     windowFullscreen = false;
+
     window = glfw3.glfwCreateWindow(800, 600, "ARPG\0", null, null);
     if window == 0
     {

@@ -414,14 +414,19 @@ renderSpriteAdv :: func void(x: float32, y: float32,
                              cr: float32, cg: float32, cb: float32, ca: float32,
                              s: Sprite)
 {
+    sl := s.l + 1e-4;
+    sr := s.r - 1e-4;
+    sb := s.b + 1e-4;
+    st := s.t - 1e-4;
+
     hw := w / 2.0;
     hh := h / 2.0;
-    tw := s.r - s.l;
-    th := s.t - s.b;
-    utl := s.l + tw * tl;
-    utr := s.l + tw * tr;
-    utb := s.b + th * tb;
-    utt := s.b + th * tt;
+    tw := sr - sl;
+    th := st - sb;
+    utl := sl + tw * tl;
+    utr := sl + tw * tr;
+    utb := sb + th * tb;
+    utt := sb + th * tt;
 
     gl.glBindTexture(gl.GL_TEXTURE_2D, s.tex);
 
@@ -432,10 +437,10 @@ renderSpriteAdv :: func void(x: float32, y: float32,
     gl.glColor4f(cr, cg, cb, ca);
 
     gl.glBegin(gl.GL_QUADS);
-    gl.glTexCoord2f(utl, utb); gl.glVertex2f(-hw - 1e-3, -hh - 1e-3);
-    gl.glTexCoord2f(utr, utb); gl.glVertex2f( hw + 1e-3, -hh - 1e-3);
-    gl.glTexCoord2f(utr, utt); gl.glVertex2f( hw + 1e-3,  hh + 1e-3);
-    gl.glTexCoord2f(utl, utt); gl.glVertex2f(-hw - 1e-3,  hh + 1e-3);
+    gl.glTexCoord2f(utl, utb); gl.glVertex2f(-hw, -hh);
+    gl.glTexCoord2f(utr, utb); gl.glVertex2f( hw, -hh);
+    gl.glTexCoord2f(utr, utt); gl.glVertex2f( hw,  hh);
+    gl.glTexCoord2f(utl, utt); gl.glVertex2f(-hw,  hh);
     gl.glEnd();
 
     gl.glPopMatrix();

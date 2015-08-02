@@ -1,6 +1,6 @@
 import "imports.aspel";
 
-TARGET_ORTHO_HEIGHT: float32 : 9.0;
+TARGET_ORTHO_HEIGHT: float32 : 12.0;
 
 cameraWindowWidth: int32;
 cameraWindowHeight: int32;
