@@ -188,30 +188,45 @@ renderWorld :: func void(world: World^)
     i := 0;
     while i < world.entityList.n
     {
-        if world.entityOccupied[i]
-        {
-            entity := &world.entityList[i];
-            entity.entityType.render(entity);
-
-            if renderDebugHitboxes then
-                renderEntityHitboxes(entity);
-        }
-
+        entity := &world.entityList[i];
+        occupied := world.entityOccupied[i];
         i = i + 1;
+
+        if !occupied then continue;
+
+        x := entity.x;
+        y := entity.y;
+        vw := entity.vw;
+        vh := entity.vh;
+        if (x)      > cameraRight then continue;
+        if (x + vw) < cameraLeft then continue;
+        if (y)      > cameraTop then continue;
+        if (y + vh) < cameraBottom then continue;
+
+        entity.entityType.render(entity);
+        if renderDebugHitboxes then
+            renderEntityHitboxes(entity);
     }
 
     i = 0;
     while i < world.projectileList.n
     {
-        if world.projectileOccupied[i]
-        {
-            projectile := &world.projectileList[i];
-            renderProjectile(projectile);
-
-            if renderDebugHitboxes then
-                renderProjectileHitboxes(projectile);
-        }
-
+        projectile := &world.projectileList[i];
+        occupied := world.projectileOccupied[i];
         i = i + 1;
+
+        if !occupied then continue;
+
+        x := projectile.x;
+        y := projectile.y;
+        r := projectile.radius;
+        if (x - r) > cameraRight then continue;
+        if (x + r) < cameraLeft then continue;
+        if (y - r) > cameraTop then continue;
+        if (y + r) < cameraBottom then continue;
+
+        renderProjectile(projectile);
+        if renderDebugHitboxes then
+            renderProjectileHitboxes(projectile);
     }
 }

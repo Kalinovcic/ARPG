@@ -1,5 +1,7 @@
 import "imports.aspel";
 
+framesPerSecond: int32 = 0;
+
 window: glfw3.GLFWwindow^;
 windowFullscreen: bool;
 
@@ -37,6 +39,11 @@ mouseButtonCallback :: func void(window: glfw3.GLFWwindow^, button: int32,
 mouseMotionCallback :: func void(window: glfw3.GLFWwindow^, xpos: float64, ypos: float64)
 {
     handleMotionInput(cast(float32) xpos, cast(float32) ypos);
+}
+
+resizeCallback :: func void(window: glfw3.GLFWwindow^, width: int32, height: int32)
+{
+    updateCameraViewport();
 }
 
 openWindow :: func void()
@@ -109,6 +116,7 @@ setupWindow :: func void()
     glfw3.glfwSetCursorPosCallback(window, mouseMotionCallback);
     glfw3.glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfw3.glfwSetWindowFocusCallback(window, focusCallback);
+    glfw3.glfwSetWindowSizeCallback(window, resizeCallback);
 
     initGL();
 }
@@ -128,37 +136,51 @@ initGL :: func void()
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
 }
 
+updateCameraViewport :: func void()
+{
+    bufferWidth: int32;
+    bufferHeight: int32;
+    glfw3.glfwGetFramebufferSize(window, &bufferWidth, &bufferHeight);
+    setCameraViewport(bufferWidth, bufferHeight);
+}
+
 renderLoop :: func void()
 {
     gameInit();
+    updateCameraViewport();
 
-    targetFPS :: 60;
-    frameTime: uint64 : cast(uint64)(1000000000.0 / targetFPS);
+    frames: int32 = 0;
+    unprocessedTime: uint64 = 0;
+    previousTime: uint64 = asl.timenanos();
 
-    lastTime := asl.timenanos();
+    ticksPerSecond :: 60;
+    tickTime :: cast(uint64)(1000000000.0 / ticksPerSecond);
+
+    tickCount: int32 = 0;
+    ticked: bool = false;
 
     while glfw3.glfwWindowShouldClose(window) != gl.GL_TRUE
     {
-        currentTime := asl.timenanos();
-        deltaTime := currentTime - lastTime;
+        currentTime: uint64 = asl.timenanos();
+        deltaTime := currentTime - previousTime;
+        previousTime = currentTime;
 
-        width: int32;
-        height: int32;
-        glfw3.glfwGetFramebufferSize(window, &width, &height);
-
-        setCameraViewport(width, height);
-
-        ticked: bool = false;
-        while deltaTime >= frameTime
+        unprocessedTime = unprocessedTime + deltaTime;
+        while unprocessedTime >= tickTime
         {
             processInput();
             gameTick();
             updateInput();
 
+            unprocessedTime = unprocessedTime - tickTime;
+            tickCount = tickCount + 1;
             ticked = true;
 
-            lastTime = lastTime + frameTime;
-            deltaTime = deltaTime - frameTime;
+            if tickCount % 60 == 0
+            {
+                framesPerSecond = frames;
+                frames = 0;
+            }
         }
 
         if ticked
@@ -171,6 +193,9 @@ renderLoop :: func void()
 
             glfw3.glfwSwapBuffers(window);
             glfw3.glfwPollEvents();
+
+            frames = frames + 1;
+            ticked = false;
         }
     }
 }

@@ -327,7 +327,7 @@ renderHUD :: func void()
     halfOW := cameraOrthoWidth / 2.0;
     halfOH := cameraOrthoHeight / 2.0;
     player := world.player;
-    
+
     if player != null
     {
         /* HEALTH BAR and MANA BAR */
@@ -359,6 +359,15 @@ renderHUD :: func void()
 
     /* ENEMY HOVER INFO */
     renderEnemyHoverInfo(player, 0.0, -halfOH + PIX8 * 2.0);
+
+    /* FPS */
+    fpsText: uint8[] : [64];
+    fpsTextOff: int32 = 0;
+    fpsTextOff = fpsTextOff + intToString(framesPerSecond, fpsText, fpsTextOff);
+    fpsTextOff = fpsTextOff + copyString(" fps", fpsText, fpsTextOff);
+    fpsText.n = cast(uint64) fpsTextOff;
+    renderText(fpsText, -halfOW + PIX8 * 1.0, -halfOH + PIX8 * 1.0,
+                        PIX8 * 2.0, TEXT_ALIGN_LEFT);
 
     /* OUT OF FOCUS */
     if !input.focus then
