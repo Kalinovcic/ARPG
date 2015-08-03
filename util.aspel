@@ -23,7 +23,7 @@ intToString :: func int32(a: int64, s: uint8[], o: int32)
 {
     if a == 0
     {
-        s[0] = char "0";
+        s[o] = char "0";
         return 1;
     }
 
@@ -40,6 +40,19 @@ intToString :: func int32(a: int64, s: uint8[], o: int32)
     }
 
     return dc;
+}
+
+floatToString :: func int32(f: float64, s: uint8[], o: int32)
+{
+    i1 := cast(int64) f;
+    i2 := cast(int64)(f * 100 + 0.5) % 100;
+
+    beginO := o;
+    o = o + intToString(i1, s, o);
+    o = o + copyString(".", s, o);
+    o = o + intToString(i2, s, o);
+
+    return o - beginO;
 }
 
 copyString :: func int32(s: uint8[], d: uint8[], o: int32)

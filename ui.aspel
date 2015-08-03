@@ -100,7 +100,7 @@ renderInventoryBox :: func void(x: float32, y: float32, w: float32, h: float32, 
                     0.0, 1.0, 0.0, 1.0,
                     r, g, b, a,
                     getSprite(art.ssUI, 1, 9, 1, 1, 8));
-    renderSpriteAdv(x + edge, y + w - edge,
+    renderSpriteAdv(x + edge, y + h - edge,
                     w - edge * 2.0, edge, 0.0,
                     0.0, 1.0, 0.0, 1.0,
                     r, g, b, a,
@@ -267,6 +267,139 @@ renderEquipment :: func void(inventory: Inventory^, x: float32, y: float32)
     }
 }
 
+renderStatistics :: func void(player: Entity^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    renderInventoryBox(x, y, PIX8 * 60.0, PIX8 * 38.0, PIX8 * 4.0,
+                       0.09, 0.66, 0.97, 0.9);
+
+    attributeNames: asl.string[] : [4];
+    attributeNames[0] = "Strength:";
+    attributeNames[1] = "Agility:";
+    attributeNames[2] = "Vitality:";
+    attributeNames[3] = "Intelligence:";
+
+    attributeValues: int32[] : [4];
+    attributeValues[0] = 32;
+    attributeValues[1] = 61;
+    attributeValues[2] = 27;
+    attributeValues[3] = 52;
+
+    i := 0;
+    while i < attributeNames.n
+    {
+        name := attributeNames[i];
+        value := attributeValues[i];
+
+        valueStr: uint8[] : [32];
+        valueStr.n = cast(uint64) intToString(value, valueStr, 0);
+
+        renderText(name,
+                   x + PIX8 * 2.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
+                   PIX8 * 3.0, TEXT_ALIGN_LEFT);
+
+        renderText(valueStr,
+                   x + PIX8 * 45.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
+                   PIX8 * 3.0, TEXT_ALIGN_LEFT);
+
+        renderInventoryBox(x + PIX8 * 55.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
+                           PIX8 * 3.0, PIX8 * 3.0, PIX8 * 1.0,
+                           0.09, 0.66, 0.97, 0.9);
+
+        renderText("+",
+                   x + PIX8 * 56.75, y + PIX8 * 33.5 - cast(float32) i * PIX8 * 3.5,
+                   PIX8 * 2.0, TEXT_ALIGN_CENTER);
+
+        i = i + 1;
+    }
+
+    detailNames: asl.string[] : [18];
+    detailNames[0]  = "Life:";
+    detailNames[1]  = "Maximum life:";
+    detailNames[2]  = "Life per second:";
+    detailNames[3]  = "Life steal:";
+    detailNames[4]  = "Mana:";
+    detailNames[5]  = "Maximum mana:";
+    detailNames[6]  = "Mana per second:";
+    detailNames[7]  = "Mana steal:";
+    detailNames[8]  = "Damage:";
+    detailNames[9]  = "Critical damage:";
+    detailNames[10] = "Critical chance:";
+    detailNames[11] = "Miss chance:";
+    detailNames[12] = "Swiftness:";
+    detailNames[13] = "Armor:";
+    detailNames[14] = "Dodge chance:";
+    detailNames[15] = "General resistance:";
+    detailNames[16] = "Physical resistance:";
+    detailNames[17] = "Magical resistance:";
+
+    detailValues: float32[] : [18];
+    detailValues[0]  = player.health;
+    detailValues[1]  = player.maxHealth;
+    detailValues[2]  = player.healthPerTick / 60.0;
+    detailValues[3]  = player.healthSteal;
+    detailValues[4]  = player.mana;
+    detailValues[5]  = player.maxMana;
+    detailValues[6]  = player.manaPerTick / 60.0;
+    detailValues[7]  = player.manaSteal;
+    detailValues[8]  = player.damage;
+    detailValues[9]  = player.criticalDamage;
+    detailValues[10] = player.criticalChance;
+    detailValues[11] = player.missChance;
+    detailValues[12] = player.swiftness;
+    detailValues[13] = player.armor;
+    detailValues[14] = player.dodgeChance;
+    detailValues[15] = player.generalResistance;
+    detailValues[16] = player.physicalResistance;
+    detailValues[17] = player.magicalResistance;
+
+    detailOffset: int32 = 1;
+    detailShown: int32 = 6;
+
+    i = 0;
+    while i < detailShown
+    {
+        name := detailNames[detailOffset + i];
+        value := detailValues[detailOffset + i];
+
+        valueStr: uint8[] : [32];
+        valueStr.n = cast(uint64) floatToString(value, valueStr, 0);
+
+        offY := detailShown - i - 1;
+
+        renderText(name,
+                   x + PIX8 * 45.0, y + PIX8 * 5.0 + cast(float32) offY * PIX8 * 2.0,
+                   PIX8 * 2.0, TEXT_ALIGN_RIGHT);
+
+        renderText(valueStr,
+                   x + PIX8 * 46.0, y + PIX8 * 5.0 + cast(float32) offY * PIX8 * 2.0,
+                   PIX8 * 2.0, TEXT_ALIGN_LEFT);
+
+        i = i + 1;
+    }
+
+    if detailOffset > 0
+    {
+        renderInventoryBox(x + PIX8 * 3.0, y + PIX8 * 6.25 + detailShown * PIX8 * 2.0,
+                           PIX8 * 54.0, PIX8 * 2.5, PIX8 * 1.0,
+                           0.09, 0.66, 0.97, 0.9);
+        renderText("<",
+                   x + PIX8 * 30.0, y + PIX8 * 6.5 + detailShown * PIX8 * 2.0,
+                   PIX8 * 2.0, TEXT_ALIGN_CENTER);
+    }
+
+    if (detailOffset + detailShown) < detailNames.n
+    {
+        renderInventoryBox(x + PIX8 * 3.0, y + PIX8 * 1.25,
+                           PIX8 * 54.0, PIX8 * 2.5, PIX8 * 1.0,
+                           0.09, 0.66, 0.97, 0.9);
+        renderText(">",
+                   x + PIX8 * 30.0, y + PIX8 * 1.5,
+                   PIX8 * 2.0, TEXT_ALIGN_CENTER);
+    }
+}
+
 renderEnemyHoverInfo :: func void(player: Entity^, x: float32, y: float32)
 {
     PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
@@ -321,7 +454,7 @@ renderOutOfFocusOverlay :: func void()
                                 PIX8 * 5.0, TEXT_ALIGN_CENTER);
 }
 
-renderHUD :: func void()
+renderHUD :: func void(world: World^)
 {
     PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
     halfOW := cameraOrthoWidth / 2.0;
@@ -354,6 +487,11 @@ renderHUD :: func void()
         {
             renderInventory(&world.playerInventory, -halfOW + PIX8 * 4.0, halfOH - PIX8 * 10.0);
             renderEquipment(&world.playerInventory, halfOW - PIX8 * 8.5, -halfOH + PIX8 * 2.0);
+        }
+
+        if world.statisticsUp
+        {
+            renderStatistics(world.player, -halfOW + PIX8 * 4.0, -halfOH + PIX8 * 2.0);
         }
     }
 

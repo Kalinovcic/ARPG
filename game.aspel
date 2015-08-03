@@ -45,5 +45,5 @@ gameRender :: func void()
 
     // HUD
     gl.glTranslatef(cameraFocusX, cameraFocusY, 0.0);
-    renderHUD();
+    renderHUD(&world);
 }

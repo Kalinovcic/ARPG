@@ -29,9 +29,26 @@ Entity :: type struct
 
     health: float32;
     maxHealth: float32;
+    healthPerTick: float32;
+    healthSteal: float32;
 
     mana: float32;
     maxMana: float32;
+    manaPerTick: float32;
+    manaSteal: float32;
+
+    damage: float32;
+    criticalDamage: float32;
+    criticalChance: float32;
+    missChance: float32;
+
+    swiftness: float32;
+
+    armor: float32;
+    dodgeChance: float32;
+    generalResistance: float32;
+    physicalResistance: float32;
+    magicalResistance: float32;
 
     effects: Effect[];
     animation: Animation;
