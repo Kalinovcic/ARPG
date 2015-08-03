@@ -1,0 +1,115 @@
+import "../imports.aspel";
+
+renderHealthbar :: func void(x: float32, y: float32,
+                             width: float32, height: float32,
+                             health: float32, maxHealth: float32,
+                             r: float32, g: float32, b: float32,
+                             br: float32, bg: float32, bb: float32)
+{
+    bonus := height * 0.125;
+    owidth := width - height * 2.0;
+    fwidth := owidth + bonus * 2.0;
+
+    hperc := health / maxHealth;
+
+    renderSpriteAdv(x + height - bonus, y,
+                    fwidth * hperc, height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, 0.9,
+                    art.ui.healthBarFilling);
+
+    renderSpriteAdv(x + height - bonus + fwidth * hperc, y,
+                    fwidth * (1.0 - hperc), height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    br, bg, bb, 0.9,
+                    art.ui.healthBarFilling);
+
+    renderSpriteAdv(x, y,
+                    height, height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    0.09, 0.66, 0.97, 0.9,
+                    art.ui.healthBarEdge);
+
+    renderSpriteAdv(x + width - height, y,
+                    height, height, 0.0,
+                    1.0, 0.0, 0.0, 1.0,
+                    0.09, 0.66, 0.97, 0.9,
+                    art.ui.healthBarEdge);
+
+    renderSpriteAdv(x + height, y,
+                    owidth, height, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    0.09, 0.66, 0.97, 0.9,
+                    art.ui.healthBar);
+
+
+    healthI: int64 = cast(int64) asl.ceil(health);
+    maxHealthI: int64 = cast(int64) asl.ceil(maxHealth);
+
+    text: uint8[] : [64];
+    textOff: int32 = 0;
+    textOff = textOff + intToString(healthI, text, textOff);
+    textOff = textOff + copyString("/", text, textOff);
+    textOff = textOff + intToString(maxHealthI, text, textOff);
+    text.n = cast(uint64) textOff;
+
+    textHeight := height * 0.5;
+
+    renderText(text, x + width / 2.0, y + (height - textHeight) / 2.0,
+               textHeight, TEXT_ALIGN_CENTER);
+}
+
+renderInventoryBox :: func void(x: float32, y: float32, w: float32, h: float32, edge: float32,
+                                r: float32, g: float32, b: float32, a: float32)
+{
+    // Corners
+    renderSpriteAdv(x, y,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 0, 9, 1, 1, 8));
+    renderSpriteAdv(x + w - edge, y,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 2, 9, 1, 1, 8));
+    renderSpriteAdv(x + w - edge, y + h - edge,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 2, 7, 1, 1, 8));
+    renderSpriteAdv(x, y + h - edge,
+                    edge, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 0, 7, 1, 1, 8));
+
+    // Edges
+    renderSpriteAdv(x, y + edge,
+                    edge, h - edge * 2.0, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 0, 8, 1, 1, 8));
+    renderSpriteAdv(x + w - edge, y + edge,
+                    edge, h - edge * 2.0, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 2, 8, 1, 1, 8));
+    renderSpriteAdv(x + edge, y,
+                    w - edge * 2.0, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 1, 9, 1, 1, 8));
+    renderSpriteAdv(x + edge, y + h - edge,
+                    w - edge * 2.0, edge, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 1, 7, 1, 1, 8));
+
+    // Center
+    renderSpriteAdv(x + edge, y + edge,
+                    w - edge * 2.0, h - edge * 2.0, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    r, g, b, a,
+                    getSprite(art.ssUI, 1, 8, 1, 1, 8));
+}

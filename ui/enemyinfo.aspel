@@ -1,0 +1,37 @@
+import "../imports.aspel";
+
+renderEnemyHoverInfo :: func void(player: Entity^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    mousePointX := input.mouseX + cameraFocusX;
+    mousePointY := input.mouseY + cameraFocusY;
+
+    hit: Entity^[] : [2];
+    hitCount: int32 = pointCollideWithEntity(&world, mousePointX, mousePointY, hit);
+    entity: Entity^ = null;
+
+    hitI := 0;
+    while hitI < hitCount
+    {
+        if hit[hitI] != player
+        {
+            entity = hit[hitI];
+            break;
+        }
+        hitI = hitI + 1;
+    }
+
+    if entity != null
+    {
+        renderText(entity.entityType.name,
+                   x, y + PIX8 * 4.5,
+                   PIX8 * 3.0, TEXT_ALIGN_CENTER);
+
+        renderHealthbar(x - PIX8 * 24.0, y,
+                        PIX8 * 48.0, PIX8 * 4.0,
+                        entity.health, entity.maxHealth,
+                        1.00, 0.16, 0.16,
+                        0.0, 0.0, 0.0);
+    }
+}

@@ -1,0 +1,32 @@
+import "../imports.aspel";
+
+renderActionBar :: func void(abilities: Ability^[], x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    actionBarI: int32 = 0;
+    while actionBarI < abilities.n
+    {
+        renderInventoryBox(x + actionBarI * PIX8 * 7.25,
+                           y - PIX8 * 7.0,
+                           PIX8 * 7.0, PIX8 * 7.0, PIX8 * 2.0,
+                           0.09, 0.66, 0.97, 0.7);
+
+        ability := abilities[actionBarI];
+        if ability != null
+        {
+            tickAnimation(&ability.icon);
+            renderAnimation(&ability.icon,
+                            x + PIX8 * 0.5 + actionBarI * PIX8 * 7.25,
+                            y - PIX8 * 6.5,
+                            PIX8 * 6.0, PIX8 * 6.0, 0.0);
+        }
+
+        renderSprite(x + PIX8 * 0.5 + actionBarI * PIX8 * 7.25,
+                     y - PIX8 * 7.5,
+                     PIX8 * 2.0, PIX8 * 2.0,
+                     art.ui.actionBarSprites[actionBarI]);
+
+        actionBarI = actionBarI + 1;
+    }
+}

@@ -1,0 +1,15 @@
+import "../imports.aspel";
+
+hudBoxClick :: func bool(x: float32, y: float32, w: float32, h: float32)
+{
+    if !(input.key[INPUT_KEY_LMB] && !prevInput.key[INPUT_KEY_LMB]) then
+        return false;
+
+    mx := input.mouseX;
+    my := input.mouseY;
+    dx := mx - x;
+    dy := my - y;
+    if dx < 0.0 || dy < 0.0 then return false;
+    if dx > w || dy > h then return false;
+    return true;
+}

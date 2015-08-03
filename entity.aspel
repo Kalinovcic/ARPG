@@ -37,18 +37,17 @@ Entity :: type struct
     manaPerTick: float32;
     manaSteal: float32;
 
-    damage: float32;
-    criticalDamage: float32;
-    criticalChance: float32;
+    damageMultiplier: float32;
     missChance: float32;
 
     swiftness: float32;
+    attackSpeed: float32;
 
     armor: float32;
     dodgeChance: float32;
-    generalResistance: float32;
     physicalResistance: float32;
-    magicalResistance: float32;
+    magicResistance: float32;
+    poisonResistance: float32;
 
     effects: Effect[];
     animation: Animation;

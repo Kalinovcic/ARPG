@@ -1,0 +1,72 @@
+import "../imports.aspel";
+
+renderInventory :: func void(inventory: Inventory^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    renderText("Inventory",
+               x + PIX8 * 2.0,
+               y - PIX8 * 3.0,
+               PIX8 * 3.0, TEXT_ALIGN_LEFT);
+
+    inventoryYI: int32 = 0;
+    while inventoryYI < INVENTORY_HEIGHT
+    {
+        inventoryXI: int32 = 0;
+        while inventoryXI < INVENTORY_WIDTH
+        {
+            renderInventoryBox(x + inventoryXI * PIX8 * 6.75,
+                               y - PIX8 * 10.0 - inventoryYI * PIX8 * 6.75,
+                               PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
+                               0.09, 0.66, 0.97, 0.9);
+
+            inventoryI := inventoryYI * INVENTORY_WIDTH + inventoryXI;
+            item := &inventory.items[inventoryI];
+
+            if item.itemType != ITEM_TYPE_NONE
+            {
+                renderSpriteAdv(x + PIX8 * 0.25 + inventoryXI * PIX8 * 6.75,
+                                y - PIX8 * 9.75 - inventoryYI * PIX8 * 6.75,
+                                PIX8 * 6.0, PIX8 * 6.0, 0.0,
+                                0.0, 1.0, 0.0, 1.0,
+                                1.0, 1.0, 1.0, 1.0,
+                                art.item.healthPotion);
+            }
+
+            inventoryXI = inventoryXI + 1;
+        }
+
+        inventoryYI = inventoryYI + 1;
+    }
+}
+
+renderEquipment :: func void(inventory: Inventory^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_SLOT_TOTAL];
+    EQUIPMENT_TITLES[0] = "Helmet";
+    EQUIPMENT_TITLES[1] = "Shirt";
+    EQUIPMENT_TITLES[2] = "Pants";
+    EQUIPMENT_TITLES[3] = "Accessories";
+    EQUIPMENT_TITLES[4] = "";
+    EQUIPMENT_TITLES[5] = "";
+    EQUIPMENT_TITLES[6] = "Mount";
+
+    equipmentI: int32 = 0;
+    while equipmentI < EQUIPMENT_SLOT_TOTAL
+    {
+        offY: float32 = (EQUIPMENT_SLOT_TOTAL - equipmentI - 1.0);
+
+        renderInventoryBox(x, y + offY * PIX8 * 6.75,
+                           PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
+                           0.09, 0.66, 0.97, 0.9);
+
+        renderText(EQUIPMENT_TITLES[equipmentI],
+                   x - PIX8 * 0.25,
+                   y + PIX8 * 2.0 + offY * PIX8 * 6.75,
+                   PIX8 * 2.0, TEXT_ALIGN_RIGHT);
+
+        equipmentI = equipmentI + 1;
+    }
+}

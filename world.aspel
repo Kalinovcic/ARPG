@@ -22,8 +22,6 @@ World :: type struct
     projectileOccupied: bool[];
 
     player: Entity^;
-    inventoryUp: bool;
-    statisticsUp: bool;
     playerAbilities: Ability^[];
     playerInventory: Inventory;
 };
@@ -101,9 +99,6 @@ initWorld :: func void(world: World^)
     world.projectileList = STATIC_WORLD_PROJECTILE_LIST;
     world.projectileOccupied = STATIC_WORLD_PROJECTILE_OCCUPIED;
     asl.memset(world.projectileOccupied, 0, sizeof(bool) * world.projectileOccupied.n);
-
-    world.inventoryUp = false;
-    world.statisticsUp = false;
 
     world.playerAbilities = STATIC_WORLD_PLAYER_ABILITIES;
     asl.memset(world.playerAbilities, 0, sizeof(Ability^) * world.playerAbilities.n);

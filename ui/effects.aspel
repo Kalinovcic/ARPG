@@ -1,0 +1,52 @@
+import "../imports.aspel";
+
+renderEffectBar :: func void(effects: Effect[], x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    activeEffectCount: int32 = 0;
+    effectI: int32 = 0;
+    while effectI < effects.n
+    {
+        effect := effects[effectI];
+        effectI = effectI + 1;
+
+        if effect.id == EFFECT_TYPEID_NONE then
+            continue;
+
+        bgColorR := 0.09;
+        bgColorG := 0.97;
+        bgColorB := 0.36;
+        if effect.iconbg == EFFECT_ICONBG_NEGATIVE
+        {
+            bgColorR = 0.97;
+            bgColorG = 0.09;
+            bgColorB = 0.36;
+        }
+
+        renderInventoryBox(x - PIX8 * 5.0 - activeEffectCount * PIX8 * 5.25,
+                           y - PIX8 * 5.0,
+                           PIX8 * 5.0, PIX8 * 5.0, PIX8 * 2.0,
+                           bgColorR, bgColorG, bgColorB, 0.8);
+
+        renderSpriteAdv(x - PIX8 * 4.5 - activeEffectCount * PIX8 * 5.25,
+                        y - PIX8 * 5.0,
+                        PIX8 * 4.0, PIX8 * 4.0, 0.0,
+                        0.0, 1.0, 0.0, 1.0,
+                        1.0, 1.0, 1.0, 1.0,
+                        effect.icon);
+
+        // CLEANUP: sprintf
+        sec: int64 = cast(int64) asl.ceil(effect.time / 60.0);
+
+        text: uint8[] : [64];
+        textOff: int32 = 0;
+        textOff = textOff + intToString(sec, text, textOff);
+        text.n = cast(uint64) textOff;
+
+        renderText(text, x - PIX8 * 4.5 - activeEffectCount * PIX8 * 5.25,
+                         y - PIX8 * 6.0, PIX8 * 2.0, TEXT_ALIGN_LEFT);
+
+        activeEffectCount = activeEffectCount + 1;
+    }
+}

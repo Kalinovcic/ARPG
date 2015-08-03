@@ -7,6 +7,8 @@ gameInit :: func void()
     loadArt();
 
     initInputState();
+
+    initHUD();
     initAbilities();
     initEffects();
     initParticles();
@@ -22,17 +24,7 @@ gameTick :: func void()
 {
     if input.focus
     {
-        // Inventory toggle
-        if input.key[INPUT_KEY_ITEMS] && !prevInput.key[INPUT_KEY_ITEMS] then
-            world.inventoryUp = !world.inventoryUp;
-
-        // Statistics toggle
-        if input.key[INPUT_KEY_STATS] && !prevInput.key[INPUT_KEY_STATS] then
-            world.statisticsUp = !world.statisticsUp;
-
-        if input.key[INPUT_KEY_F4] && !prevInput.key[INPUT_KEY_F4] then
-            toggleFullscreen();
-
+        tickHUD(&world);
         tickWorld(&world);
     }
 }

@@ -47,3 +47,11 @@ import "entity/overlord.aspel";
 import "effect/healthRegen.aspel";
 import "effect/manaRegen.aspel";
 import "effect/poison.aspel";
+
+import "ui/stats.aspel";
+import "ui/inventory.aspel";
+import "ui/enemyinfo.aspel";
+import "ui/effects.aspel";
+import "ui/actionbar.aspel";
+import "ui/renderutil.aspel";
+import "ui/tickutil.aspel";
