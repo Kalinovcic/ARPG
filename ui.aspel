@@ -2,8 +2,7 @@ import "imports.aspel";
 
 HUDState :: type struct
 {
-    inventoryUp: bool;
-
+    inventory: HUDInventoryState;
     stats: HUDStatsState;
 };
 
@@ -11,26 +10,29 @@ hud: HUDState;
 
 initHUD :: func void()
 {
-    hud.inventoryUp = false;
-
+    initInventoryHUD();
     initStatsHUD();
 }
 
 tickHUD :: func void(world: World^)
 {
-    if input.key[INPUT_KEY_ITEMS] && !prevInput.key[INPUT_KEY_ITEMS]
-    {
-        hud.inventoryUp = !hud.inventoryUp;
-    }
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+    halfOW := cameraOrthoWidth / 2.0;
+    halfOH := cameraOrthoHeight / 2.0;
+    player := world.player;
 
     if input.key[INPUT_KEY_F4] && !prevInput.key[INPUT_KEY_F4] then
         toggleFullscreen();
 
-    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
-    halfOW := cameraOrthoWidth / 2.0;
-    halfOH := cameraOrthoHeight / 2.0;
+    if player != null
+    {
+        tickInventory(&world.playerInventory, -halfOW + PIX8 * 4.0, halfOH - PIX8 * 10.0);
+        tickEquipment(&world.playerInventory, halfOW - PIX8 * 8.5, -halfOH + PIX8 * 2.0);
 
-    tickStatistics(-halfOW + PIX8 * 4.0, -halfOH + PIX8 * 2.0);
+        tickStatistics(-halfOW + PIX8 * 4.0, -halfOH + PIX8 * 2.0);
+
+        tickHandItem(world);
+    }
 }
 
 renderOutOfFocusOverlay :: func void()
@@ -80,16 +82,14 @@ renderHUD :: func void(world: World^)
         renderEffectBar(world.player.effects, halfOW - PIX8 * 6.5, halfOH - PIX8 * 12.5);
 
         /* INVENTORY and EQUIPMENT */
-        if hud.inventoryUp
-        {
-            renderInventory(&world.playerInventory, -halfOW + PIX8 * 4.0, halfOH - PIX8 * 10.0);
-            renderEquipment(&world.playerInventory, halfOW - PIX8 * 8.5, -halfOH + PIX8 * 2.0);
-        }
+        renderInventory(&world.playerInventory, -halfOW + PIX8 * 4.0, halfOH - PIX8 * 10.0);
+        renderEquipment(&world.playerInventory, halfOW - PIX8 * 8.5, -halfOH + PIX8 * 2.0);
 
-        if hud.stats.up
-        {
-            renderStatistics(world.player, -halfOW + PIX8 * 4.0, -halfOH + PIX8 * 2.0);
-        }
+        /* STATISTICS */
+        renderStatistics(world.player, -halfOW + PIX8 * 4.0, -halfOH + PIX8 * 2.0);
+
+        /* ITEM IN HAND */
+        renderHandItem();
     }
 
     /* ENEMY HOVER INFO */

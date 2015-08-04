@@ -3,10 +3,65 @@
 ITEM_TYPE_NONE :: 0;
 ITEM_TYPE_POTION :: 1;
 
+ITEM_POTION_HEALTH  :: 0;
+ITEM_POTION_MANA    :: 1;
+ITEM_POTION_INSTANT :: 2;
+
+namespace itemType
+{
+    potion: Item;
+}
+
 Item :: type struct
 {
     itemType: int32;
+    itemKind: int32;
+
+    use: delegate bool(item: Item^, world: World^, targetX: float32, targetY: float32);
 };
+
+useItemPotion :: func bool(item: Item^, world: World^, targetX: float32, targetY: float32)
+{
+    player := world.player;
+    ikind := item.itemKind;
+
+    if ikind == ITEM_POTION_HEALTH || ikind == ITEM_POTION_INSTANT then
+        applyEffect(player.effects, &effect.healthRegen, 300, 1.0);
+    if ikind == ITEM_POTION_MANA || ikind == ITEM_POTION_INSTANT then
+        applyEffect(player.effects, &effect.manaRegen, 300, 1.0);
+
+    return true;
+}
+
+initItems :: func void()
+{
+    itemType.potion.itemType = ITEM_TYPE_POTION;
+    itemType.potion.use = useItemPotion;
+}
+
+renderItem :: func void(item: Item^, x: float32, y: float32,
+                        w: float32, h: float32)
+{
+    itype := item.itemType;
+    ikind := item.itemKind;
+
+    sprite: Sprite = art.ui.invalidSprite;
+
+    if itype == ITEM_TYPE_POTION
+    {
+        if ikind == ITEM_POTION_HEALTH then
+            sprite = art.item.healthPotion;
+        else if ikind == ITEM_POTION_MANA then
+            sprite = art.item.manaPotion;
+        else if ikind == ITEM_POTION_INSTANT then
+            sprite = art.item.instantPotion;
+    }
+
+    renderSpriteAdv(x, y, w, h, 0.0,
+                    0.0, 1.0, 0.0, 1.0,
+                    1.0, 1.0, 1.0, 1.0,
+                    sprite);
+}
 
 INVENTORY_WIDTH :: 8;
 INVENTORY_HEIGHT :: 3;
@@ -42,7 +97,8 @@ initInventory :: func void(inventory: Inventory^)
     i := 0;
     while i < 16
     {
-        inventory.items[i].itemType = ITEM_TYPE_POTION;
+        inventory.items[i] = itemType.potion;
+        inventory.items[i].itemKind = i % 3;
         i = i + 1;
     }
 }

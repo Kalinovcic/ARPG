@@ -117,6 +117,7 @@ namespace art
     {
         healthPotion: Sprite;
         manaPotion: Sprite;
+        instantPotion: Sprite;
     }
 
     namespace particle
@@ -289,6 +290,7 @@ loadArt :: func void()
 
     art.item.healthPotion = getSprite(art.ssItems, 0, 0, 2, 2, 8);
     art.item.manaPotion = getSprite(art.ssItems, 2, 0, 2, 2, 8);
+    art.item.instantPotion = getSprite(art.ssItems, 4, 0, 2, 2, 8);
 
     /* PARTICLES */
 

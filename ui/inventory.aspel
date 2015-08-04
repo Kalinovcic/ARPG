@@ -1,72 +1,227 @@
 import "../imports.aspel";
 
+HUDInventoryState :: type struct
+{
+    up: bool;
+
+    handItem: Item;
+};
+
+initInventoryHUD :: func void()
+{
+    hud.inventory.up = false;
+
+    hud.inventory.handItem.itemType = ITEM_TYPE_NONE;
+}
+
+tickInventory :: func void(inventory: Inventory^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    if input.key[INPUT_KEY_ITEMS] && !prevInput.key[INPUT_KEY_ITEMS]
+    {
+        hud.inventory.up = !hud.inventory.up;
+    }
+
+    if hud.inventory.up
+    {
+        inventoryYI: int32 = 0;
+        while inventoryYI < INVENTORY_HEIGHT
+        {
+            inventoryXI: int32 = 0;
+            while inventoryXI < INVENTORY_WIDTH
+            {
+                if hudBoxClick(x + inventoryXI * PIX8 * 6.75,
+                               y - PIX8 * 10.0 - inventoryYI * PIX8 * 6.75,
+                               PIX8 * 6.5, PIX8 * 6.5)
+                {
+                    inventoryI := inventoryYI * INVENTORY_WIDTH + inventoryXI;
+                    item := &inventory.items[inventoryI];
+
+                    hand := &hud.inventory.handItem;
+                    if hand.itemType == ITEM_TYPE_NONE
+                    {
+                        ^hand = ^item;
+                        item.itemType = ITEM_TYPE_NONE;
+                    }
+                    else
+                    {
+                        copy: Item = ^item;
+                        ^item = ^hand;
+                        ^hand = copy;
+                    }
+                }
+
+                inventoryXI = inventoryXI + 1;
+            }
+
+            inventoryYI = inventoryYI + 1;
+        }
+
+        inventoryTabWidth := cast(float32) INVENTORY_WIDTH * PIX8 * 6.75 - PIX8 * 0.25;
+        inventoryTabHeight := cast(float32) INVENTORY_HEIGHT * PIX8 * 6.75 - PIX8 * 0.25;
+
+        if hudBoxClick(x, y - PIX8 * 3.25 - inventoryTabHeight,
+                       inventoryTabWidth, inventoryTabHeight)
+        {
+            input.key[INPUT_KEY_LMB] = false;
+        }
+    }
+}
+
+tickEquipment :: func void(inventory: Inventory^, x: float32, y: float32)
+{
+    PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+    if hud.inventory.up
+    {
+        equipmentI: int32 = 0;
+        while equipmentI < EQUIPMENT_SLOT_TOTAL
+        {
+            offY: float32 = (EQUIPMENT_SLOT_TOTAL - equipmentI - 1.0);
+
+            if hudBoxClick(x, y + offY * PIX8 * 6.75,
+                           PIX8 * 6.5, PIX8 * 6.5)
+            {
+                item := &inventory.equipment[equipmentI];
+
+                hand := &hud.inventory.handItem;
+                if hand.itemType == ITEM_TYPE_NONE
+                {
+                    ^hand = ^item;
+                    item.itemType = ITEM_TYPE_NONE;
+                }
+                else
+                {
+                    copy: Item = ^item;
+                    ^item = ^hand;
+                    ^hand = copy;
+                }
+            }
+
+            equipmentI = equipmentI + 1;
+        }
+
+        equipmentTabWidth := PIX8 * 6.5;
+        equipmentTabHeight := cast(float32) EQUIPMENT_SLOT_TOTAL * PIX8 * 6.75 - PIX8 * 0.25;
+
+        if hudBoxClick(x, y, equipmentTabWidth, equipmentTabHeight)
+        {
+            input.key[INPUT_KEY_LMB] = false;
+        }
+    }
+}
+
+tickHandItem :: func void(world: World^)
+{
+    if input.key[INPUT_KEY_RMB] && !prevInput.key[INPUT_KEY_RMB]
+    {
+        hand := &hud.inventory.handItem;
+        if hand.itemType != ITEM_TYPE_NONE
+        {
+            tx := input.mouseX + cameraFocusX;
+            ty := input.mouseY + cameraFocusY;
+
+            if hand.use(hand, world, tx, ty) then
+                hand.itemType = ITEM_TYPE_NONE;
+            
+            input.key[INPUT_KEY_RMB] = false;
+        }
+    }
+}
+
 renderInventory :: func void(inventory: Inventory^, x: float32, y: float32)
 {
     PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
 
-    renderText("Inventory",
-               x + PIX8 * 2.0,
-               y - PIX8 * 3.0,
-               PIX8 * 3.0, TEXT_ALIGN_LEFT);
-
-    inventoryYI: int32 = 0;
-    while inventoryYI < INVENTORY_HEIGHT
+    if hud.inventory.up
     {
-        inventoryXI: int32 = 0;
-        while inventoryXI < INVENTORY_WIDTH
+        renderText("Inventory",
+                   x + PIX8 * 2.0,
+                   y - PIX8 * 3.0,
+                   PIX8 * 3.0, TEXT_ALIGN_LEFT);
+
+        inventoryYI: int32 = 0;
+        while inventoryYI < INVENTORY_HEIGHT
         {
-            renderInventoryBox(x + inventoryXI * PIX8 * 6.75,
-                               y - PIX8 * 10.0 - inventoryYI * PIX8 * 6.75,
-                               PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
-                               0.09, 0.66, 0.97, 0.9);
-
-            inventoryI := inventoryYI * INVENTORY_WIDTH + inventoryXI;
-            item := &inventory.items[inventoryI];
-
-            if item.itemType != ITEM_TYPE_NONE
+            inventoryXI: int32 = 0;
+            while inventoryXI < INVENTORY_WIDTH
             {
-                renderSpriteAdv(x + PIX8 * 0.25 + inventoryXI * PIX8 * 6.75,
-                                y - PIX8 * 9.75 - inventoryYI * PIX8 * 6.75,
-                                PIX8 * 6.0, PIX8 * 6.0, 0.0,
-                                0.0, 1.0, 0.0, 1.0,
-                                1.0, 1.0, 1.0, 1.0,
-                                art.item.healthPotion);
+                renderInventoryBox(x + inventoryXI * PIX8 * 6.75,
+                                   y - PIX8 * 10.0 - inventoryYI * PIX8 * 6.75,
+                                   PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
+                                   0.09, 0.66, 0.97, 0.9);
+
+                inventoryI := inventoryYI * INVENTORY_WIDTH + inventoryXI;
+                item := &inventory.items[inventoryI];
+
+                if item.itemType != ITEM_TYPE_NONE
+                {
+                    renderItem(item, x + PIX8 * 0.25 + inventoryXI * PIX8 * 6.75,
+                                     y - PIX8 * 9.75 - inventoryYI * PIX8 * 6.75,
+                                     PIX8 * 6.0, PIX8 * 6.0);
+                }
+
+                inventoryXI = inventoryXI + 1;
             }
 
-            inventoryXI = inventoryXI + 1;
+            inventoryYI = inventoryYI + 1;
         }
-
-        inventoryYI = inventoryYI + 1;
     }
 }
 
 renderEquipment :: func void(inventory: Inventory^, x: float32, y: float32)
 {
+    if hud.inventory.up
+    {
+        PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
+
+        EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_SLOT_TOTAL];
+        EQUIPMENT_TITLES[0] = "Helmet";
+        EQUIPMENT_TITLES[1] = "Shirt";
+        EQUIPMENT_TITLES[2] = "Pants";
+        EQUIPMENT_TITLES[3] = "Accessories";
+        EQUIPMENT_TITLES[4] = "";
+        EQUIPMENT_TITLES[5] = "";
+        EQUIPMENT_TITLES[6] = "Mount";
+
+        equipmentI: int32 = 0;
+        while equipmentI < EQUIPMENT_SLOT_TOTAL
+        {
+            offY: float32 = (EQUIPMENT_SLOT_TOTAL - equipmentI - 1.0);
+
+            renderInventoryBox(x, y + offY * PIX8 * 6.75,
+                               PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
+                               0.09, 0.66, 0.97, 0.9);
+
+            item := &inventory.equipment[equipmentI];
+
+            if item.itemType != ITEM_TYPE_NONE
+            {
+                renderItem(item, x + PIX8 * 0.25,
+                                 y + PIX8 * 0.25 + offY * PIX8 * 6.75,
+                                 PIX8 * 6.0, PIX8 * 6.0);
+            }
+
+            renderText(EQUIPMENT_TITLES[equipmentI],
+                       x - PIX8 * 0.25,
+                       y + PIX8 * 2.0 + offY * PIX8 * 6.75,
+                       PIX8 * 2.0, TEXT_ALIGN_RIGHT);
+
+            equipmentI = equipmentI + 1;
+        }
+    }
+}
+
+renderHandItem :: func void()
+{
     PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
 
-    EQUIPMENT_TITLES: asl.string[] : [EQUIPMENT_SLOT_TOTAL];
-    EQUIPMENT_TITLES[0] = "Helmet";
-    EQUIPMENT_TITLES[1] = "Shirt";
-    EQUIPMENT_TITLES[2] = "Pants";
-    EQUIPMENT_TITLES[3] = "Accessories";
-    EQUIPMENT_TITLES[4] = "";
-    EQUIPMENT_TITLES[5] = "";
-    EQUIPMENT_TITLES[6] = "Mount";
-
-    equipmentI: int32 = 0;
-    while equipmentI < EQUIPMENT_SLOT_TOTAL
+    hand := &hud.inventory.handItem;
+    if hand.itemType != ITEM_TYPE_NONE
     {
-        offY: float32 = (EQUIPMENT_SLOT_TOTAL - equipmentI - 1.0);
-
-        renderInventoryBox(x, y + offY * PIX8 * 6.75,
-                           PIX8 * 6.5, PIX8 * 6.5, PIX8 * 2.0,
-                           0.09, 0.66, 0.97, 0.9);
-
-        renderText(EQUIPMENT_TITLES[equipmentI],
-                   x - PIX8 * 0.25,
-                   y + PIX8 * 2.0 + offY * PIX8 * 6.75,
-                   PIX8 * 2.0, TEXT_ALIGN_RIGHT);
-
-        equipmentI = equipmentI + 1;
+        renderItem(hand, input.mouseX - PIX8 * 3.0,
+                         input.mouseY - PIX8 * 3.0,
+                         PIX8 * 6.0, PIX8 * 6.0);
     }
 }

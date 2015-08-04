@@ -45,11 +45,11 @@ tickStatistics :: func void(x: float32, y: float32)
                 hud.stats.offset = hud.stats.offset + 1;
             }
         }
-    }
 
-    if hudBoxClick(x, y, PIX8 * 60.0, PIX8 * 38.0)
-    {
-        input.key[INPUT_KEY_LMB] = false;
+        if hudBoxClick(x, y, PIX8 * 60.0, PIX8 * 38.0)
+        {
+            input.key[INPUT_KEY_LMB] = false;
+        }
     }
 }
 
@@ -57,126 +57,129 @@ renderStatistics :: func void(player: Entity^, x: float32, y: float32)
 {
     PIX8: float32 : (8.0 / cast(float32) cameraWindowHeight) * cameraOrthoHeight;
 
-    renderInventoryBox(x, y, PIX8 * 60.0, PIX8 * 38.0, PIX8 * 4.0,
-                       0.09, 0.66, 0.97, 0.9);
-
-    attributeNames: asl.string[] : [4];
-    attributeNames[0] = "Strength:";
-    attributeNames[1] = "Agility:";
-    attributeNames[2] = "Vitality:";
-    attributeNames[3] = "Intelligence:";
-
-    attributeValues: int32[] : [4];
-    attributeValues[0] = 32;
-    attributeValues[1] = 61;
-    attributeValues[2] = 27;
-    attributeValues[3] = 52;
-
-    i := 0;
-    while i < attributeNames.n
+    if hud.stats.up
     {
-        name := attributeNames[i];
-        value := attributeValues[i];
-
-        valueStr: uint8[] : [32];
-        valueStr.n = cast(uint64) intToString(value, valueStr, 0);
-
-        renderText(name,
-                   x + PIX8 * 2.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
-                   PIX8 * 3.0, TEXT_ALIGN_LEFT);
-
-        renderText(valueStr,
-                   x + PIX8 * 45.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
-                   PIX8 * 3.0, TEXT_ALIGN_LEFT);
-
-        renderInventoryBox(x + PIX8 * 55.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
-                           PIX8 * 3.0, PIX8 * 3.0, PIX8 * 1.0,
+        renderInventoryBox(x, y, PIX8 * 60.0, PIX8 * 38.0, PIX8 * 4.0,
                            0.09, 0.66, 0.97, 0.9);
 
-        renderText("+",
-                   x + PIX8 * 56.75, y + PIX8 * 33.5 - cast(float32) i * PIX8 * 3.5,
-                   PIX8 * 2.0, TEXT_ALIGN_CENTER);
+        attributeNames: asl.string[] : [4];
+        attributeNames[0] = "Strength:";
+        attributeNames[1] = "Agility:";
+        attributeNames[2] = "Vitality:";
+        attributeNames[3] = "Intelligence:";
 
-        i = i + 1;
-    }
+        attributeValues: int32[] : [4];
+        attributeValues[0] = 32;
+        attributeValues[1] = 61;
+        attributeValues[2] = 27;
+        attributeValues[3] = 52;
 
-    detailNames: asl.string[] : [hud.stats.count];
-    detailNames[0]  = "Life:";
-    detailNames[1]  = "Maximum life:";
-    detailNames[2]  = "Life per second:";
-    detailNames[3]  = "Life steal:";
-    detailNames[4]  = "Mana:";
-    detailNames[5]  = "Maximum mana:";
-    detailNames[6]  = "Mana per second:";
-    detailNames[7]  = "Mana steal:";
-    detailNames[8]  = "Damage multiplier:";
-    detailNames[9]  = "Miss chance:";
-    detailNames[10] = "Swiftness:";
-    detailNames[11] = "Attack speed:";
-    detailNames[12] = "Armor:";
-    detailNames[13] = "Dodge chance:";
-    detailNames[14] = "Physical resistance:";
-    detailNames[15] = "Magic resistance:";
-    detailNames[16] = "Poison resistance:";
+        i := 0;
+        while i < attributeNames.n
+        {
+            name := attributeNames[i];
+            value := attributeValues[i];
 
-    detailValues: float32[] : [hud.stats.count];
-    detailValues[0]  = player.health;
-    detailValues[1]  = player.maxHealth;
-    detailValues[2]  = player.healthPerTick / 60.0;
-    detailValues[3]  = player.healthSteal;
-    detailValues[4]  = player.mana;
-    detailValues[5]  = player.maxMana;
-    detailValues[6]  = player.manaPerTick / 60.0;
-    detailValues[7]  = player.manaSteal;
-    detailValues[8]  = player.damageMultiplier;
-    detailValues[9]  = player.missChance;
-    detailValues[10] = player.swiftness;
-    detailValues[11] = player.attackSpeed;
-    detailValues[12] = player.armor;
-    detailValues[13] = player.dodgeChance;
-    detailValues[14] = player.physicalResistance;
-    detailValues[15] = player.magicResistance;
-    detailValues[16] = player.poisonResistance;
+            valueStr: uint8[] : [32];
+            valueStr.n = cast(uint64) intToString(value, valueStr, 0);
 
-    i = 0;
-    while i < hud.stats.shown
-    {
-        name := detailNames[hud.stats.offset + i];
-        value := detailValues[hud.stats.offset + i];
+            renderText(name,
+                       x + PIX8 * 2.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
+                       PIX8 * 3.0, TEXT_ALIGN_LEFT);
 
-        valueStr: uint8[] : [32];
-        valueStr.n = cast(uint64) floatToString(value, valueStr, 0);
+            renderText(valueStr,
+                       x + PIX8 * 45.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
+                       PIX8 * 3.0, TEXT_ALIGN_LEFT);
 
-        offY := hud.stats.shown - i - 1;
+            renderInventoryBox(x + PIX8 * 55.0, y + PIX8 * 33.0 - cast(float32) i * PIX8 * 3.5,
+                               PIX8 * 3.0, PIX8 * 3.0, PIX8 * 1.0,
+                               0.09, 0.66, 0.97, 0.9);
 
-        renderText(name,
-                   x + PIX8 * 45.0, y + PIX8 * 5.0 + cast(float32) offY * PIX8 * 2.0,
-                   PIX8 * 2.0, TEXT_ALIGN_RIGHT);
+            renderText("+",
+                       x + PIX8 * 56.75, y + PIX8 * 33.5 - cast(float32) i * PIX8 * 3.5,
+                       PIX8 * 2.0, TEXT_ALIGN_CENTER);
 
-        renderText(valueStr,
-                   x + PIX8 * 46.0, y + PIX8 * 5.0 + cast(float32) offY * PIX8 * 2.0,
-                   PIX8 * 2.0, TEXT_ALIGN_LEFT);
+            i = i + 1;
+        }
 
-        i = i + 1;
-    }
+        detailNames: asl.string[] : [hud.stats.count];
+        detailNames[0]  = "Life:";
+        detailNames[1]  = "Maximum life:";
+        detailNames[2]  = "Life per second:";
+        detailNames[3]  = "Life steal:";
+        detailNames[4]  = "Mana:";
+        detailNames[5]  = "Maximum mana:";
+        detailNames[6]  = "Mana per second:";
+        detailNames[7]  = "Mana steal:";
+        detailNames[8]  = "Damage multiplier:";
+        detailNames[9]  = "Miss chance:";
+        detailNames[10] = "Swiftness:";
+        detailNames[11] = "Attack speed:";
+        detailNames[12] = "Armor:";
+        detailNames[13] = "Dodge chance:";
+        detailNames[14] = "Physical resistance:";
+        detailNames[15] = "Magic resistance:";
+        detailNames[16] = "Poison resistance:";
 
-    if hud.stats.offset > 0
-    {
-        renderInventoryBox(x + PIX8 * 3.0, y + PIX8 * 6.25 + hud.stats.shown * PIX8 * 2.0,
-                           PIX8 * 54.0, PIX8 * 2.5, PIX8 * 1.0,
-                           0.09, 0.66, 0.97, 0.9);
-        renderText("<",
-                   x + PIX8 * 30.0, y + PIX8 * 6.5 + hud.stats.shown * PIX8 * 2.0,
-                   PIX8 * 2.0, TEXT_ALIGN_CENTER);
-    }
+        detailValues: float32[] : [hud.stats.count];
+        detailValues[0]  = player.health;
+        detailValues[1]  = player.maxHealth;
+        detailValues[2]  = player.healthPerTick / 60.0;
+        detailValues[3]  = player.healthSteal;
+        detailValues[4]  = player.mana;
+        detailValues[5]  = player.maxMana;
+        detailValues[6]  = player.manaPerTick / 60.0;
+        detailValues[7]  = player.manaSteal;
+        detailValues[8]  = player.damageMultiplier;
+        detailValues[9]  = player.missChance;
+        detailValues[10] = player.swiftness;
+        detailValues[11] = player.attackSpeed;
+        detailValues[12] = player.armor;
+        detailValues[13] = player.dodgeChance;
+        detailValues[14] = player.physicalResistance;
+        detailValues[15] = player.magicResistance;
+        detailValues[16] = player.poisonResistance;
 
-    if (hud.stats.offset + hud.stats.shown) < hud.stats.count
-    {
-        renderInventoryBox(x + PIX8 * 3.0, y + PIX8 * 1.25,
-                           PIX8 * 54.0, PIX8 * 2.5, PIX8 * 1.0,
-                           0.09, 0.66, 0.97, 0.9);
-        renderText(">",
-                   x + PIX8 * 30.0, y + PIX8 * 1.5,
-                   PIX8 * 2.0, TEXT_ALIGN_CENTER);
+        i = 0;
+        while i < hud.stats.shown
+        {
+            name := detailNames[hud.stats.offset + i];
+            value := detailValues[hud.stats.offset + i];
+
+            valueStr: uint8[] : [32];
+            valueStr.n = cast(uint64) floatToString(value, valueStr, 0);
+
+            offY := hud.stats.shown - i - 1;
+
+            renderText(name,
+                       x + PIX8 * 45.0, y + PIX8 * 5.0 + cast(float32) offY * PIX8 * 2.0,
+                       PIX8 * 2.0, TEXT_ALIGN_RIGHT);
+
+            renderText(valueStr,
+                       x + PIX8 * 46.0, y + PIX8 * 5.0 + cast(float32) offY * PIX8 * 2.0,
+                       PIX8 * 2.0, TEXT_ALIGN_LEFT);
+
+            i = i + 1;
+        }
+
+        if hud.stats.offset > 0
+        {
+            renderInventoryBox(x + PIX8 * 3.0, y + PIX8 * 6.25 + hud.stats.shown * PIX8 * 2.0,
+                               PIX8 * 54.0, PIX8 * 2.5, PIX8 * 1.0,
+                               0.09, 0.66, 0.97, 0.9);
+            renderText("<",
+                       x + PIX8 * 30.0, y + PIX8 * 6.5 + hud.stats.shown * PIX8 * 2.0,
+                       PIX8 * 2.0, TEXT_ALIGN_CENTER);
+        }
+
+        if (hud.stats.offset + hud.stats.shown) < hud.stats.count
+        {
+            renderInventoryBox(x + PIX8 * 3.0, y + PIX8 * 1.25,
+                               PIX8 * 54.0, PIX8 * 2.5, PIX8 * 1.0,
+                               0.09, 0.66, 0.97, 0.9);
+            renderText(">",
+                       x + PIX8 * 30.0, y + PIX8 * 1.5,
+                       PIX8 * 2.0, TEXT_ALIGN_CENTER);
+        }
     }
 }

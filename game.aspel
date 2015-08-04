@@ -9,6 +9,7 @@ gameInit :: func void()
     initInputState();
 
     initHUD();
+    initItems();
     initAbilities();
     initEffects();
     initParticles();
